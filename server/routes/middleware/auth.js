@@ -2,6 +2,9 @@ module.exports = {
   /* Helper functions for verifying authentication */
   // Check user is allowed to load SPA
   isAuth(req, res, next) {
+    if (req.url == '/campaigns/cronjobcampaigns') {
+      return next();
+    }
     if (req.isAuthenticated()) {
       return next();
     } else {

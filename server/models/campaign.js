@@ -8,6 +8,8 @@ module.exports = function(sequelize, DataTypes) {
     emailBody: DataTypes.TEXT,
     type: DataTypes.STRING,
     slug: DataTypes.STRING,
+    scheduledatetime: DataTypes.STRING,
+    userId: DataTypes.INTEGER,
     trackingPixelEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     trackLinksEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     unsubscribeLinkEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },

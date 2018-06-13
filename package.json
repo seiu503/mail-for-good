@@ -72,6 +72,7 @@
     "react-bootstrap-table": "^3.4.0",
     "react-cookie": "^1.0.4",
     "react-copy-to-clipboard": "^5.0.0",
+    "react-datetime": "^2.14.0",
     "react-dom": "^15.6.1",
     "react-highcharts": "^11.0.0",
     "react-hot-loader": "^3.0.0-beta.7",

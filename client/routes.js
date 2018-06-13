@@ -9,6 +9,8 @@ import Dashboard from './containers/Dashboard';
 import CreateCampaign from './containers/campaigns/CreateCampaign';
 import ManageCampaigns from './components/campaigns/ManageCampaigns';
 import CampaignView from './containers/campaigns/CampaignView';
+// Cron job For campigns
+import CronJobCampaigns from './components/campaigns/CronJobCampaigns';
 // Templates
 import CreateTemplate from './containers/templates/CreateTemplate';
 import ManageTemplates from './containers/templates/ManageTemplates';
@@ -76,6 +78,7 @@ export default class RouterConfig extends Component {
           <Route path="campaigns" onEnter={this.onEnter} >
             <Route path="create" component={CreateCampaign}/>
             <Route path="manage" component={ManageCampaigns}/>
+            <Route path="cronjobcampaigns" component={CronJobCampaigns} />
             <Route path="manage/:slug" component={CampaignView}/>
           </Route>
 

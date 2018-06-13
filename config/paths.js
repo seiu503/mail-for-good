@@ -15,8 +15,10 @@ const routes = {
   PATH_LOGOUT: returnRoute('/logout'),
   // Campaigns
   PATH_CAMPAIGN: returnRoute('/api/campaign'),
+  PATH_ALLCAMPAIGN: returnRoute('/api/allcampaign'),
   PATH_CAMPAIGNS_EXPORT: returnRoute('/api/campaign/subscribers/csv'),
   PATH_CAMPAIGNS_SEND: returnRoute('/api/send'),
+  PATH_CRONCAMPAIGNS_SEND: returnRoute('/api/cronsend'),
   PATH_CAMPAIGNS_STOP: returnRoute('/api/stop'),
   PATH_CAMPAIGNS_TEST: returnRoute('/api/test'),
   // Templates

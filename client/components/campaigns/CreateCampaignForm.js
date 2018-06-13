@@ -3,7 +3,7 @@ import { Field, reduxForm, propTypes as reduxFormPropTypes } from 'redux-form';
 import { Combobox } from 'react-widgets';
 import _ from 'lodash';
 
-import { renderCombobox, renderField, renderTextEditor, renderEditorTypeRadio } from '../common/FormRenderWrappers';
+import { renderCombobox, renderField, renderTextEditor, renderEditorTypeRadio, renderDatePicker } from '../common/FormRenderWrappers';
 
 // Ref redux-form http://redux-form.com/6.0.5/docs/GettingStarted.md/
 // Ref react-widgets https://jquense.github.io/react-widgets/ (for examples see https://github.com/erikras/redux-form/blob/master/examples/react-widgets/src/ReactWidgetsForm.js)
@@ -63,7 +63,7 @@ const CreateCampaignForm = props => {
     <div>
       <h3>Apply template</h3>
       <Combobox id="templates" data={templates} suggest={true} onSelect={value => applyForm(value)} filter="contains" />
-      <br/>
+      <br />
 
       <form onSubmit={resetFormAndSubmit}>
         <h3>Select a List</h3>
@@ -71,7 +71,7 @@ const CreateCampaignForm = props => {
           <Field name="listName" component={renderCombobox} data={lists} />
         </div>
 
-        <hr/>
+        <hr />
 
         <h3>Campaign details</h3>
         {/* TODO: This needs to be validated via regex. Doesn't need to be a slug but must resolve to a unique slug so there's no possibility of conflict. */}
@@ -79,20 +79,23 @@ const CreateCampaignForm = props => {
         <Field name="fromName" component={renderField} label="From Name" type="text" />
         <Field name="fromEmail" component={renderField} label="From Email" type="email" />
 
-        <hr/>
+        <hr />
 
         <h3>Analytics</h3>
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
         <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div>
-        <hr/>
+        <hr />
+
+        <Field name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule" type="text" />
+        <hr />
 
         <h3>Create email</h3>
         <Field name="type" component={renderEditorTypeRadio} label="Type of email" />
         <Field name="emailSubject" component={renderField} label="Subject" type="text" />
         {/* We only want to render the textEditor that we are using, and we maintain state for each */}
         <Field name={`emailBody${textEditorType}`} emailBody={`emailBody${textEditorType}`} component={renderTextEditor} label="Write Email" textEditorType={textEditorType} />
-        <br/>
+        <br />
         <div className="box-footer">
           <div className="btn-group">
             <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={invalid}>Next Step</button>
@@ -116,7 +119,7 @@ CreateCampaignForm.propTypes = {
 
 const validate = (values, props) => {
   const errors = {};
-
+  
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -134,6 +137,10 @@ const validate = (values, props) => {
   if (!values.emailSubject) {
     errors.emailSubject = 'Required';
   }
+  if (!values.scheduledatetime) {
+    errors.scheduledatetime = 'Required';
+  }
+
   // For the fields below, bare in mind there is only ever one rendered email editor
   // But multiple state fields
   if (!values.emailBodyPlaintext && values.type === 'Plaintext') {

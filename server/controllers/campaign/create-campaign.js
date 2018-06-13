@@ -58,7 +58,8 @@ module.exports = (req, res, io) => {
           unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
           userId: req.user.id,
           listId: valueFromValidation.listId,
-          slug: slug(req.body.campaignName)
+          slug: slug(req.body.campaignName),
+          scheduledatetime: req.body.scheduledatetime
         }
       }).then((instance) => {
         if (instance[0].$options.isNewRecord) {

@@ -3,7 +3,9 @@ import React from 'react';
 import { Combobox, DropdownList } from 'react-widgets';
 import { Field } from 'redux-form';
 import TextEditor from '../../containers/common/TextEditor';
-
+import Datetime from 'react-datetime';
+import 'react-datetime/css/react-datetime.css';
+import moment from 'moment';
 // Ref redux-form http://redux-form.com/6.0.5/docs/GettingStarted.md/
 // Ref react-widgets https://jquense.github.io/react-widgets/ (for examples see https://github.com/erikras/redux-form/blob/master/examples/react-widgets/src/ReactWidgetsForm.js)
 // Ref react-rte https://github.com/sstur/react-rte
@@ -99,3 +101,14 @@ export const renderTextEditor = ({ input, label, type, meta: { touched, error, w
     </div>
   </div>
 );
+export const renderDatePicker = ({ input, label, dateFormat, meta: { touched, error, warning } }) => {
+  return (
+    <div>
+      <label>{label}</label>
+      <div>
+        <Datetime {...input} dateFormat={dateFormat} selected={input.value ? input.value : null} onChange={(date) => input.onChange(date)} />
+        {touched && ((error && <span className="text-red"><i className="fa fa-exclamation" /> {error}</span>) || (warning &&
+          <span>{warning}</span>))}
+      </div>
+    </div>)
+};

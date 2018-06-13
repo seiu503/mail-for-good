@@ -102,7 +102,8 @@ export class AppComponent extends Component {
   render() {
     const { location, isGettingActivePermissions, activePermissionsEmails, activeAccount, ws_notification, consumeNotification, user } = this.props;
     return (
-      <div className="wrapper">
+      <div className="wrapper" hidden={(this.props.location.pathname == '/campaigns/cronjobcampaigns') ? true : false}>
+        <div id="page_name" hidden={true}>{this.props.location.pathname}</div>
         <Header user={user} ws_notification={ws_notification} consumeNotification={consumeNotification} />
         <Sidebar user={user} activeAccount={activeAccount} />
 
