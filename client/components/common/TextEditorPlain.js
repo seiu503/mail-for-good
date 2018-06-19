@@ -5,16 +5,16 @@ export default class TextEditorPlain extends Component {
     value: PropTypes.string,
     onChange: PropTypes.func
   }
-
+  
   render() {
     const { value, onChange } = this.props;
-    return (
+    return (     
       <textarea
-        className="form-control"
-        style={{ width: "100%", minHeight: "60vh" }}
-        value={value}
-        onChange={onChange}
-        />
+      className="form-control"
+      style={{ width: "100%", minHeight: "60vh" }}
+      value={value}
+      onChange={onChange}
+      />     
     );
   }
 }

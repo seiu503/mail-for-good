@@ -40,7 +40,8 @@ module.exports = (req, res) => {
       'unsubscribeLinkEnabled',
       'type',
       'status',
-      'totalCampaignSubscribers'
+      'totalCampaignSubscribers',
+      'scheduledatetime',
     ],
     raw: true
   }).then(instancesArray => {

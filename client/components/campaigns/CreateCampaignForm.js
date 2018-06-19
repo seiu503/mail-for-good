@@ -93,6 +93,7 @@ const CreateCampaignForm = props => {
         <h3>Create email</h3>
         <Field name="type" component={renderEditorTypeRadio} label="Type of email" />
         <Field name="emailSubject" component={renderField} label="Subject" type="text" />
+        <div hidden={true}><Field name="emailBodyDesign" component={renderField} label="emailBodyDesign" type="text" /></div>
         {/* We only want to render the textEditor that we are using, and we maintain state for each */}
         <Field name={`emailBody${textEditorType}`} emailBody={`emailBody${textEditorType}`} component={renderTextEditor} label="Write Email" textEditorType={textEditorType} />
         <br />
@@ -119,7 +120,7 @@ CreateCampaignForm.propTypes = {
 
 const validate = (values, props) => {
   const errors = {};
-  
+
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -147,9 +148,13 @@ const validate = (values, props) => {
     errors.emailBodyPlaintext = 'Required';
   }
   // <div><br></div> is what an empty quill editor contains
-  if (values.emailBodyHTML === '<div><br></div>' && values.type === 'HTML') {
+  if (!values.emailBodyHTML && values.type === 'HTML') {
     errors.emailBodyHTML = 'Required';
   }
+  if (!values.emailBodyHTMLEditor && values.type === 'HTMLEditor') {
+    errors.emailBodyHTMLEditor = 'Required';
+  }
+
   if (!values.type) {
     errors.type = 'Required';
   }

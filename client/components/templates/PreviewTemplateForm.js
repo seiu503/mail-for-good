@@ -34,7 +34,7 @@ const PreviewTemplateForm = props => {
       <h3><strong>From: {`${form.fromName || 'Not set'} <${form.fromEmail || 'Not set'}>`}</strong></h3>
       <h4><strong>Subject: {`${form.emailSubject || 'Not set'}`}</strong></h4>
 
-      {type === 'HTML'
+      {type === 'HTML' || type === 'HTMLEditor'
       ?
       <blockquote>
         <div dangerouslySetInnerHTML={{ __html: text }} />

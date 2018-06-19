@@ -24,6 +24,7 @@ module.exports = (req, res) => {
       fromEmail: req.body.fromEmail || '',
       emailSubject: req.body.emailSubject || '',
       emailBody: emailBodyType,
+      emailBodyDesign: req.body.emailBodyDesign || '',
       trackingPixelEnabled: req.body.trackingPixelEnabled,
       trackLinksEnabled: req.body.trackLinksEnabled,
       unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,

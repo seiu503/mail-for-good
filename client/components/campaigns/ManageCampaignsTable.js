@@ -86,9 +86,9 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
 
       <TableHeaderColumn dataField="id" hidden={true} isKey={true}>Id</TableHeaderColumn>
       <TableHeaderColumn dataField="slug" hidden={true}>Slug</TableHeaderColumn>
-      <TableHeaderColumn dataField="name" dataAlign="center" dataSort={true} width="450">Name</TableHeaderColumn>
-      <TableHeaderColumn dataAlign="center" width="150" dataFormat={actionButtonsFormatter.bind(this)}>Actions</TableHeaderColumn>
-      <TableHeaderColumn dataField="status" dataAlign="center" dataSort={true} dataFormat={statusFormatter} width="150">Status</TableHeaderColumn>
+      <TableHeaderColumn dataField="name" dataAlign="center" dataSort={true} width="350">Name</TableHeaderColumn>
+      <TableHeaderColumn dataAlign="center" width="100" dataFormat={actionButtonsFormatter.bind(this)}>Actions</TableHeaderColumn>
+      <TableHeaderColumn dataField="status" dataAlign="center" dataSort={true} dataFormat={statusFormatter} width="100">Status</TableHeaderColumn>
       <TableHeaderColumn dataField="campaignanalytic.totalSentCount" dataAlign="center" dataSort={true} csvHeader="sent">Sent</TableHeaderColumn>
       <TableHeaderColumn dataField="delivered" dataAlign="center" dataSort={true} dataFormat={deliveredFormatter} csvFormat={deliveredFormatter}>Delivered</TableHeaderColumn>
       <TableHeaderColumn dataField="bounced" dataAlign="center" dataSort={true} dataFormat={bouncedFormatter} csvFormat={bouncedFormatter}>Bounced</TableHeaderColumn>
@@ -96,6 +96,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
       <TableHeaderColumn dataField="campaignanalytic.clickthroughCount" dataAlign="center" dataSort={true} dataFormat={clickthroughsFormatter} csvHeader="clickthroughs">Clickthroughs</TableHeaderColumn>
       <TableHeaderColumn dataField="campaignanalytic.openCount" dataAlign="center" dataSort={true} dataFormat={opensFormatter} csvHeader="opens">Opens</TableHeaderColumn>
       {/*<TableHeaderColumn export ={false} dataAlign="center" width="100">Tags (WIP)</TableHeaderColumn>*/}
+      <TableHeaderColumn dataField="scheduledatetime" dataAlign="center" dataFormat={dateFormatter} width="150" >Schedule At</TableHeaderColumn>
       <TableHeaderColumn dataField="createdAt" dataAlign="center" dataSort={true} dataFormat={dateFormatter} width="150" filter={filterDate}>Created</TableHeaderColumn>
 
     </BootstrapTable>

@@ -26,6 +26,7 @@ const CreateTemplateForm = props => {
     'fromEmail',
     'emailSubject',
     'emailBody',
+    'emailBodyDesign',
     'type',
     'trackingPixelEnabled',
     'trackLinksEnabled',
@@ -67,6 +68,7 @@ const CreateTemplateForm = props => {
       <h3>Create email</h3>
       <Field name="type" component={renderEditorTypeRadio} label="Type" />
       <Field name="emailSubject" component={renderField} label="Subject" type="text" />
+      <div hidden={true}><Field name="emailBodyDesign" component={renderField} label="emailBodyDesign" type="text" /></div>
       <Field name="emailBody" component={renderTextEditor} label="Write Email*" textEditorType={textEditorType} />
       <br/>
       <div className="box-footer">
@@ -93,7 +95,7 @@ CreateTemplateForm.propTypes = {
 
 const validate = values => {
   const errors = {};
-
+  
   if (!values.templateName) {
     errors.templateName = 'Required';
   }

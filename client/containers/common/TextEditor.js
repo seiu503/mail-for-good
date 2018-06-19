@@ -3,6 +3,7 @@ import 'react-quill/dist/quill.snow.css';
 
 import TextEditorRich from '../../components/common/TextEditorRich';
 import TextEditorPlain from '../../components/common/TextEditorPlain';
+import TextEditorUnlayer from '../../components/common/TextEditorUnlayer';
 
 export default class TextEditor extends Component {
 
@@ -28,7 +29,8 @@ export default class TextEditor extends Component {
       }
     } = this.props;
 
-    const isPlaintext = this.props.textEditorType === 'Plaintext';
+    //const isPlaintext = this.props.textEditorType === 'Plaintext';
+    const editorType = this.props.textEditorType;
 
     const textEditorProps = {
       value,
@@ -36,10 +38,13 @@ export default class TextEditor extends Component {
     };
 
     // Render either a plaintext or html editor
-    return (
+    /* return (
       isPlaintext
         ? <TextEditorPlain {...textEditorProps} />
         : <TextEditorRich {...textEditorProps} />
+    ); */
+    return (
+      (editorType == 'Plaintext') ? <TextEditorPlain {...textEditorProps} /> : (editorType == 'HTML') ? <TextEditorRich {...textEditorProps} /> : <TextEditorUnlayer {...textEditorProps} />      
     );
   }
 

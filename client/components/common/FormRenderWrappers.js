@@ -83,9 +83,11 @@ export const renderEditorTypeRadio = ({ input, label, type, meta: { touched, err
   <div>
     <label>{label}</label>
     <div className="form-group">
-      <label><Field component="input" type="radio" name={input.name} value="Plaintext" /> Plaintext</label>
+      <label><Field component="input" id="Plaintext" type="radio" name={input.name} value="Plaintext" /> Plaintext</label>
       <br />
-      <label><Field component="input" type="radio" name={input.name} value="HTML" /> HTML</label>
+      <label><Field component="input" id="HTML" type="radio" name={input.name} value="HTML" /> HTML</label>
+      <br />
+      <label><Field component="input" id="HTMLEditor" type="radio" name={input.name} value="HTMLEditor" /> Template Editor</label>
       <br />
       {touched && ((error && <span className="text-red"><i className="fa fa-exclamation" /> {error}</span>) || (warning && <span>{warning}</span>))}
     </div>

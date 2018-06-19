@@ -33,7 +33,7 @@ const PreviewCampaignForm = props => {
 
       <h4><strong>From: {`${form.fromName} <${form.fromEmail}>`}</strong></h4>
       <h4><strong>Subject: {`${form.emailSubject}`}</strong></h4>
-      {type === 'HTML'
+      {type === 'HTML' || type === 'HTMLEditor'
       ?
 
       <blockquote>
