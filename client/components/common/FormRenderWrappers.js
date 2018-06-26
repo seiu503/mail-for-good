@@ -108,7 +108,7 @@ export const renderDatePicker = ({ input, label, dateFormat, meta: { touched, er
     <div>
       <label>{label}</label>
       <div>
-        <Datetime {...input} dateFormat={dateFormat} selected={input.value ? input.value : null} selectedDate={Date.now()} onChange={(date) => input.onChange(date)} />
+        <Datetime {...input} dateFormat={dateFormat} selected={input.value ? input.value : null} onChange={(date) => input.onChange(date)} />
         {touched && ((error && <span className="text-red"><i className="fa fa-exclamation" /> {error}</span>) || (warning &&
           <span>{warning}</span>))}
       </div>
