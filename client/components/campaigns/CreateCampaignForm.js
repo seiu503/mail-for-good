@@ -50,7 +50,7 @@ const CreateCampaignForm = props => {
       nextPage();
     } else {
       touch(...nameArray);
-      validationFailed('Form is invalid, please review fields with errors');
+      validationFailed('Some fields are missing or invalid; please review fields with errors');
     }
   };
 
@@ -91,7 +91,7 @@ const CreateCampaignForm = props => {
         <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div>
         <hr />
 
-        <Field name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
+        <Field name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Scheduled Send Date and Time*" type="text" />
         <hr />
 
         <h3>Create email</h3>
@@ -125,7 +125,7 @@ CreateCampaignForm.propTypes = {
 
 const validate = (values, props) => {
   const errors = {};
-  console.log(values);  
+
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -147,7 +147,7 @@ const validate = (values, props) => {
     errors.scheduledatetime = 'Required';
   }
 
-  // For the fields below, bare in mind there is only ever one rendered email editor
+  // For the fields below, bear in mind there is only ever one rendered email editor
   // But multiple state fields
   if (!values.emailBodyPlaintext && values.type === 'Plaintext') {
     errors.emailBodyPlaintext = 'Required';

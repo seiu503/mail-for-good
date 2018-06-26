@@ -77,7 +77,6 @@
     "react-dom": "^15.6.1",
     "react-email-editor": "^0.8.2",
     "react-highcharts": "^11.0.0",
-    "react-hot-loader": "^3.0.0-beta.7",
     "react-notification": "^6.7.0",
     "react-quill": "^1.0.0-rc.2",
     "react-redux": "^5.0.5",

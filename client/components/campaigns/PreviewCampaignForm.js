@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import DOMPurify from 'dompurify';
 
 const PreviewCampaignForm = props => {
+  console.log(props);
   const { handleSubmit, lastPage } = props;
   const isCreateCampaignPreview = !!props.form;
   let text;

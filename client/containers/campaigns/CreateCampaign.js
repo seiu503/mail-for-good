@@ -22,6 +22,9 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = { postCreateCampaign, getLists, getTemplates, initialize, notify };
 
+let date = moment();
+let dateISO = date.format();
+
 export class CreateCampaignComponent extends Component {
 
   static propTypes = {
@@ -55,7 +58,10 @@ export class CreateCampaignComponent extends Component {
     page: 1,
     initialFormValues: {
       campaignName: `Campaign - ${moment().format('l, h:mm:ss')}`,
-      type: 'Plaintext'
+      type: 'Plaintext',
+      scheduledatetime: dateISO,
+      fromName: 'SEIU Local 503',
+      fromEmail: 'alert@seiu503.org'
     },
     reset: null
   }
