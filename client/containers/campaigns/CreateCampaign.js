@@ -47,6 +47,7 @@ export class CreateCampaignComponent extends Component {
     this.nextPage = this.nextPage.bind(this);
     this.lastPage = this.lastPage.bind(this);
     this.applyTemplate = this.applyTemplate.bind(this);
+    this.validationFailed = this.validationFailed.bind(this);
     this.passResetToState = this.passResetToState.bind(this);
   }
 
@@ -110,6 +111,12 @@ export class CreateCampaignComponent extends Component {
     this.setState({ page: this.state.page - 1 });
   }
 
+  validationFailed(reason) {
+    this.props.notify({
+      message: reason
+    });
+  }
+
   passResetToState(reset) {
     this.setState({ reset });
   }
@@ -138,6 +145,7 @@ export class CreateCampaignComponent extends Component {
                   applyTemplate={this.applyTemplate}
                   templates={templates}
                   lists={lists}
+                  validationFailed={this.validationFailed}
                   nextPage={this.nextPage}
                   initialValues={initialFormValues} />}
               {page === 2 &&
