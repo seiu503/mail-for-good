@@ -183,7 +183,9 @@ export function postCreateCampaign(form, reset) {
     xhr.onload = () => {
       dispatch(completePostCreateCampaign());
       dispatch(getCampaigns());
-      dispatch(destroy('createCampaign'));
+      setTimeout(() => {
+        dispatch(destroy('createCampaign'));        
+      }, 5000);
       reset();
     };
     xhr.setRequestHeader('Content-Type', 'application/json');

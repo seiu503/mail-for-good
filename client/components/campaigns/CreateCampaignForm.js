@@ -124,8 +124,7 @@ CreateCampaignForm.propTypes = {
 };
 
 const validate = (values, props) => {
-  const errors = {};
-  console.log(values);  
+  const errors = {}; 
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
