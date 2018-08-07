@@ -8,6 +8,8 @@ const mockProps = ( overrides) => ({ // eslint-disable-line no-unused-vars
   data: [],
   deleteRows: () => {},
   getCampaignView: () => {},
+  addCampaignSequence: () => {},
+  ManageCampaignSequence: () => {},
   ...overrides
 });
 

@@ -2,6 +2,9 @@ const initialState = {
   createCampaign: {
     isPosting: false // Posting a new campaign?
   },
+  createCampaignSequence: {
+    isPosting: false // Posting a new campaign?
+  },
   createTemplate: {
     isPosting: false
   },
@@ -9,6 +12,11 @@ const initialState = {
     campaigns: [], // Array of objects for campaigns
     isGetting: false // Getting campaigns?
   },
+  manageCampaignSequence: {
+    campaignsequences: [], // Array of objects for campaigns
+    isGetting: false // Getting campaigns?
+  },
+
   manageTemplates: {
     templates: [],
     isGetting: false
@@ -27,6 +35,12 @@ const initialState = {
     list: [],
     isPosting: false,
     upload: null // int 0-100 regarding % completion of CSV upload
+  },
+  manageSFReport: {
+    reports: [], // Array of objects for reports
+    isReportGetting: false, // Getting reports?
+    isReportDetailsGetting: false, // Getting reports?
+    reportDetails: [], // Array of objects for report Details
   },
   manageList: {
     lists: [], // Array of objects for lists

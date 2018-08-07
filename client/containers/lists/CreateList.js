@@ -15,7 +15,7 @@ function mapStateToProps(state) {
     isGetting: state.manageList.isGetting
   };
 }
-
+ 
 const mapDispatchToProps = { submitCSV, notify };
 
 export class CreateListComponent extends Component {
@@ -36,11 +36,11 @@ export class CreateListComponent extends Component {
     this.handleCSVSubmit = this.handleCSVSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.notification = this.notification.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);    
   }
 
   state = {
-    title: ''
+    title: ''    
   }
 
   notification(notification) {
@@ -93,10 +93,10 @@ export class CreateListComponent extends Component {
               <div className="box box-primary">
                 <Row>
                   <Col md={12}>
+                    
                     <div className="box-header">
                       <h3 className="box-title">List name</h3>
                     </div>
-
                     <div className="box-body">
 
                       <div className="nav-tabs-custom">

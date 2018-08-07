@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import EmailEditor from 'react-email-editor';
 import { Field } from 'redux-form';
-import { renderField } from '../common/FormRenderWrappers';
+import { renderField, renderHiddenField } from '../common/FormRenderWrappers';
 
 
 // Change <p> tags to <div> tags as empty lines are rendered as <p><br></p> which is two spaces, <div><br></div> is one
@@ -10,11 +10,12 @@ import { renderField } from '../common/FormRenderWrappers';
 export default class TextEditorUnlayer extends Component {
   static propTypes = {
     value: PropTypes.string,
+    inputName: PropTypes.string,
     onChange: PropTypes.func
   }
 
   render() {
-    const { value, onChange } = this.props;
+    const { value, inputName, onChange } = this.props;
     return (
       <div>
         <div>
@@ -23,7 +24,7 @@ export default class TextEditorUnlayer extends Component {
           <button type="button" id="exporthtml" onClick={this.exportHtml} className="btn btn-success btn-lg">Save Email Design</button>
         </div>
         <div hidden={true}>
-          <Field name={($('#page_name').text() == '/campaigns/create') ? 'emailBodyHTMLEditor' : 'emailBody'} component={renderField} label="EmailBody" type="text" />                    
+          <Field name={inputName} id={inputName} component={renderHiddenField} label="EmailBody" type="text" />        
         </div>
         <EmailEditor
           ref={editor => this.editor = editor}
@@ -34,27 +35,29 @@ export default class TextEditorUnlayer extends Component {
   }
   onLoad = () => {
     // this.editor.addEventListener('onDesignLoad', this.onDesignLoad)    
-    //console.log(document.querySelector("input[name='emailBodyDesign']").value);
-    if (document.querySelector("input[name='emailBodyDesign']").value != '') {
-      setTimeout(() => {
-        this.editor.loadDesign(JSON.parse(document.querySelector("input[name='emailBodyDesign']").value));
-      }, 2000);
-    }
+    
+    var inputname = 'emailBodyDesign'; 
+    setTimeout(() => {    
+    if (document.querySelector("input[name='" + inputname + "']").value != '') {      
+        this.editor.loadDesign(JSON.parse(document.querySelector("input[name='" + inputname + "']").value));
+      }
+    }, 150);
   }
   exportHtml = () => {
     this.editor.exportHtml(data => {
       const { design, html } = data;
-
-      var field_name = ($('#page_name').text() == '/campaigns/create') ? 'emailBodyHTMLEditor' : 'emailBody';            
+      
+      var field_name = this.props.inputName;
       var ev1 = new Event('input', { bubbles: true });
       ev1.simulated = true;
       document.querySelector("input[name='" + field_name + "']").value = html;
       document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
 
+      var inputname = 'emailBodyDesign'; 
       var ev2 = new Event('input', { bubbles: true });
       ev2.simulated = true;
-      document.querySelector("input[name='emailBodyDesign']").value = JSON.stringify(design);
-      document.querySelector("input[name='emailBodyDesign']").dispatchEvent(ev2);
+      document.querySelector("input[name='" + inputname + "']").value = JSON.stringify(design);
+      document.querySelector("input[name='" + inputname + "']").dispatchEvent(ev2);
 
     })
   }

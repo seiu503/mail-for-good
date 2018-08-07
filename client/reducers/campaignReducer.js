@@ -1,12 +1,13 @@
 import initialState from './initialState';
 import {
+  REQUEST_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_DELETE_CAMPAIGNSEQUENCE,
   REQUEST_POST_CREATECAMPAIGN, COMPLETE_POST_CREATECAMPAIGN,
   REQUEST_GET_CAMPAIGNS, COMPLETE_GET_CAMPAIGNS,
   REQUEST_POST_SENDCAMPAIGN, COMPLETE_POST_SENDCAMPAIGN,
   REQUEST_POST_SENDTESTEMAIL, COMPLETE_POST_SENDTESTEMAIL,
   REQUEST_POST_CREATETEMPLATE, COMPLETE_POST_CREATETEMPLATE,
   REQUEST_GET_TEMPLATES, COMPLETE_GET_TEMPLATES,
-  COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES
+  COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES, REQUEST_GET_CAMPAIGNSSEQUENCE, COMPLETE_GET_CAMPAIGNSSEQUENCE
 } from '../constants/actionTypes';
 
 export function createCampaign(state = initialState.createCampaign, action) {
@@ -17,6 +18,22 @@ export function createCampaign(state = initialState.createCampaign, action) {
         };
     }
     case COMPLETE_POST_CREATECAMPAIGN: {
+        return {...state,
+          isPosting: false
+        };
+    }
+    default:
+      return state;
+  }
+}
+export function createCampaignSequence(state = initialState.createCampaignSequence, action) {
+  switch (action.type) {
+    case REQUEST_POST_CREATECAMPAIGNSEQUENCE: {
+        return {...state,
+          isPosting: true
+        };
+    }
+    case COMPLETE_POST_CREATECAMPAIGNSEQUENCE: {
         return {...state,
           isPosting: false
         };
@@ -43,7 +60,7 @@ export function createTemplate(state = initialState.createTemplate, action) {
   }
 }
 
-export function manageCampaign(state = initialState.manageCampaign, action) {
+export function manageCampaign(state = initialState.manageCampaign, action) {  
   switch (action.type) {
     case REQUEST_GET_CAMPAIGNS: {
         return {...state,
@@ -126,12 +143,38 @@ export function sendTest(state = initialState.sendTest, action) {
       return state;
   }
 }
-
+export function manageCampaignSequence(state = initialState.manageCampaignSequence, action) {  
+  switch (action.type) {
+    case REQUEST_GET_CAMPAIGNSSEQUENCE: {
+      return {
+        ...state,
+        isGetting: true
+      };
+    }
+    case COMPLETE_GET_CAMPAIGNSSEQUENCE: {      
+      return {
+        ...state,
+        campaignsequences: action.campaignsequences,
+        isGetting: false
+      };
+    }
+    case COMPLETE_DELETE_CAMPAIGNSEQUENCE: {
+      return {
+        ...state,
+        campaignsequences: action.campaignsequences
+      };
+    }
+    default:
+      return state;
+  }
+}
 export default {
   createCampaign,
+  createCampaignSequence,
   createTemplate,
   manageCampaign,
   sendCampaign,
   sendTest,
-  manageTemplates
+  manageTemplates,
+  manageCampaignSequence
 };

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { initialize } from 'redux-form';
 import CreateCampaignForm from '../../components/campaigns/CreateCampaignForm';
 import PreviewCampaignForm from '../../components/campaigns/PreviewCampaignForm';
-import { postCreateCampaign, getTemplates } from '../../actions/campaignActions';
+import { postCreateCampaign, getTemplates, getCampaigns, getAllCampaigns } from '../../actions/campaignActions';
 import { notify } from '../../actions/notificationActions';
 import { getLists } from '../../actions/listActions';
 import FontAwesome from 'react-fontawesome';
@@ -16,11 +16,12 @@ function mapStateToProps(state) {
     isPosting: state.createCampaign.isPosting,
     lists: state.manageList.lists,
     isGetting: state.manageList.isGetting,
-    templates: state.manageTemplates.templates
+    templates: state.manageTemplates.templates,
+    campaigns: state.manageCampaign.campaigns,
   };
 }
 
-const mapDispatchToProps = { postCreateCampaign, getLists, getTemplates, initialize, notify };
+const mapDispatchToProps = { postCreateCampaign, getLists, getTemplates, initialize, notify, getCampaigns };
 
 export class CreateCampaignComponent extends Component {
 
@@ -34,7 +35,9 @@ export class CreateCampaignComponent extends Component {
     getTemplates: PropTypes.func.isRequired,
     templates: PropTypes.array.isRequired,
     initialize: PropTypes.func.isRequired,
-    notify: PropTypes.func.isRequired
+    notify: PropTypes.func.isRequired,
+    campaigns: PropTypes.array.isRequired,
+    getCampaigns: PropTypes.func.isRequired,
   }
 
   static contextTypes = {
@@ -60,17 +63,51 @@ export class CreateCampaignComponent extends Component {
     reset: null
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.getLists();
     this.props.getTemplates();
+    //this.props.getCampaigns();
+    //this.getSingleCampaign(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.isPosting === true && nextProps.isPosting === false) { // Fires when campaign has been successfully created
       this.context.router.push(`/campaigns/manage`);
     }
-  }
 
+    /* if (nextProps.campaigns && nextProps.campaigns.length && !this.props.campaigns.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist
+      this.getSingleCampaign(nextProps);
+    } */
+  }
+  getSingleCampaign(props) {
+    const slug = this.props.params.slug;
+    if (slug) {
+      const getCampaignBySlug = props.campaigns.find(campaigns => campaigns.slug === slug);
+      if (getCampaignBySlug) {
+
+        const listId = getCampaignBySlug.listId;
+        const listIdName = props.lists.find(lists => lists.id === listId);
+
+        const correctForm = Object.assign({}, getCampaignBySlug, {
+          ['campaignName']: this.state.initialFormValues.campaignName,
+          [`emailBody${getCampaignBySlug.type}`]: getCampaignBySlug.emailBody,
+          ['listName']: listIdName.name
+        });
+        delete correctForm['campaignanalytic.clickthroughCount'];
+        delete correctForm['campaignanalytic.complaintCount'];
+        delete correctForm['campaignanalytic.openCount'];
+        delete correctForm['campaignanalytic.permanentBounceCount'];
+        delete correctForm['campaignanalytic.totalSentCount'];
+        delete correctForm['campaignanalytic.transientBounceCount'];
+        delete correctForm['campaignanalytic.undeterminedBounceCount'];
+        delete correctForm['emailBody'];
+        delete correctForm['createdAt'];
+        delete correctForm['updatedAt'];
+        //console.log(correctForm);
+        this.props.initialize('createCampaign', correctForm);
+      }
+    }
+  }
   handleSubmit() {
     const formValues = this.props.form.values;
     // Extract emailBodyPlaintext or emailBodyHTML as our emailBody
@@ -156,7 +193,7 @@ export class CreateCampaignComponent extends Component {
             </div>
 
             {isGetting || isPosting && <div className="overlay">
-              <FontAwesome name="refresh" spin/>
+              <FontAwesome name="refresh" spin />
             </div>}
           </div>
         </section>

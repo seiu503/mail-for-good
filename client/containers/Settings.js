@@ -92,8 +92,8 @@ export class SettingsComponent extends Component {
         region: values.region,
         whiteLabelUrl: values.whiteLabelUrl,
         amazonSimpleQueueServiceUrl: values.queueUrl,
-        email: values.email
-      };
+        email: values.email,        
+      };      
       changeSettings(formattedFormValues);
       reset();
     } else {
@@ -112,7 +112,7 @@ export class SettingsComponent extends Component {
       // amazonSimpleQueueServiceUrl,
       region,
       whiteLabelUrl,
-      email
+      email,      
     } = this.props.fieldsExist;
 
     return (
@@ -184,8 +184,7 @@ export class SettingsComponent extends Component {
                       type="text"
                       placeholder="Example: https://email.myorganisation.com"
                       helpText={<div>Display a custom URL for unsubscription and clickthrough tracking links by providing a white label URL (without the trailing backslash). This must be configured beforehand with your DNS hosting service.</div>}
-                    />
-
+                    />                    
                     <br/>
                     <div className="box-footer">
                       <div className="btn-group">

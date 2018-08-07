@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 
 import {
+  requestPostCreateCampaignSequence,
+  completePostCreateCampaignSequence,
+  completeDeleteCampaignSequence,
+  REQUEST_GET_CAMPAIGNSSEQUENCE,
+  COMPLETE_GET_CAMPAIGNSSEQUENCE,  
   requestPostCreateCampaign,
   completePostCreateCampaign,
   requestPostCreateTemplate,
@@ -14,7 +19,9 @@ import {
   requestPostSendCampaign,
   completePostSendCampaign,
   requestPostSendTestEmail,
-  completePostSendTestEmail
+  completePostSendTestEmail,
+  requestGetCampaignSequence,
+  completeGetCampaignSequence
 } from '../actions/campaignActions';
 
 import initialState from './initialState';
@@ -25,12 +32,60 @@ import {
   manageCampaign,
   manageTemplates,
   sendCampaign,
-  sendTest
+  sendTest,
+  manageCampaignSequence
  } from './campaignReducer';
 
 describe('(Reducer/Action Creator) campaign', () => {
 
 // createCampaign reducer
+  it('should handle REQUEST_POST_CREATECAMPAIGNSEQUENCE', () => {
+    expect(
+      createCampaignSequence(undefined, requestPostCreateCampaignSequence())
+    ).to.deep.equal({
+      ...initialState.createCampaignSequence,
+      isPosting: true
+    });
+  });
+  it('should handle COMPLETE_POST_CREATECAMPAIGNSEQUENCE', () => {
+    expect(
+      createCampaign(undefined, completePostCreateCampaignSequence())
+    ).to.deep.equal({
+      ...initialState.createCampaignSequence,
+      isPosting: false
+    });
+  });
+
+  it('should handle REQUEST_GET_CAMPAIGNSSEQUENCE', () => {
+    expect(
+      manageCampaignSequence(undefined, requestGetCampaignSequence())
+    ).to.deep.equal({
+      ...initialState.manageCampaignSequence,
+      isGetting: true
+    });
+  });
+
+  it('should handle COMPLETE_DELETE_CAMPAIGNSEQUENCE', () => {
+    const mockCampaigns = 'something';
+    expect(
+      manageCampaign(undefined, completeDeleteCampaignSequence(mockCampaigns))
+    ).to.deep.equal({
+      ...initialState.manageCampaign,
+      campaignsequences: mockCampaigns
+    });
+  });
+
+
+  it('should handle COMPLETE_GET_CAMPAIGNSSEQUENCE', () => {
+    const mockCampaigns = 'something';
+    expect(
+      manageCampaignSequence(undefined, completeGetCampaignSequence(mockCampaigns))
+    ).to.deep.equal({
+      ...initialState.manageCampaignSequence,
+      campaignsequences: mockCampaigns,
+      isGetting: false
+    });
+  });
 
   it('should handle REQUEST_POST_CREATECAMPAIGN', () => {
     expect(

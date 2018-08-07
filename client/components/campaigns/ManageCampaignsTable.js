@@ -3,14 +3,31 @@ import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import moment from 'moment';
 
 // Ref: https://allenfang.github.io/react-bootstrap-table/docs.html
-const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
+const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSequence, ManageCampaignSequence, duplicateTemplate, duplicateCampaigns, onSelectAll, onRowSelect, selected }) => {
 
   const selectRowProp = {
     mode: "checkbox",
-    bgColor: "rgb(176, 224, 230)"
+    bgColor: "rgb(176, 224, 230)",
+    clickToSelect: true,
+    onSelect: onRowSelect.bind(this),
+    onSelectAll: onSelectAll.bind(this),
+    selected: selected
   };
-
+  const createCustomButtonGroup = props => {
+    return (
+      <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
+        {props.deleteBtn}&nbsp;&nbsp;
+        <button type='button' className={`btn btn-warning react-bs-table-del-btn `} onClick={deleteRows.bind(this)}>
+          <i className="glyphicon glyphicon-trash"></i>&nbsp;Delete
+        </button>
+        <button type='button' className={`btn btn-primary react-bs-table-pri-btn`} onClick={duplicateCampaigns.bind(this)}>
+          <i className="glyphicon glyphicon-duplicate"></i>&nbsp;Copy
+        </button>
+      </ButtonGroup>
+    );
+  }
   const options = {
+    btnGroup: createCustomButtonGroup,
     clearSearch: true,
     noDataText: 'You do not have any campaigns linked with your account',
     afterDeleteRow: rows => { // Optimistic update, can assume request will succeed. 'Rows' has format [...rowKey] where rowKey is a list primary key
@@ -40,10 +57,15 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
 
   const actionButtonsFormatter = (cell, row) => {
     return (
-      <a href="#" onClick={getCampaignView.bind(this, row)}>Manage</a>
+      <div>
+        <a href="#" onClick={getCampaignView.bind(this, row)}>Manage</a>&nbsp;&nbsp;
+        {/* <a href="#" onClick={duplicateTemplate.bind(this, row)} title="Duplicate Template"><i className="glyphicon glyphicon-duplicate"></i></a>&nbsp;&nbsp;
+        <a href="#" onClick={addCampaignSequence.bind(this, row)} title="Create Sequence"><i className="glyphicon glyphicon-plus-sign"></i></a>&nbsp;&nbsp;
+        <a href="#" onClick={ManageCampaignSequence.bind(this, row)} title="Manage Sequence">{row.sequenceCount}</a> */}
+      </div>
     );
   };
-
+ 
   const clickthroughsFormatter = (cell, row) => {
     return row['trackLinksEnabled'] ? cell : 'n/a';
   };
@@ -61,6 +83,8 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
       return `<span class="label label-danger">Interrupted</span>`;
     } else if (status == 'sending') {
       return `<span class="label label-success">Sending</span>`;
+    } else if (status == 'draft') {
+      return `<span class="label label-warning">Draft</span>`;
     } else if (status == 'done') {
       return `<span class="label label-success">Done</span>`;
     }
@@ -76,7 +100,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
     <BootstrapTable data={data}
       pagination={true}
       hover={true}
-      deleteRow={true}
+      /* deleteRow={true} */
       selectRow={selectRowProp}
       options={options}
       search={true}
@@ -87,7 +111,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
       <TableHeaderColumn dataField="id" hidden={true} isKey={true}>Id</TableHeaderColumn>
       <TableHeaderColumn dataField="slug" hidden={true}>Slug</TableHeaderColumn>
       <TableHeaderColumn dataField="name" dataAlign="center" dataSort={true} width="350">Name</TableHeaderColumn>
-      <TableHeaderColumn dataAlign="center" width="100" dataFormat={actionButtonsFormatter.bind(this)}>Actions</TableHeaderColumn>
+      <TableHeaderColumn dataAlign="center" width="120" dataFormat={actionButtonsFormatter.bind(this)}>Actions</TableHeaderColumn>      
       <TableHeaderColumn dataField="status" dataAlign="center" dataSort={true} dataFormat={statusFormatter} width="100">Status</TableHeaderColumn>
       <TableHeaderColumn dataField="campaignanalytic.totalSentCount" dataAlign="center" dataSort={true} csvHeader="sent">Sent</TableHeaderColumn>
       <TableHeaderColumn dataField="delivered" dataAlign="center" dataSort={true} dataFormat={deliveredFormatter} csvFormat={deliveredFormatter}>Delivered</TableHeaderColumn>
@@ -106,7 +130,14 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView }) => {
 ManageCampaignsTable.propTypes = {
   data: PropTypes.array.isRequired,
   deleteRows: PropTypes.func.isRequired,
-  getCampaignView: PropTypes.func.isRequired
+  getCampaignView: PropTypes.func.isRequired,
+  addCampaignSequence: PropTypes.func.isRequired,
+  duplicateTemplate: PropTypes.func.isRequired,
+  ManageCampaignSequence: PropTypes.func.isRequired,
+  duplicateCampaigns: PropTypes.func.isRequired,
+  selected: PropTypes.array.isRequired,
+  onSelectAll: PropTypes.func.isRequired,
+  onRowSelect: PropTypes.func.isRequired,
 };
 
 export default ManageCampaignsTable;

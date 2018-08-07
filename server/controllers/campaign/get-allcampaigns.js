@@ -8,7 +8,7 @@ module.exports = (req, res) => {
     // Find all campaigns belonging to a user & send it to them
     Campaign.findAll({
         where: {
-            status: { $any: ['ready', 'sending', 'interrupted'] }
+            status: { $any: ['ready', 'sending', 'interrupted', 'draft'] }
         },
         include: [
             {
@@ -42,7 +42,7 @@ module.exports = (req, res) => {
             'status',
             'totalCampaignSubscribers',
             'scheduledatetime',
-            'userId'
+            'userId',
         ],
         raw: true
     }).then(instancesArray => {

@@ -82,6 +82,44 @@ describe('(Reducer/Action Creator) list', () => {
     });
   });
 
+  it('should handle REQUEST_GET_SFREPORTS', () => {
+    expect(
+      manageSFReport(undefined, requesGetSFReports())
+    ).to.deep.equal({
+      ...initialState.manageSFReport,
+      isReportGetting: true
+    });
+  });  
+  it('should handle COMPLETE_GET_SFREPORTS', () => {
+    const mockLists = 'something';
+    expect(
+      manageSFReport(undefined, completeGetSFReports(mockLists))
+    ).to.deep.equal({
+      ...initialState.manageSFReport,
+      reports: mockLists,
+      isReportGetting: false
+    });
+  });
+
+  it('should handle REQUEST_GET_SFREPORT_DETAILS', () => {
+    expect(
+      manageSFReport(undefined, requesGetSFReportDetails())
+    ).to.deep.equal({
+      ...initialState.manageSFReport,
+      isReportDetailsGetting: true
+    });
+  });
+
+  it('should handle COMPLETE_GET_SFREPORT_DETAILS', () => {
+    const mockLists = 'something';
+    expect(
+      manageSFReport(undefined, completeGetSFReportDetails(mockLists))
+    ).to.deep.equal({
+      ...initialState.manageSFReport,
+      reportDetails: mockLists,
+      isReportDetailsGetting: false
+    });
+  });
 // manageList reducer
 
   it('should handle REQUEST_GET_LISTS', () => {

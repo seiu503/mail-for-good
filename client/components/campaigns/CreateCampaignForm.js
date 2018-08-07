@@ -88,7 +88,7 @@ const CreateCampaignForm = props => {
         <h3>Analytics</h3>
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
-        <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div>
+        {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}
         <hr />
 
         <Field name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
@@ -101,6 +101,7 @@ const CreateCampaignForm = props => {
         {/* We only want to render the textEditor that we are using, and we maintain state for each */}
         <Field name={`emailBody${textEditorType}`} emailBody={`emailBody${textEditorType}`} component={renderTextEditor} label="Write Email*" textEditorType={textEditorType} />
         <br />
+        <div hidden={true} id="inputtext"></div>
         <div className="box-footer">
           <div className="btn-group">
             <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Next Step</button>
@@ -124,7 +125,7 @@ CreateCampaignForm.propTypes = {
 };
 
 const validate = (values, props) => {
-  const errors = {}; 
+  const errors = {};
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -150,13 +151,52 @@ const validate = (values, props) => {
   // But multiple state fields
   if (!values.emailBodyPlaintext && values.type === 'Plaintext') {
     errors.emailBodyPlaintext = 'Required';
+  }else{
+    if (typeof $("#inputtext").html() !== 'undefined') {
+      let gotLink = 0;
+      var html = $("#inputtext").html(values.emailBodyPlaintext);      
+      $("#inputtext").find("a").map(function () {
+        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+          gotLink = 1;
+        }
+      });      
+      if (gotLink == 0) {
+        errors.emailBodyPlaintext = 'Please add unsubscribe link';
+      }
+    }
   }
   // <div><br></div> is what an empty quill editor contains
   if (!values.emailBodyHTML && values.type === 'HTML') {
     errors.emailBodyHTML = 'Required';
+  } else {
+    if (typeof $("#inputtext").html() !== 'undefined') {
+      let gotLink = 0;
+      var html = $("#inputtext").html(values.emailBodyHTML);
+      $("#inputtext").find("a").map(function () {
+        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+          gotLink = 1;
+        }
+      });
+      if (gotLink == 0) {
+        errors.emailBodyHTML = 'Please add unsubscribe link';
+      }
+    }
   }
   if (!values.emailBodyHTMLEditor && values.type === 'HTMLEditor') {
     errors.emailBodyHTMLEditor = 'Required';
+  } else {
+    if (typeof $("#inputtext").html() !== 'undefined') {
+      let gotLink = 0;
+      var html = $("#inputtext").html(values.emailBodyHTMLEditor);
+      $("#inputtext").find("a").map(function () {
+        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+          gotLink = 1;
+        }
+      });
+      if (gotLink == 0) {
+        errors.emailBodyHTMLEditor = 'Please add unsubscribe link';
+      }
+    }
   }
 
   if (!values.type) {

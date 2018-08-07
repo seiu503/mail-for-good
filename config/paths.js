@@ -7,7 +7,7 @@ function returnRoute(path, authenticated = true) {
 }
 
 const routes = {
-  /* UNAUTH */
+  /* UNAUTH */  
   PATH_LOGIN: returnRoute('/login', false),
   PATH_GOOGLE_AUTH: returnRoute('/auth/google', false),
   PATH_GOOGLE_CALLBACK: returnRoute('/auth/google/callback', false),

@@ -3,7 +3,9 @@ import {
   COMPLETE_ADD_SUBSCRIBERS, REQUEST_ADD_SUBSCRIBERS,
   REQUEST_GET_LISTS, COMPLETE_GET_LISTS,
   REQUEST_GET_LIST_SUBSCRIBERS, COMPLETE_GET_LIST_SUBSCRIBERS,
-  COMPLETE_DELETE_LIST_SUBSCRIBERS, COMPLETE_DELETE_LISTS, COMPLETE_EDIT_LIST_NAME
+  COMPLETE_DELETE_LIST_SUBSCRIBERS, COMPLETE_DELETE_LISTS, COMPLETE_EDIT_LIST_NAME,
+  REQUEST_GET_SFREPORTS, COMPLETE_GET_SFREPORTS,
+  REQUEST_GET_SFREPORT_DETAILS, COMPLETE_GET_SFREPORT_DETAILS
 } from '../constants/actionTypes';
 
 export function manageListSubscribers(state = initialState.manageListSubscribers, action) {
@@ -79,8 +81,40 @@ export function manageList(state = initialState.manageList, action) {
       return state;
   }
 }
-
+export function manageSFReport(state = initialState.manageSFReport, action) {  
+  switch (action.type) {
+    case REQUEST_GET_SFREPORTS: {
+      return {
+        ...state,
+        isReportGetting: true
+      };
+    }    
+    case COMPLETE_GET_SFREPORTS: {
+      return {
+        ...state,
+        reports: action.reports,
+        isReportGetting: false
+      };
+    }
+    case REQUEST_GET_SFREPORT_DETAILS: {
+      return {
+        ...state,
+        isReportDetailsGetting: true
+      };
+    }    
+    case COMPLETE_GET_SFREPORT_DETAILS: {
+      return {
+        ...state,
+        reportDetails: action.reportDetails,
+        isReportDetailsGetting: false
+      };
+    }    
+    default:
+      return state;
+  }
+}
 export default {
   createList,
-  manageList
+  manageList,
+  manageSFReport
 };

@@ -45,6 +45,7 @@ const CreateTemplateForm = props => {
   };
 
   const resetForm = () => {
+    $("#inputtext").html('');
     reset();
   };
 
@@ -63,7 +64,7 @@ const CreateTemplateForm = props => {
       <h3>Analytics</h3>
       <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
       <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
-      <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div><hr/>
+      {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}<hr/>
 
       <h3>Create email</h3>
       <Field name="type" component={renderEditorTypeRadio} label="Type" />
@@ -71,6 +72,7 @@ const CreateTemplateForm = props => {
       <div hidden={true}><Field name="emailBodyDesign" component={renderField} label="emailBodyDesign" type="text" /></div>
       <Field name="emailBody" component={renderTextEditor} label="Write Email*" textEditorType={textEditorType} />
       <br/>
+      <div hidden={true} id="inputtext"></div>
       <div className="box-footer">
         <div className="btn-group">
           <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Next Step</button>
@@ -94,13 +96,25 @@ CreateTemplateForm.propTypes = {
 };
 
 const validate = values => {
-  const errors = {};
-  
+  const errors = {}; 
   if (!values.templateName) {
     errors.templateName = 'Required';
   }
   if (!values.emailBody) {
     errors.emailBody = 'Required';
+  }else{
+    if (typeof $("#inputtext").html() !== 'undefined') {
+      let gotLink=0;
+      var html = $("#inputtext").html(values.emailBody);      
+      $("#inputtext").find("a").map(function () {        
+        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {   
+          gotLink=1;        
+        }
+      });
+      if(gotLink==0){      
+        errors.emailBody = 'Please add unsubscribe link';  
+      }
+    }
   }
   if (!values.type) {
     errors.type = 'Required';

@@ -1,9 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { initialize } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import CreateTemplateForm from '../../components/templates/CreateTemplateForm';
 import PreviewTemplateForm from '../../components/templates/PreviewTemplateForm';
-import { postCreateTemplate } from '../../actions/campaignActions';
+import { postCreateTemplate, getTemplates } from '../../actions/campaignActions';
 import { notify } from '../../actions/notificationActions';
 import moment from 'moment';
 
@@ -17,7 +18,7 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = { postCreateTemplate, notify };
+const mapDispatchToProps = { postCreateTemplate, notify, getTemplates, initialize };
 
 export class CreateTemplateComponent extends Component {
 
@@ -27,9 +28,13 @@ export class CreateTemplateComponent extends Component {
     postCreateTemplate: PropTypes.func.isRequired,
     templates: PropTypes.array.isRequired,
     isGetting: PropTypes.bool.isRequired,
-    notify: PropTypes.func.isRequired
+    notify: PropTypes.func.isRequired,
+    getTemplates: PropTypes.func.isRequired,
+    initialize: PropTypes.func.isRequired,
   }
-
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  }
   constructor() {
     super();
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -46,19 +51,55 @@ export class CreateTemplateComponent extends Component {
       type: 'Plaintext'
     },
     editor: '',
-    reset: null
+    reset: null,
+    isEdit:false
+  }
+
+  componentWillMount() {
+    this.props.getTemplates();
+    this.getSingleTemplate(this.props);
   }
 
   componentWillReceiveProps(props) {
     if (this.props.isPosting === true && props.isPosting === false) { // Fires when template has been successfully created
       this.setState({ page: 1 });
       this.props.notify({
-        message: 'Your template was created successfully',
+        message: (this.state.isEdit == false) ? 'Your template was created successfully' :'Your template was updated successfully',
         colour: 'green'
       });
+      this.context.router.push(`/templates/manage`);
+    }    
+    if (props.templates && props.templates.length && !this.props.templates.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist
+      this.getSingleTemplate(props);
     }
   }
-
+  getSingleTemplate(props) {
+    // This method retrieves a single campaign from this.props.campaigns based on the parameter in the url
+    const slug = this.props.params.slug;    
+    if (slug){
+      const getTemplateBySlug = props.templates.find(template => template.slug === slug);      
+      if (getTemplateBySlug){
+        const correctForm = Object.assign({}, getTemplateBySlug, {
+          ['templateName']: getTemplateBySlug.name
+        });
+        //delete correctForm['id'];
+        delete correctForm['createdAt'];
+        delete correctForm['updatedAt'];
+        delete correctForm['userId'];
+        delete correctForm['name'];
+        delete correctForm['slug'];
+        
+        this.props.initialize('createTemplate', correctForm);
+        this.setState({ isEdit: true});
+      }
+    }else{
+      const correctForm = Object.assign({}, {
+        ['templateName']: this.state.initialFormValues.templateName,
+        ['type']: this.state.initialFormValues.type,
+      });
+      this.props.initialize('createTemplate', correctForm);
+    }
+  }
   handleSubmit() {
     this.props.postCreateTemplate(JSON.stringify(this.props.form.values), this.state.reset);
   }
@@ -82,14 +123,14 @@ export class CreateTemplateComponent extends Component {
   }
 
   render() {
-    const { page } = this.state;
+    const { page, isEdit } = this.state;
     const type = (this.props.form && this.props.form.values.type) || this.state.initialFormValues.type;
 
     return (
       <div>
         <div className="content-header">
           <h1>Templates
-            <small>Create and manage your templates</small>
+            <small>{(isEdit == false) ? 'Create and manage your templates' :'Update and manage your templates'}</small>
           </h1>
         </div>
 

@@ -3,8 +3,12 @@ const parseJson = bodyParser.json();
 const cookieParser = require('cookie-parser')();
 
 // Campaign controllers
+const getCampaignsSeuence = require('../controllers/campaign/get-campaign-sequence');
+const createCampaignSequence = require('../controllers/campaign/create-campaign-sequence');
+const deleteCampaignSequence = require('../controllers/campaign/delete-campaign-sequence');
 const getCampaigns = require('../controllers/campaign/get-campaigns');
 const createCampaign = require('../controllers/campaign/create-campaign');
+const createCampaignCopy = require('../controllers/campaign/create-campaign-copy');
 const deleteCampaigns = require('../controllers/campaign/delete-campaigns');
 const exportSentUnsentCSV = require('../controllers/campaign/export-sent-unsent-csv');
 const stopCampaignSending = require('../controllers/campaign/stop-campaign-sending');
@@ -43,6 +47,12 @@ module.exports = function(app, io, redis) {
   app.post('/api/campaign', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     createCampaign(req, res, io);
   });
+
+  // Post copy campaign
+  app.post('/api/campaigncopy', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    createCampaignCopy(req, res, io);
+  });
+
   // Delete campaign(s)
   app.delete('/api/campaign', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     deleteCampaigns(req, res);
@@ -64,5 +74,17 @@ module.exports = function(app, io, redis) {
   // Post to send a cron campaign
   app.post('/api/cronsend', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     sendCronCampaign(req, res, io, redis);
+  });
+  // Post new campaign
+  app.post('/api/campaignsequence', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    createCampaignSequence(req, res, io);
+  });
+  // Get a list of all campaign sequences  
+  app.post('/api/campaignsequencelisting', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    getCampaignsSeuence(req, res, redis);
+  }); 
+  // Delete campaign sequence
+  app.delete('/api/campaignsequence', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    deleteCampaignSequence(req, res);
   });
 };

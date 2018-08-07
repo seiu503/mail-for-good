@@ -40,6 +40,7 @@ const Sidebar = (props) => { // eslint-disable-line no-unused-vars
           {(!anotherAccountIsActive || (activeAccount.lists && activeAccount.lists !== 'none'))
           ? <SidebarTreeview name="Lists" icon="fa-list">
               <SidebarLink to="/lists/create">Create List</SidebarLink> {/* Import from CSV etc. Keep this isolated to importing */}
+              {/* <SidebarLink to="/lists/import">Import List</SidebarLink> */} {/* Import from CSV etc. Keep this isolated to importing */}
               <SidebarLink to="/lists/manage">Manage Lists</SidebarLink> {/* RUD, Export list, statistics, add subscriber, duplicate list, combine list */}
             </SidebarTreeview>
           : <DisabledLink icon="fa-list">Lists</DisabledLink>}
@@ -53,7 +54,7 @@ const Sidebar = (props) => { // eslint-disable-line no-unused-vars
 
           {(!anotherAccountIsActive || (activeAccount.campaigns && activeAccount.campaigns !== 'none'))
           ? <SidebarTreeview name="Campaigns" icon="fa-envelope">
-              <SidebarLink to="/campaigns/create">Create Campaign</SidebarLink> {/* typeofcampaign (html, plain etc), use template, steps= 1. to who - 2. campaign info (name, from, subject, from email, options for tracking) 3. Template 4. Write the actual email 5. send & confirm*/}
+              <SidebarLink to="/campaigns/create">Create Campaign</SidebarLink> {/* typeofcampaign (html, plain etc), use template, steps= 1. to who - 2. campaign info (name, from, subject, from email, options for tracking) 3. Template 4. Write the actual email 5. send & confirm*/}              
               <SidebarLink to="/campaigns/manage">Manage Campaigns</SidebarLink> {/* delete, resend, edit, view report (analytics) */}
             </SidebarTreeview>
           : <DisabledLink icon="fa-envelope">Campaigns</DisabledLink>}

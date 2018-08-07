@@ -3,17 +3,19 @@ import React, { Component, PropTypes } from 'react';
 export default class TextEditorPlain extends Component {
   static propTypes = {
     value: PropTypes.string,
+    inputName: PropTypes.string,
     onChange: PropTypes.func
   }
   
   render() {
-    const { value, onChange } = this.props;
+    const { value, inputName, onChange } = this.props;
     return (     
       <textarea
-      className="form-control"
-      style={{ width: "100%", minHeight: "60vh" }}
-      value={value}
-      onChange={onChange}
+        name={inputName}
+        className="form-control"
+        style={{ width: "100%", minHeight: "60vh" }}
+        value={value}
+        onChange={onChange}
       />     
     );
   }

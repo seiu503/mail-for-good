@@ -1,5 +1,7 @@
 import axios from 'axios';
 import {
+  REQUEST_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_POST_CREATECAMPAIGNSEQUENCE,
+  REQUEST_GET_CAMPAIGNSSEQUENCE, COMPLETE_GET_CAMPAIGNSSEQUENCE, COMPLETE_DELETE_CAMPAIGNSEQUENCE,
   REQUEST_POST_CREATECAMPAIGN, COMPLETE_POST_CREATECAMPAIGN,
   REQUEST_GET_CAMPAIGNS, COMPLETE_GET_CAMPAIGNS,
   REQUEST_POST_SENDCAMPAIGN, COMPLETE_POST_SENDCAMPAIGN,
@@ -9,9 +11,22 @@ import {
   COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES,
   REQUEST_STOP_SENDING, COMPLETE_STOP_SENDING
 } from '../constants/actionTypes';
-import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT } from '../constants/endpoints';
+import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT } from '../constants/endpoints';
 import { notify } from './notificationActions';
 import { destroy } from 'redux-form';
+
+//Campaign seqeuences
+export function requestGetCampaignSequence() {
+  return { type: REQUEST_GET_CAMPAIGNSSEQUENCE };
+}
+export function completeGetCampaignSequence(campaignsequences) {
+  return { type: COMPLETE_GET_CAMPAIGNSSEQUENCE, campaignsequences };
+}
+// Delete campaign sequence
+export function completeDeleteCampaignSequence(campaignsequences) {
+  return { type: COMPLETE_DELETE_CAMPAIGNSEQUENCE, campaignsequences };
+}
+
 
 // Create new campaign
 export function requestPostCreateCampaign() {
@@ -19,6 +34,13 @@ export function requestPostCreateCampaign() {
 }
 export function completePostCreateCampaign() {
   return { type: COMPLETE_POST_CREATECAMPAIGN };
+}
+// Create new campaign Sequence
+export function requestPostCreateCampaignSequence() {
+  return { type: REQUEST_POST_CREATECAMPAIGNSEQUENCE };
+}
+export function completePostCreateCampaignSequence() {
+  return { type: COMPLETE_POST_CREATECAMPAIGNSEQUENCE };
 }
 
 // Create new template
@@ -76,6 +98,56 @@ export function requestStopSending(campaignId) {
 export function completeStopSending() {
   return { type: COMPLETE_STOP_SENDING };
 }
+
+
+export function postCreateCampaignSequence(form, reset) {
+  return dispatch => {
+    dispatch(requestPostCreateCampaignSequence());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_CAMPAIGN_SEQUENCE_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completePostCreateCampaignSequence());
+      dispatch(getCampaigns());
+      setTimeout(() => {
+        dispatch(destroy('createCampaignSequence'));
+      }, 2000);
+      reset();
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+export function getCampaignSequence(campaignId) {  
+  return dispatch => {
+    dispatch(requestGetCampaignSequence());
+    axios.post(API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT,
+      { id: campaignId }
+    ).then(response => {
+      if (response.data){
+        dispatch(completeGetCampaignSequence(response.data));
+      }else{
+        dispatch(completeGetCampaignSequence([]));
+      }      
+    });    
+  };
+}
+
+export function deleteSequence(form, campaignSequences) {
+  console.log(form);
+  return dispatch => {    
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', API_CAMPAIGN_SEQUENCE_ENDPOINT);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+    xhr.onload = () => {
+      const formArray=JSON.parse(form);      
+      const filterCampaignSequences = campaignSequences.filter(x => x.id != formArray.deleteid);
+      dispatch(completeDeleteCampaignSequence(filterCampaignSequences));
+    };
+  };
+}
+
 
 export function stopSending(campaignId) {
   return dispatch => {
@@ -174,6 +246,36 @@ export function postCreateTemplate(form, reset) {
   };
 }
 
+export function postCreateTemplateCopy(form)  {
+  return dispatch => {
+    dispatch(requestPostCreateTemplate());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_TEMPLATE_COPY_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completePostCreateTemplate());      
+      dispatch(getTemplates());
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+
+export function postCreateCampaignCopy(form) {
+  return dispatch => {
+    dispatch(requestPostCreateCampaign());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_CAMPAIGN_COPY_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completePostCreateCampaign());
+      dispatch(getCampaigns());      
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+
 export function postCreateCampaign(form, reset) {
   return dispatch => {
     dispatch(requestPostCreateCampaign());
@@ -194,7 +296,7 @@ export function postCreateCampaign(form, reset) {
 }
 
 export function deleteCampaigns(campaignIds, campaigns) {
-  return dispatch => {
+  return dispatch => {    
     const jsonCampaignIds = JSON.stringify({ data: campaignIds });
     const xhr = new XMLHttpRequest();
     xhr.open('DELETE', API_CAMPAIGN_ENDPOINT);

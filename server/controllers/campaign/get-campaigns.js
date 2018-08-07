@@ -42,6 +42,8 @@ module.exports = (req, res) => {
       'status',
       'totalCampaignSubscribers',
       'scheduledatetime',
+      /* 'sequenceCount', */
+      'listId'
     ],
     raw: true
   }).then(instancesArray => {

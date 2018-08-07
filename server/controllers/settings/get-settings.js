@@ -16,7 +16,8 @@ module.exports = function(req, res) {
       'amazonSimpleQueueServiceUrl',
       'region',
       'whiteLabelUrl',
-      'email'
+      'email',
+      /* 'salesforceAccessToken' */
     ]
   }).then(settingsInstance => {
     const settingsObject = settingsInstance.get({ plain:true });

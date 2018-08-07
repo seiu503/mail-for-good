@@ -3,14 +3,18 @@ import {
   API_IMPORTCSV_ENDPOINT,
   API_MANAGELIST_ENDPOINT,
   API_LISTSUBSCRIBERS_ENDPOINT,
-  API_LIST_ENDPOINT
+  API_LIST_ENDPOINT,
+  API_SFREPORTSLIST_ENDPOINT,
+  API_SFREPORTDETAILS_ENDPOINT
 } from '../constants/endpoints';
 import {
   REQUEST_ADD_SUBSCRIBERS, COMPLETE_ADD_SUBSCRIBERS,
   REQUEST_GET_LISTS, COMPLETE_GET_LISTS,
   REQUEST_GET_LIST_SUBSCRIBERS, COMPLETE_GET_LIST_SUBSCRIBERS,
   COMPLETE_DELETE_LIST_SUBSCRIBERS, COMPLETE_DELETE_LISTS,
-  COMPLETE_EDIT_LIST_NAME
+  COMPLETE_EDIT_LIST_NAME,
+  REQUEST_GET_SFREPORTS, COMPLETE_GET_SFREPORTS,
+  REQUEST_GET_SFREPORT_DETAILS, COMPLETE_GET_SFREPORT_DETAILS
 } from '../constants/actionTypes';
 import { notify } from '../actions/notificationActions';
 import { localNotification } from './appActions';
@@ -50,6 +54,100 @@ export function completeDeleteLists(lists) {
 export function completeEditListName(lists) {
   return { type: COMPLETE_EDIT_LIST_NAME, lists};
 }
+
+export function requesGetSFReports() {
+  return { type: REQUEST_GET_SFREPORTS };
+}
+
+export function completeGetSFReports(reports) {  
+  return { type: COMPLETE_GET_SFREPORTS, reports };
+}
+
+export function requesGetSFReportDetails() {
+  return { type: REQUEST_GET_SFREPORT_DETAILS };
+}
+export function completeGetSFReportDetails(reportDetails) {  
+  return { type: COMPLETE_GET_SFREPORT_DETAILS, reportDetails };
+}
+//Import SalesForce Reports
+export function getReportDetails(form) {
+  return dispatch => {
+    dispatch(requesGetSFReportDetails());
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_SFREPORTDETAILS_ENDPOINT);
+    xhr.onload = () => {
+      if (xhr.responseText) {
+        // Convert response from JSON
+        const reportDetails = JSON.parse(xhr.responseText);
+        console.log(reportDetails);        
+        if(reportDetails.factMap['T!T'].rows.length){
+          const columnsName = reportDetails.reportMetadata.detailColumns;
+          const allowedColumn = ['CONTACT_ID', 'FIRST_NAME', 'LAST_NAME', 'EMAIL'];
+          const availableColumns=[];
+          Object.keys(columnsName).forEach(key => {
+            const isAvavilable = allowedColumn.find(x => x === columnsName[key]);
+            if (isAvavilable){
+              availableColumns.push(isAvavilable);              
+            }
+          });          
+          const rows = reportDetails.factMap['T!T'].rows;
+          /* console.log(columnsName);
+          console.log(rows); */
+          const rowsObject = [];
+          Object.keys(rows).forEach(key => {
+            if (rows[key]){              
+              let singleRow=[];
+              Object.keys(rows[key].dataCells).forEach(key1 => {                
+                if (rows[key].dataCells[key1]) {              
+                  let keyName = columnsName[key1];
+                  const isAvavilable = availableColumns.find(x => x === keyName);
+                  if(isAvavilable){
+                    singleRow[keyName] = rows[key].dataCells[key1].label;
+                  }
+                }
+              });
+              rowsObject[key] = singleRow;                                        
+            }              
+          });
+          const finalArray=[];
+          finalArray[0] = allowedColumn;
+          finalArray[1] = rowsObject;          
+          dispatch(completeGetSFReportDetails(finalArray));
+        }else{
+          dispatch(completeGetSFReportDetails([]));  
+        }
+      } else {
+        console.log('blank');
+        dispatch(completeGetSFReportDetails([]));
+      }
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+
+export function getSalesForceReports() {
+  return dispatch => {
+    dispatch(requesGetSFReports());
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', API_SFREPORTSLIST_ENDPOINT);
+    xhr.setRequestHeader('Accept', 'application/json, text/javascript');
+    xhr.onload = () => {
+      if (xhr.responseText && xhr.responseText !='error') {
+        // Convert response from JSON
+        const reportsArray = JSON.parse(xhr.responseText);                
+        dispatch(completeGetSFReports(reportsArray.records));
+      } else {
+        console.log('else error');
+        dispatch(completeGetSFReports([]));
+      }
+
+    };
+    xhr.send();
+  };
+}
+
+
 
 export function getListSubscribers(listId, offset=1, limit=10, filters={}) {
   return dispatch => {

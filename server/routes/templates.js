@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser')();
 const getTemplates = require('../controllers/template/get-templates');
 const createTemplate = require('../controllers/template/create-template');
 const deleteTemplates = require('../controllers/template/delete-templates');
+const createTemplateCopy = require('../controllers/template/create-template-copy');
 
 // Middleware
 const { apiIsAuth } = require('./middleware/auth');
@@ -30,5 +31,10 @@ module.exports = function(app) {
   // Delete template(s)
   app.delete('/api/template', apiIsAuth, parseJson, cookieParser, writeTemplateAccess, (req, res) => {
     deleteTemplates(req, res);
+  });
+  
+  // Post a new template copy
+  app.post('/api/templatecopy', apiIsAuth, parseJson, cookieParser, writeTemplateAccess, (req, res) => {
+    createTemplateCopy(req, res);
   });
 };

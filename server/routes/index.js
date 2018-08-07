@@ -24,8 +24,15 @@ const templates = require('./templates');
 const campaigns = require('./campaigns');
 const permissions = require('./permissions');
 
-module.exports = (app, passport, io, redis) => {
+//Saleforce
+const SalesforceClient = require('salesforce-node-client');
+const sfdc = new SalesforceClient();
+const httpClient = require("request");
 
+//Modal
+const db = require('../models');
+
+module.exports = (app, passport, io, redis) => {
   ////////////////////
   /* AUTHENTICATION */
   ////////////////////
@@ -37,6 +44,144 @@ module.exports = (app, passport, io, redis) => {
     res.redirect('/login');
   });
 
+
+
+  // Saleforce Function
+  app.get("/salesforcelogin", (req, res) => {    
+    // Redirect to Salesforce login/authorization page
+    const uri = sfdc.auth.getAuthorizationUrl({ scope: 'api refresh_token' });    
+    return res.redirect(uri);
+  });
+  app.get('/auth/callback', (request, response) => {    
+    if (!request.query.code) {
+      response.status(500).send('Failed to get authorization code from server callback.');
+      return;
+    }
+
+    // Authenticate with Force.com via OAuth
+    sfdc.auth.authenticate({
+      'code': request.query.code
+    }, function (error, payload) {
+      if (error) {
+        console.log('Force.com authentication error: ' + JSON.stringify(error));
+        response.status(500).json(error);
+        return;
+      }           
+      db.setting.update({
+        salesforceAccessToken: JSON.stringify(payload)        
+      }, {
+          where: { userId: request.user.id }
+      }).then((instance) => {
+        if (instance == 1) {
+          // Redirect to app main page
+          return response.redirect('/lists/import');      
+        } else {
+          res.status(400).send();
+        }
+      }, err => {
+        throw err;
+      });      
+      
+    });
+  });
+  app.get('/api/salesforcereports', (req, res) => {        
+    db.setting.findOne({
+      where: {
+        userId: req.user.id
+      }
+    }).then(settingInstance => {      
+      if (!settingInstance) {
+        // This should never happen as settings are created on account creation        
+        res.status(500).send('error');
+        return;
+      } else {
+        const settingObject = settingInstance.get({ plain: true });
+        const { salesforceAccessToken } = settingObject;
+        const salesforceAccessTokenArry = (salesforceAccessToken!='')?JSON.parse(salesforceAccessToken):'';        
+        if (salesforceAccessTokenArry!=''){          
+          sfdc.auth.refresh({
+            'refresh_token': salesforceAccessTokenArry.refresh_token
+          }, function (error, payload) {
+            if (error) {
+              console.log('Force.com authentication error: ' + JSON.stringify(error));
+              //res.status(500).json(error);
+              res.status(200).json('error');
+              return;
+            }
+            const apiRequestOptions = sfdc.data.createDataRequest(payload, 'query?q=SELECT Name, Id from Report');
+            //const apiRequestOptions = sfdc.data.createDataRequest(payload, 'analytics/reports/00O6F00000B79fwUAB');
+            //console.log(apiRequestOptions);
+            httpClient.get(apiRequestOptions, function (error, payload) {
+              if (error) {
+                console.error('Force.com data API error: ' + JSON.stringify(error));
+                //res.status(500).json(error);
+                res.status(200).json('error');
+                return;
+              }
+              else {
+                res.send(payload.body);
+                return;
+              }
+            });
+          });
+          return;          
+        }else{
+          res.status(200).send('error');
+          return;
+        }
+      }
+    });    
+  });
+  app.post('/api/salesforcereportsdetails', apiIsAuth, parseJson, (req, res) => {  
+    //console.log(req.body.query);
+    // If req.body.reportId was not supplied, cancel
+    if (!req.body.query) {
+      res.status(400).send();
+      return;
+    }
+
+    db.setting.findOne({
+      where: {
+        userId: req.user.id
+      }
+    }).then(settingInstance => {
+      if (!settingInstance) {
+        // This should never happen as settings are created on account creation        
+        res.status(500).send('error');
+      } else {
+        const settingObject = settingInstance.get({ plain: true });
+        const { salesforceAccessToken } = settingObject;
+        const salesforceAccessTokenArry = JSON.parse(salesforceAccessToken);
+        if (salesforceAccessTokenArry != '') {
+          sfdc.auth.refresh({
+            'refresh_token': salesforceAccessTokenArry.refresh_token
+          }, function (error, payload) {
+            if (error) {
+              console.log('Force.com authentication error: ' + JSON.stringify(error));
+              res.status(500).json(error);
+              return;
+            }
+            const apiRequestOptions = sfdc.data.createDataRequest(payload, req.body.query);
+            //const apiRequestOptions = sfdc.data.createDataRequest(payload, 'analytics/reports/00O6F00000B79fwUAB');
+            console.log(apiRequestOptions);
+            httpClient.get(apiRequestOptions, function (error, payload) {
+              if (error) {
+                console.error('Force.com data API error: ' + JSON.stringify(error));
+                res.status(500).json(error);
+                return;
+              }
+              else {
+                res.send(payload.body);
+                return;
+              }
+            });
+          });
+          return;
+        }
+      }
+    });
+    return;
+  });
   ////////////////////
   /*      API       */
   ////////////////////

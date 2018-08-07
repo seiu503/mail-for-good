@@ -10,6 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     slug: DataTypes.STRING,
     scheduledatetime: DataTypes.STRING,
     userId: DataTypes.INTEGER,
+    /* sequenceCount: { type: DataTypes.INTEGER, defaultValue: 0 }, */
     trackingPixelEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     trackLinksEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     unsubscribeLinkEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -23,6 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         campaign.belongsTo(models.list);
         campaign.hasMany(models.campaignsubscriber);
         campaign.hasOne(models.campaignanalytics);
+        campaign.hasMany(models.campaignsequence);
       }
     }
   });

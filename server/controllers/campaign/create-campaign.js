@@ -59,7 +59,7 @@ module.exports = (req, res, io) => {
           userId: req.user.id,
           listId: valueFromValidation.listId,
           slug: slug(req.body.campaignName),
-          scheduledatetime: req.body.scheduledatetime
+          scheduledatetime: req.body.scheduledatetime,          
         }
       }).then((instance) => {
         if (instance[0].$options.isNewRecord) {

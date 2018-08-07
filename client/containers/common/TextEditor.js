@@ -9,7 +9,8 @@ export default class TextEditor extends Component {
 
   static propTypes = {
     input: PropTypes.object.isRequired,
-    textEditorType: PropTypes.string
+    textEditorType: PropTypes.string,
+    inputName: PropTypes.string
   }
 
   constructor(props) {
@@ -31,9 +32,11 @@ export default class TextEditor extends Component {
 
     //const isPlaintext = this.props.textEditorType === 'Plaintext';
     const editorType = this.props.textEditorType;
+    const inputName = this.props.inputName;
 
     const textEditorProps = {
       value,
+      inputName,
       onChange: this.onChange
     };
 
@@ -42,7 +45,7 @@ export default class TextEditor extends Component {
       isPlaintext
         ? <TextEditorPlain {...textEditorProps} />
         : <TextEditorRich {...textEditorProps} />
-    ); */
+    ); */    
     return (
       (editorType == 'Plaintext') ? <TextEditorPlain {...textEditorProps} /> : (editorType == 'HTML') ? <TextEditorRich {...textEditorProps} /> : <TextEditorUnlayer {...textEditorProps} />      
     );

@@ -98,7 +98,7 @@ export const renderTextEditor = ({ input, label, type, meta: { touched, error, w
   <div>
     <label>{label}</label>
     <div>
-      <Field name={emailBody ? emailBody : 'emailBody'} value={() => input.value} onChange={() => input.onChange} component={TextEditor} textEditorValue={textEditorValue} textEditorType={textEditorType} />
+      <Field name={emailBody ? emailBody : 'emailBody'} value={() => input.value} onChange={() => input.onChange} component={TextEditor} textEditorValue={textEditorValue} textEditorType={textEditorType} inputName={emailBody ? emailBody : 'emailBody'} />
       {touched && ((error && <span className="text-red"><i className="fa fa-exclamation" /> {error}</span>) || (warning && <span>{warning}</span>))}
     </div>
   </div>
@@ -113,4 +113,15 @@ export const renderDatePicker = ({ input, label, dateFormat, meta: { touched, er
           <span>{warning}</span>))}
       </div>
     </div>)
+};
+export const renderHiddenField = ({ input, label, type, id, meta: { touched, error, warning } }) => {
+  return (
+    <div>
+      <label>{label}</label>
+      <div>
+        <input className="form-control" {...input} id={id} placeholder={label} type={type} />
+        {touched && ((error && <span className="text-red"><i className="fa fa-exclamation" /> {error}</span>) || (warning && <span>{warning}</span>))}
+      </div>
+    </div>
+  )
 };

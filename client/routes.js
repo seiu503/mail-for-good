@@ -7,8 +7,10 @@ import App from './containers/App';
 import Dashboard from './containers/Dashboard';
 // Campaigns
 import CreateCampaign from './containers/campaigns/CreateCampaign';
+import CreateCampaignSequence from './containers/campaigns/CreateCampaignSequence';
 import ManageCampaigns from './components/campaigns/ManageCampaigns';
 import CampaignView from './containers/campaigns/CampaignView';
+import SequenceView from './containers/campaigns/SequenceView';
 // Cron job For campigns
 import CronJobCampaigns from './components/campaigns/CronJobCampaigns';
 // Templates
@@ -17,6 +19,7 @@ import ManageTemplates from './containers/templates/ManageTemplates';
 import TemplateView from './containers/templates/TemplateView';
 // Lists
 import CreateList from './containers/lists/CreateList';
+import ImportList from './containers/lists/ImportList';
 import ManageLists from './components/lists/ManageLists';
 import ManageListSubscribers from './containers/lists/ManageListSubscribers';
 // Analytics
@@ -77,19 +80,26 @@ export default class RouterConfig extends Component {
 
           <Route path="campaigns" onEnter={this.onEnter} >
             <Route path="create" component={CreateCampaign}/>
+            <Route path="create/:slug" component={CreateCampaign}/>
             <Route path="manage" component={ManageCampaigns}/>
-            <Route path="cronjobcampaigns" component={CronJobCampaigns} />
             <Route path="manage/:slug" component={CampaignView}/>
+            <Route path="createsequence" component={CreateCampaignSequence}/>
+            <Route path="createsequence/:slug" component={CreateCampaignSequence}/>
+            <Route path="managesequence/:slug" component={SequenceView}/>
+            <Route path="createsequence/:slug/:sequenceid" component={CreateCampaignSequence}/>
+            <Route path="cronjobcampaigns" component={CronJobCampaigns} />
           </Route>
 
           <Route path="templates" onEnter={this.onEnter} >
             <Route path="create" component={CreateTemplate}/>
+            <Route path="create/:slug" component={CreateTemplate}/>
             <Route path="manage" component={ManageTemplates}/>
             <Route path="manage/:slug" component={TemplateView}/>
           </Route>
 
           <Route path="lists" onEnter={this.onEnter} >
             <Route path="create" component={CreateList}/>
+            <Route path="import" component={ImportList}/>
             <Route path="manage" component={ManageLists}/>
             <Route path="manage/:listId" component={ManageListSubscribers}/>
           </Route>
