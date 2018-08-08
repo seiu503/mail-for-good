@@ -12,7 +12,7 @@ const Header = props => { // eslint-disable-line no-unused-vars
           <strong>MfG</strong>
         </span>
         <span className="logo-lg">
-          <strong>Mail for Good <i className="fa fa-free-code-camp" /></strong>
+          <div>SEIU Mail for Good <i className="fa fa-free-code-camp" /></div>
         </span>
       </div>
       <nav className="navbar navbar-static-top">
