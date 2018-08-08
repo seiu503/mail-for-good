@@ -1,16 +1,16 @@
 body, html {
     height: 100vh;
+    background-color: #531078;
 }
 
 .flex {
     display: flex;
-    flex-direction: row;
     height: 90vh;
-    background-color: #2196F3;
 }
 
 .flex-login {
     display: flex;
+    flex-direction: column;
     flex-basis: 50vh;
     text-align: center;
     margin: auto;
