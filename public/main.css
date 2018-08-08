@@ -1,16 +1,33 @@
+@font-face
+{
+   font-family: Lato;
+   src: url('../client/utils/adminLte/assets/Lato-Regular.ttf');
+}
+
 body, html {
     height: 100vh;
+    background-color: #531078;
 }
 
 .flex {
     display: flex;
-    flex-direction: row;
     height: 90vh;
-    background-color: #2196F3;
+}
+
+.flex-logo a {
+    display: flex;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+}
+
+.flex-logo a img {
+    margin: auto;
 }
 
 .flex-login {
     display: flex;
+    flex-direction: column;
     flex-basis: 50vh;
     text-align: center;
     margin: auto;
@@ -29,12 +46,65 @@ body, html {
 }
 
 .flex-login__form {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     background: #fff;
     border-radius: 4px;
     padding: 20px;
-    input, button {
-        width: 100%;
-        margin: 5px 0;
-    }
+    font-size: 24px;
+    font-family: Lato, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    color: #007E00;
+}
+
+.flex-login__button {
+    color: white;
+    border: 0;
+    font-family: Lato, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: 400;
+    border-radius: 4px;
+    background: #007E00;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    height: 44px;
+    width: 70%;
+    margin: auto;
+}
+
+.flex-login__button:hover,
+.flex-login__button:focus {
+    background: #029b02;
+    transition: all 500ms ease-in-out;
+}
+
+.flex-login__button-text {
+  font-size: 12px;
+  padding: 14px 0;
+}
+
+.flex-login__form--header {
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+    justify-content: center;
+}
+
+.fcc-icon {
+    width: 30px;
+    height: auto;
+    margin-left: 10px;
+    position: relative;
+    top: -4px;
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+    margin: 11px;
 }
