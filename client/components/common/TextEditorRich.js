@@ -44,7 +44,9 @@ export default class TextEditorRich extends Component {
         const { value, inputName, onChange } = this.props;
         const bounds='#'+this.props.inputName;
         return (
-            <div>                
+            <div> 
+                <label className="red-lable">NOTE: To add unsubscribe link click on 'Insert' and then 'Link'.</label>
+                <br/>
                 <label htmlFor="fileInput" className="btn btn-success btn-lg import-html">Import HTML</label>
                 <FormControl id="fileInput" accept=".html" style={{ display: "none" }} className="btn" type="file" onChange={this.onUpload.bind(this)} />                
                 <div hidden={true}>

@@ -25,7 +25,7 @@ module.exports = (req, res, io) => {
             }else{
                 res.status(400).send();
             }
-        }, err => {
+        }, err => {            
             throw err;
         });
     }else{    

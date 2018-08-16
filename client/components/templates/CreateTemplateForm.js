@@ -96,7 +96,8 @@ CreateTemplateForm.propTypes = {
 };
 
 const validate = values => {
-  const errors = {}; 
+  const errors = {};
+  
   if (!values.templateName) {
     errors.templateName = 'Required';
   }
@@ -105,16 +106,17 @@ const validate = values => {
   }else{
     if (typeof $("#inputtext").html() !== 'undefined') {
       let gotLink=0;
-      var html = $("#inputtext").html(values.emailBody);      
+      var html = $("#inputtext").html(values.emailBody);    
+      //$($.parseHTML(htmlstring)).filter('a').map(function () {
       $("#inputtext").find("a").map(function () {        
-        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {   
+        if (this.text.indexOf('unsubscribe') != -1) {      
           gotLink=1;        
         }
       });
       if(gotLink==0){      
         errors.emailBody = 'Please add unsubscribe link';  
       }
-    }
+    }      
   }
   if (!values.type) {
     errors.type = 'Required';

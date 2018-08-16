@@ -10,54 +10,63 @@ module.exports = (req, res) => {
 
   const { testEmail, campaignId } = req.body;
 
-  let campaign = {}; // eslint-disable-line
+  if(req.body.campaignId==''){
+    campaign =req.body.correctForm;
+  }else{
+    let campaign = {}; // eslint-disable-line
+  }
+ 
   let amazonSettings = {}; // eslint-disable-line
 
   const campaignBelongsToUser = new Promise((resolve, reject) => {
-    return db.campaign.findOne({
-      where: {
-        id: campaignId,
-        userId
-      }
-    }).then(campaignInstance => {
-      if (!campaignInstance) {
-        reject();
-        res.status(401).send();
-      } else {
-        const campaignObject = campaignInstance.get({ plain:true });
-        const listId = campaignObject.listId;
-        const {
-          fromName,
-          fromEmail,
-          emailSubject,
-          emailBody,
-          type,
-          name,
-          trackLinksEnabled,
-          trackingPixelEnabled,
-          unsubscribeLinkEnabled
-        } = campaignObject;
+    if(req.body.campaignId==''){
+      resolve();
+    }else{    
+        return db.campaign.findOne({
+          where: {
+            id: campaignId,
+            userId
+          }
+        }).then(campaignInstance => {
+          if (!campaignInstance) {
+            reject();
+            res.status(401).send();
+          } else {
+            const campaignObject = campaignInstance.get({ plain:true });
+            const listId = campaignObject.listId;
+            const {
+              fromName,
+              fromEmail,
+              emailSubject,
+              emailBody,
+              type,
+              name,
+              trackLinksEnabled,
+              trackingPixelEnabled,
+              unsubscribeLinkEnabled
+            } = campaignObject;
 
-        campaign = {
-          listId,
-          fromName,
-          fromEmail,
-          emailSubject,
-          emailBody,
-          campaignId,
-          type,
-          name,
-          trackLinksEnabled,
-          trackingPixelEnabled,
-          unsubscribeLinkEnabled
-        };
+            campaign = {
+              listId,
+              fromName,
+              fromEmail,
+              emailSubject,
+              emailBody,
+              campaignId,
+              type,
+              name,
+              trackLinksEnabled,
+              trackingPixelEnabled,
+              unsubscribeLinkEnabled
+            };
 
-        resolve();
-      }
-    }).catch(err => {
-      reject();
-      throw err;
-    });
+            resolve();
+          }
+        }).catch(err => {
+          reject();
+          throw err;
+        });
+    }    
   });
 
   const getAmazonKeysAndRegion = new Promise((resolve, reject) => {
@@ -132,10 +141,18 @@ module.exports = (req, res) => {
         const emailFormat = AmazonEmail({ email: testEmail }, campaign).email;
 
         ses.sendEmail(emailFormat, (data, err) => {
-          if (err)
-            res.status(400).send(err);
-          else
-            res.send();
+          console.log(data);
+          console.log(err);
+          if(err){
+            if (err.MessageId!=''){
+              res.send({message:'Your test email is being sent'});
+            }else{
+             res.status(400).send(err); 
+            }
+          }  
+          else{
+            res.status(400).send(data); 
+          }
         });
       });
     })

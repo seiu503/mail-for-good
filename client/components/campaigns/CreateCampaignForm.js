@@ -23,6 +23,8 @@ const CreateCampaignForm = props => {
     validationFailed,
     textEditorType,
     passResetToState,
+    scheduleCampaign,
+    showScheduleDate,
   } = props;
 
   const lists = props.lists.map(x => x.name);
@@ -40,7 +42,8 @@ const CreateCampaignForm = props => {
     'type',
     'trackingPixelEnabled',
     'trackLinksEnabled',
-    'unsubscribeLinkEnabled'
+    'unsubscribeLinkEnabled',
+    'scheduleDateEnabled'
   ]; // A list of all fields that need to show errors/warnings
 
   const resetFormAndSubmit = (e) => {
@@ -63,7 +66,7 @@ const CreateCampaignForm = props => {
     reset();
   };
 
-  return (
+  return (    
     <div>
       <h3>Apply template</h3>
       <Combobox id="templates" data={templates} suggest={true} onSelect={value => applyForm(value)} filter="contains" />
@@ -89,10 +92,14 @@ const CreateCampaignForm = props => {
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
         <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
         {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}
+        <div><label><Field name="scheduleDateEnabled" component="input" type="checkbox" onClick={scheduleCampaign.bind(this)} /> Schedule campaign</label></div>
         <hr />
-
-        <Field name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
+        {showScheduleDate && 
+        <div>
+        <Field hidden={showScheduleDate} name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
         <hr />
+          </div>
+        }
 
         <h3>Create email</h3>
         <Field name="type" component={renderEditorTypeRadio} label="Type of email" />
@@ -122,10 +129,13 @@ CreateCampaignForm.propTypes = {
   validationFailed: PropTypes.func.isRequired,
   textEditorType: PropTypes.string.isRequired,
   passResetToState: PropTypes.func.isRequired,
+  scheduleCampaign: PropTypes.func.isRequired,
+  showScheduleDate: PropTypes.bool
 };
 
 const validate = (values, props) => {
-  const errors = {};
+  const errors = {};  
+  
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -143,10 +153,11 @@ const validate = (values, props) => {
   if (!values.emailSubject) {
     errors.emailSubject = 'Required';
   }
-  if (!values.scheduledatetime) {
-    errors.scheduledatetime = 'Required';
+  if (values.scheduleDateEnabled){
+    if (!values.scheduledatetime) {
+      errors.scheduledatetime = 'Required';
+    }
   }
-
   // For the fields below, bare in mind there is only ever one rendered email editor
   // But multiple state fields
   if (!values.emailBodyPlaintext && values.type === 'Plaintext') {
@@ -156,7 +167,7 @@ const validate = (values, props) => {
       let gotLink = 0;
       var html = $("#inputtext").html(values.emailBodyPlaintext);      
       $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+        if (this.text.indexOf('unsubscribe') != -1) {
           gotLink = 1;
         }
       });      
@@ -173,7 +184,7 @@ const validate = (values, props) => {
       let gotLink = 0;
       var html = $("#inputtext").html(values.emailBodyHTML);
       $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+        if (this.text.indexOf('unsubscribe') != -1) {
           gotLink = 1;
         }
       });
@@ -189,7 +200,7 @@ const validate = (values, props) => {
       let gotLink = 0;
       var html = $("#inputtext").html(values.emailBodyHTMLEditor);
       $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1 || this.text.indexOf('Unsubscribe') != -1) {
+        if (this.text.indexOf('unsubscribe') != -1) {
           gotLink = 1;
         }
       });

@@ -8,14 +8,15 @@ module.exports = function(sequelize, DataTypes) {
     emailBody: DataTypes.TEXT,
     type: DataTypes.STRING,
     slug: DataTypes.STRING,
-    scheduledatetime: DataTypes.STRING,
-    userId: DataTypes.INTEGER,
+    status: { type: DataTypes.STRING, defaultValue: 'creating' },
+    scheduledatetime: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
     /* sequenceCount: { type: DataTypes.INTEGER, defaultValue: 0 }, */
+    userId: DataTypes.INTEGER,
     trackingPixelEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     trackLinksEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     unsubscribeLinkEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
-    status: { type: DataTypes.STRING, defaultValue: 'creating' },
-    totalCampaignSubscribers: { type: DataTypes.INTEGER, defaultValue: 0 }
+    totalCampaignSubscribers: { type: DataTypes.INTEGER, defaultValue: 0 },
+    
   }, {
     classMethods: {
       associate: function(models) {

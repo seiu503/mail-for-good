@@ -37,7 +37,11 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
   };
 
   const dateFormatter = cell => {
-    return moment(cell).format('lll');
+    if(cell!=''){
+      return moment(cell).format('lll');
+    }else{
+      return '-';
+    }
   };
 
   const countBounced = data => {
@@ -59,8 +63,11 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
     return (
       <div>
         <a href="#" onClick={getCampaignView.bind(this, row)}>Manage</a>&nbsp;&nbsp;
-        {/* <a href="#" onClick={duplicateTemplate.bind(this, row)} title="Duplicate Template"><i className="glyphicon glyphicon-duplicate"></i></a>&nbsp;&nbsp;
-        <a href="#" onClick={addCampaignSequence.bind(this, row)} title="Create Sequence"><i className="glyphicon glyphicon-plus-sign"></i></a>&nbsp;&nbsp;
+        {row.status!='done' &&
+        <a href="#" onClick={duplicateTemplate.bind(this, row)} title="Edit Template"><i className="glyphicon glyphicon-edit"></i></a>
+        }
+        {row.status != 'done' && <span>&nbsp;&nbsp;</span>}
+        {/* <a href="#" onClick={addCampaignSequence.bind(this, row)} title="Create Sequence"><i className="glyphicon glyphicon-plus-sign"></i></a>&nbsp;&nbsp;
         <a href="#" onClick={ManageCampaignSequence.bind(this, row)} title="Manage Sequence">{row.sequenceCount}</a> */}
       </div>
     );

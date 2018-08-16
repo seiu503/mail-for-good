@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import DOMPurify from 'dompurify';
-
+import { Modal, Button } from 'react-bootstrap';
 const PreviewCampaignForm = props => {
-  const { handleSubmit, lastPage } = props;
+  const { handleSubmit, lastPage, testEmail, handleChange, showTestSendModal, openTestSendModal, closeTestSendModal, sendTestEmail, showScheduleDate } = props;
   const isCreateCampaignPreview = !!props.form;
   let text;
   let form;
@@ -23,7 +23,7 @@ const PreviewCampaignForm = props => {
     type = form.type;
     text = props.campaignView.emailBody;
   }
-
+  
   return (
     <div>
       {form.listName && <h3><i className="fa fa-list text-green" aria-hidden="true" /> - {form.listName}</h3>}
@@ -53,11 +53,27 @@ const PreviewCampaignForm = props => {
       {(lastPage && handleSubmit) &&
       <div className="box-footer">
         <div className="btn-group">
-          <button style={{ margin: "1em", width: "200px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit}>Create Campaign</button>
-          <button style={{ margin: "1em", width: "200px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit.bind(this, 'ready')}>{(showScheduleDate) ? 'Create Campaign' : 'Send Campaign'}</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-warning" type="button" onClick={handleSubmit.bind(this, 'draft')}>Draft Campaign</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-info" type="button" onClick={openTestSendModal}>Send a test email</button>
         </div>
       </div>}
+      {/* Modal for sending test emails */}
+      <Modal show={showTestSendModal} onHide={closeTestSendModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Send a test email</Modal.Title>
+        </Modal.Header>
 
+        <Modal.Body>
+          <input className="form-control" style={{ "marginLeft": "1rem" }} id="testEmail" placeholder="Send a test email to:" type="email" value={testEmail} onChange={handleChange} />
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={closeTestSendModal}>Cancel</Button>
+          <Button bsStyle="primary" onClick={sendTestEmail}>Send Test Email</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
@@ -66,7 +82,14 @@ PreviewCampaignForm.propTypes = {
   handleSubmit: PropTypes.func,
   lastPage: PropTypes.func,
   form: PropTypes.object,
-  campaignView: PropTypes.object
+  campaignView: PropTypes.object,
+  showTestSendModal: PropTypes.bool,
+  testEmail: PropTypes.string,
+  openTestSendModal: PropTypes.func,
+  closeTestSendModal: PropTypes.func,
+  sendTestEmail: PropTypes.func,
+  handleChange: PropTypes.func,
+  showScheduleDate: PropTypes.bool
 };
 
 export default PreviewCampaignForm;

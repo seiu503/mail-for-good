@@ -34,95 +34,226 @@ module.exports = (req, res, io) => {
   });
 
   Promise.all([validateListBelongsToUser]).then(values => {
-    if (values.some(x => x === false)) {
+    if (values.some(x => x === false)) {      
       res.status(400).send(); // If any validation promise resolves to false, fail silently. No need to respond as validation is handled client side & this is a security measure.
     } else {
-
       const emailBodyType = req.body.emailBody;
 
-      // Find or create the campaign
-      db.campaign.findOrCreate({
-        where: {
-          name: req.body.campaignName, // Campaign exists & belongs to user
-          userId: req.user.id
-        },
-        defaults: {
-          name: req.body.campaignName, // Repeating these fields to make it clear that this property marks the new row's fields
-          fromName: req.body.fromName,
-          fromEmail: req.body.fromEmail,
-          emailSubject: req.body.emailSubject,
-          emailBody: emailBodyType,
-          type: req.body.type,
-          trackingPixelEnabled: req.body.trackingPixelEnabled,
-          trackLinksEnabled: req.body.trackLinksEnabled,
-          unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
-          userId: req.user.id,
-          listId: valueFromValidation.listId,
-          slug: slug(req.body.campaignName),
-          scheduledatetime: req.body.scheduledatetime,          
-        }
-      }).then((instance) => {
-        if (instance[0].$options.isNewRecord) {
-          const campaignId = instance[0].dataValues.id;
-          let totalCampaignSubscribersProcessed = 0;
-          db.campaignanalytics.create({campaignId}).then(() => {
-            // Iterate through blocks of 10k ListSubscribers and bulk create CampaignSubscribers.
-            // Each time we write (bulk insert) 10k ListSubscribers, fetch the next 10k by recursively calling
-            // createCampaignSubscribers - ensures that we don't run out of ram by loading too many ListSubscribers
-            // at once.
-            res.send({message: 'Campaign is being created - it will be ready to send soon.'}); // Should use notification/status rather than simple response
-            function createCampaignSubscribers(offset = 0, limit = 10000) {
-              db.listsubscriber.findAll({
-                where: {
-                  listId: valueFromValidation.listId
-                },
-                limit,
-                offset,
-                attributes: [
-                  [
-                    'id', 'listsubscriberId'
-                  ],
-                  'email'
-                ], // Nested array used to rename id to listsubscriberId
-                order: [
-                  ['id', 'ASC']
-                ],
-                raw: true
-              }).then(listSubscribers => {
-                if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
-                  totalCampaignSubscribersProcessed += listSubscribers.length;
-                  listSubscribers = listSubscribers.map(listSubscriber => {
-                    listSubscriber.campaignId = campaignId;
-                    return listSubscriber;
-                  });
-                  db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
-                    createCampaignSubscribers(offset + limit);
-                  });
-                } else {
-                  db.campaign.update({
-                    status: 'ready',
-                    totalCampaignSubscribers: totalCampaignSubscribersProcessed
-                  }, {
-                    where: {
-                      id: campaignId
+      if (req.body.id){        
+          //update campaign start here
+          db.campaign.update({
+            name: req.body.campaignName, // Repeating these fields to make it clear that this property marks the new row's fields
+            fromName: req.body.fromName,
+            fromEmail: req.body.fromEmail,
+            emailSubject: req.body.emailSubject,
+            emailBody: emailBodyType,
+            type: req.body.type,
+            trackingPixelEnabled: req.body.trackingPixelEnabled,
+            trackLinksEnabled: req.body.trackLinksEnabled,
+            unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
+            userId: req.user.id,
+            listId: valueFromValidation.listId,
+            slug: slug(req.body.campaignName),
+            scheduledatetime: (req.body.scheduledatetime) ? req.body.scheduledatetime: null,
+            status: req.body.status,
+          }, {
+              where: { id: req.body.id }
+            }).then((instance) => {
+              
+              if (instance == 1) {
+                if (req.body.listId == valueFromValidation.listId){
+                  if (req.body.status == 'draft') {
+                    res.send({ message: 'Campaign updated.' }); // Should use notification/status rather than simple response
+                  } else {
+                    if (!req.body.scheduledatetime) {
+                      res.send({ campaignId: req.body.id, status: req.body.status });
+                    }else{
+                      res.send({ message: 'Campaign updated.' }); // Should use notification/status rather than simple response
                     }
-                  }).then(() => {
-                    sendSuccessNotification();
-                    return;
-                  }).catch(err => {
+                  }
+                }else{                                                      
+                  //First we need to delete the customer subscribers and then create the new subscribers list
+                  db.campaignsubscriber.destroy({
+                    where: {
+                      campaignId: req.body.id,                      
+                    }
+                  }).then(numDeleted => {
+                    /* if (numDeleted) {
+                      res.send({ message: 'Campaign updated' });
+                    } else {
+                      res.status(404).send({ message: 'delete error' });
+                    } */                    
+                    if (req.body.status == 'draft') {
+                      res.send({ message: 'Campaign updated.' }); // Should use notification/status rather than simple response
+                    } else {                      
+                      if (req.body.scheduledatetime) {
+                        res.send({ message: 'Campaign updated.' }); // Should use notification/status rather than simple response
+                      }
+                    }
+                    let totalCampaignSubscribersProcessed = 0;
+                    function createCampaignSubscribers(offset = 0, limit = 10000) {
+                      db.listsubscriber.findAll({
+                        where: {
+                          listId: valueFromValidation.listId
+                        },
+                        limit,
+                        offset,
+                        attributes: [
+                          [
+                            'id', 'listsubscriberId'
+                          ],
+                          'email'
+                        ], // Nested array used to rename id to listsubscriberId
+                        order: [
+                          ['id', 'ASC']
+                        ],
+                        raw: true
+                      }).then(listSubscribers => {
+
+                        if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
+                          totalCampaignSubscribersProcessed += listSubscribers.length;
+                          listSubscribers = listSubscribers.map(listSubscriber => {
+                            listSubscriber.campaignId = req.body.id;
+                            return listSubscriber;
+                          });
+                          db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
+                            createCampaignSubscribers(offset + limit);
+                          });
+                        } else {
+                          db.campaign.update({
+                            status: req.body.status,
+                            totalCampaignSubscribers: totalCampaignSubscribersProcessed
+                          }, {
+                              where: {
+                                id: req.body.id
+                              }
+                            }).then(() => {
+                              sendSuccessNotification();
+                              if (req.body.status != 'draft') {
+                                if (!req.body.scheduledatetime) {
+                                  res.send({ campaignId: campaignId, status: req.body.status });
+                                }
+                              }
+                              return;
+                            }).catch(err => {
+                              throw err;
+                            });
+                        }
+                      });
+                    }
+                    createCampaignSubscribers(); // Start creating CampaignSubscribers 
+
+
+                  }).catch(err => {                    
                     throw err;
                   });
+                
                 }
-              });
+              } else {
+                res.status(400).send();
+              }
+            }, err => {              
+              throw err;
+            });
+          //end update campaign here
+        }else{
+          //create new campaign start here          
+
+          // Find or create the campaign
+          db.campaign.findOrCreate({
+            where: {
+              name: req.body.campaignName, // Campaign exists & belongs to user
+              userId: req.user.id
+            },
+            defaults: {
+              name: req.body.campaignName, // Repeating these fields to make it clear that this property marks the new row's fields
+              fromName: req.body.fromName,
+              fromEmail: req.body.fromEmail,
+              emailSubject: req.body.emailSubject,
+              emailBody: emailBodyType,
+              type: req.body.type,
+              trackingPixelEnabled: req.body.trackingPixelEnabled,
+              trackLinksEnabled: req.body.trackLinksEnabled,
+              unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
+              userId: req.user.id,
+              listId: valueFromValidation.listId,
+              slug: slug(req.body.campaignName),
+              scheduledatetime: req.body.scheduledatetime,          
             }
-            createCampaignSubscribers(); // Start creating CampaignSubscribers
+          }).then((instance) => {
+            if (instance[0].$options.isNewRecord) {
+              const campaignId = instance[0].dataValues.id;
+              let totalCampaignSubscribersProcessed = 0;
+              db.campaignanalytics.create({campaignId}).then(() => {
+                // Iterate through blocks of 10k ListSubscribers and bulk create CampaignSubscribers.
+                // Each time we write (bulk insert) 10k ListSubscribers, fetch the next 10k by recursively calling
+                // createCampaignSubscribers - ensures that we don't run out of ram by loading too many ListSubscribers
+                // at once.
+                if (req.body.status=='draft'){
+                  res.send({message: 'Campaign is being created - it will be ready to send soon.'}); // Should use notification/status rather than simple response
+                }else{
+                  if (req.body.scheduledatetime){
+                    res.send({ message: 'Campaign is being created - it will be ready to send soon.' }); // Should use notification/status rather than simple response
+                  }
+                }
+                function createCampaignSubscribers(offset = 0, limit = 10000) {
+                  db.listsubscriber.findAll({
+                    where: {
+                      listId: valueFromValidation.listId
+                    },
+                    limit,
+                    offset,
+                    attributes: [
+                      [
+                        'id', 'listsubscriberId'
+                      ],
+                      'email'
+                    ], // Nested array used to rename id to listsubscriberId
+                    order: [
+                      ['id', 'ASC']
+                    ],
+                    raw: true
+                  }).then(listSubscribers => {
+                    if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
+                      totalCampaignSubscribersProcessed += listSubscribers.length;
+                      listSubscribers = listSubscribers.map(listSubscriber => {
+                        listSubscriber.campaignId = campaignId;
+                        return listSubscriber;
+                      });
+                      db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
+                        createCampaignSubscribers(offset + limit);
+                      });
+                    } else {
+                      db.campaign.update({
+                        status: req.body.status,
+                        totalCampaignSubscribers: totalCampaignSubscribersProcessed
+                      }, {
+                        where: {
+                          id: campaignId
+                        }
+                      }).then(() => {
+                        sendSuccessNotification();
+                        if (req.body.status != 'draft') {
+                          if (!req.body.scheduledatetime) {
+                            res.send({ campaignId: campaignId, status: req.body.status }); 
+                          }
+                        }
+                        return;
+                      }).catch(err => {
+                        throw err;
+                      });
+                    }
+                  });
+                }
+                createCampaignSubscribers(); // Start creating CampaignSubscribers
+              });
+            } else {
+              res.status(400).send(); // As before, form will be validated client side so no need for a response
+            }
+          }, err => {
+            throw err;
           });
-        } else {
-          res.status(400).send(); // As before, form will be validated client side so no need for a response
-        }
-      }, err => {
-        throw err;
-      });
+      }//end create new campaign  
     }
   }).catch(err => {
     res.status(400).send(err);

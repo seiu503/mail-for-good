@@ -54,7 +54,7 @@ const ManageTemplatesTable = ({ data, deleteRows, getTemplateView, duplicateTemp
     return (
       <div>
         <a href="#" onClick={getTemplateView.bind(this, row)} title="View Template"><i className="glyphicon glyphicon-eye-open"></i></a>&nbsp;&nbsp;
-        {/* <a href="#" onClick={duplicateTemplate.bind(this, row)} title="Duplicate Template"><i className="glyphicon glyphicon-duplicate"></i></a> */}
+        <a href="#" onClick={duplicateTemplate.bind(this, row)} title="Edit Template"><i className="glyphicon glyphicon-edit"></i></a>
       </div>
     );
   };

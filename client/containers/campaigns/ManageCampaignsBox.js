@@ -85,7 +85,7 @@ export class ManageCampaignsBoxComponent extends Component {
     const CampaginsIds = this.state.selected;
 
     if (CampaginsIds.length > 0) {
-      if (confirm('Are you sure that you want to copy the selected campaigns(s)?')) {
+      //if (confirm('Are you sure that you want to copy the selected campaigns(s)?')) {
         const campaigns = this.props.campaigns.filter(temp => ~CampaginsIds.indexOf(temp.id));
         if (campaigns.length > 0) {          
           //send request to copy campaigns          
@@ -96,7 +96,7 @@ export class ManageCampaignsBoxComponent extends Component {
           });
           this.setState({ selected: [] });
         }
-      }
+      //}
     }
   }
   onRowSelect({ id }, isSelected) {

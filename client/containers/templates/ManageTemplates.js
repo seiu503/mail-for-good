@@ -73,7 +73,7 @@ export class ManageTemplatesComponent extends Component {
     const TemplatesIds = this.state.selected;
     
     if (TemplatesIds.length > 0) {
-      if (confirm('Are you sure that you want to copy the selected template(s)?')) {        
+      //if (confirm('Are you sure that you want to copy the selected template(s)?')) {        
         const templates = this.props.templates.filter(temp => ~TemplatesIds.indexOf(temp.id));
         if(templates.length>0){
           //send request to copy templates
@@ -84,7 +84,7 @@ export class ManageTemplatesComponent extends Component {
           });
           this.setState({ selected: [] });
         }
-      }
+      //}
     }    
   }
   onRowSelect({ id }, isSelected) {      
