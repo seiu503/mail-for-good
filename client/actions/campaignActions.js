@@ -178,10 +178,10 @@ export function getCampaigns() {
         const campaignsArray = JSON.parse(xhr.responseText).map(x => {
           x.createdAt = new Date(x.createdAt);
           x.updatedAt = new Date(x.updatedAt);
-          x.scheduledatetime = new Date(x.scheduledatetime);
+          x.scheduledatetime = (x.scheduledatetime!==null)?new Date(x.scheduledatetime):'';
           return x;
         });
-
+ 
         dispatch(completeGetCampaign(campaignsArray));
       } else {
         dispatch(completeGetCampaign([]));
@@ -214,7 +214,7 @@ export function getAllCampaigns() {
               const xhr = new XMLHttpRequest();
               xhr.open('POST', API_SEND_CRON_CAMPAIGN_ENDPOINT);
               xhr.onload = () => {
-                //console.log(form);                
+                //console.log(form);
               };
               xhr.setRequestHeader('Content-Type', 'application/json');
               xhr.send(JSON.stringify(form));
@@ -283,11 +283,26 @@ export function postCreateCampaign(form, reset) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', API_CAMPAIGN_ENDPOINT);
     xhr.onload = () => {
+      if (xhr.responseText) {
+        let response = JSON.parse(xhr.responseText);        
+        if (response.campaignId){          
+          const Campaignform = {
+            id: response.campaignId
+          };
+          dispatch(postSendCampaign(JSON.stringify(Campaignform),'postCreateCampaign'));
+        } else {
+          setTimeout(() => {
+            dispatch(destroy('createCampaign'));
+          }, 50);
+        }
+      }else{
+        setTimeout(() => {
+          dispatch(destroy('createCampaign'));
+        }, 50);
+      }
       dispatch(completePostCreateCampaign());
+      
       dispatch(getCampaigns());
-      setTimeout(() => {
-        dispatch(destroy('createCampaign'));        
-      }, 5000);
       reset();
     };
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -309,7 +324,7 @@ export function deleteCampaigns(campaignIds, campaigns) {
   };
 }
 
-export function postSendCampaign(campaign) {
+export function postSendCampaign(campaign, action='') {
   return dispatch => {
     dispatch(requestPostSendCampaign());
 
@@ -317,7 +332,12 @@ export function postSendCampaign(campaign) {
     xhr.open('POST', API_SEND_CAMPAIGN_ENDPOINT);
     xhr.onload = () => {
       const sendCampaignResponse = JSON.parse(xhr.responseText);
-      dispatch(completePostSendCampaign(sendCampaignResponse.message, xhr.status));
+      dispatch(completePostSendCampaign(sendCampaignResponse.message, xhr.status));      
+      if (action =='postCreateCampaign'){
+        setTimeout(() => {
+          dispatch(destroy('createCampaign'));
+        }, 1500);
+      }
     };
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(campaign);

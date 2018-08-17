@@ -18,10 +18,25 @@ const PreviewCampaignForm = props => {
     }
   } else {
     // In this case, the preview is rendered within the CampaignView container
-    // We may receive plaintext or html from the server.
-    form = props.campaignView;
-    type = form.type;
-    text = props.campaignView.emailBody;
+    // We may receive plaintext or html from the server.    
+    if (props.campaignView === undefined){
+      form={
+        type: '',
+        listName: '',
+        campaignName: '',
+        name: '',
+        fromName: '',
+        emailSubject: '',
+        emailBody: ''
+      };
+      type = '';
+      text = '';
+    }else{
+      form = props.campaignView;
+      type = form.type;
+      text = props.campaignView.emailBody;
+    }    
+    
   }
   
   return (

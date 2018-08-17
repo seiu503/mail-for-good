@@ -36,7 +36,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
     handleConfirmDeleteRow: next => { next(); } // By default, react-bootstrap-table confirms choice using an alert. We want to override that behaviour.
   };
 
-  const dateFormatter = cell => {
+  const dateFormatter = cell => {    
     if(cell!=''){
       return moment(cell).format('lll');
     }else{
