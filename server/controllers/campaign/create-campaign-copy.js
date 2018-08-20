@@ -12,20 +12,21 @@ module.exports = (req, res, io) => {
     */
 
     const userId = req.user.id;
-    let campaigns =req.body;
+    let campaigns = req.body;
     campaigns = campaigns.map(campaign => {
-        campaign.name   = 'Copy of ' + campaign.name;
+        campaign.name = 'Copy of ' + campaign.name;
         let randNum = Math.floor(Math.random() * 90000) + 10000;
         campaign.slug = slug(campaign.name + ' ' + randNum);
         campaign.status = 'draft';
         campaign.userId = userId;
+        campaign.scheduledatetime = (campaign.scheduledatetime) ? req.body.scheduledatetime : null,
         delete campaign['campaignanalytic.clickthroughCount'];
         delete campaign['campaignanalytic.complaintCount'];
         delete campaign['campaignanalytic.openCount'];
         delete campaign['campaignanalytic.permanentBounceCount'];
         delete campaign['campaignanalytic.totalSentCount'];
         delete campaign['campaignanalytic.transientBounceCount'];
-        delete campaign['campaignanalytic.undeterminedBounceCount'];        
+        delete campaign['campaignanalytic.undeterminedBounceCount'];
         delete campaign['id'];
         /* delete campaign['sequenceCount']; */
         delete campaign['totalCampaignSubscribers'];
@@ -34,7 +35,6 @@ module.exports = (req, res, io) => {
         return campaign;
     });
     Object.keys(campaigns).forEach(function (key) {
-        //console.log(campaigns[key]);           
         // Will mutate the below object to extract info we need during validation checks
         const valueFromValidation = {};
 
@@ -56,9 +56,7 @@ module.exports = (req, res, io) => {
         });
 
         Promise.all([validateListBelongsToUser]).then(values => {
-            console.log('promise');
             if (values.some(x => x === false)) {
-                console.log('value some');
                 res.status(400).send(); // If any validation promise resolves to false, fail silently. No need to respond as validation is handled client side & this is a security measure.
             } else {
 
@@ -80,9 +78,8 @@ module.exports = (req, res, io) => {
                     slug: campaigns[key].slug,
                     scheduledatetime: campaigns[key].scheduledatetime,
                     status: campaigns[key].status,
-                    
+
                 }).then((instance) => {
-                   // console.log(instance);
                     if (instance.$options.isNewRecord) {
                         const campaignId = instance.dataValues.id;
                         let totalCampaignSubscribersProcessed = 0;
@@ -139,7 +136,6 @@ module.exports = (req, res, io) => {
                             createCampaignSubscribers(); // Start creating CampaignSubscribers
                         });
                     } else {
-                        console.log('else');
                         res.status(400).send('error'); // As before, form will be validated client side so no need for a response
                     }
                 }, err => {
@@ -147,9 +143,8 @@ module.exports = (req, res, io) => {
                 });
             }
         }).catch(err => {
-            console.log('catch');
             res.status(400).send(err);
-        }); 
+        });
     });
     res.send({ message: 'Campaign is being created - it will be ready to send soon.' });
     function sendSuccessNotification() {
