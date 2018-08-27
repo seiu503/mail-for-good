@@ -96,11 +96,9 @@ body, html {
 }
 
 .fcc-icon {
-    width: 30px;
-    height: auto;
+    width: 45px;
+    height: 31px;
     margin-left: 10px;
-    position: relative;
-    top: -4px;
 }
 
 .google-icon {
