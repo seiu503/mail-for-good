@@ -18,7 +18,7 @@ const PreviewCampaignForm = props => {
     }
   } else {
     // In this case, the preview is rendered within the CampaignView container
-    // We may receive plaintext or html from the server.    
+    // We may receive plaintext or html from the server.
     if (props.campaignView === undefined){
       form={
         type: '',
@@ -35,10 +35,10 @@ const PreviewCampaignForm = props => {
       form = props.campaignView;
       type = form.type;
       text = props.campaignView.emailBody;
-    }    
-    
+    }
+
   }
-  
+
   return (
     <div>
       {form.listName && <h3><i className="fa fa-list text-green" aria-hidden="true" /> - {form.listName}</h3>}
@@ -68,9 +68,9 @@ const PreviewCampaignForm = props => {
       {(lastPage && handleSubmit) &&
       <div className="box-footer">
         <div className="btn-group">
-          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
-          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit.bind(this, 'ready')}>{(showScheduleDate) ? 'Create Campaign' : 'Send Campaign'}</button>
-          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-warning" type="button" onClick={handleSubmit.bind(this, 'draft')}>Draft Campaign</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Edit</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit.bind(this, 'ready')}>{(showScheduleDate) ? 'Schedule Message' : 'Send Now'}</button>
+          <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-warning" type="button" onClick={handleSubmit.bind(this, 'draft')}>Save as Draft</button>
           <button style={{ margin: "1em", width: "170px" }} className="btn btn-lg btn-info" type="button" onClick={openTestSendModal}>Send a test email</button>
         </div>
       </div>}
