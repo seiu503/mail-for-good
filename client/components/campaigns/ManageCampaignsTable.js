@@ -4,7 +4,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import moment from 'moment';
 
 // Ref: https://allenfang.github.io/react-bootstrap-table/docs.html
-const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSequence, ManageCampaignSequence, editCampaign, duplicateCampaigns, archiveCampaigns, onSelectAll, onRowSelect, selected, selectedTabKey, handleTabChange }) => {  
+const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSequence, ManageCampaignSequence, editCampaign, duplicateCampaigns, archiveCampaigns, onSelectAll, onRowSelect, selected, selectedTabKey, handleTabChange }) => {
   const selectRowProp = {
     mode: "checkbox",
     bgColor: "rgb(176, 224, 230)",
@@ -13,9 +13,9 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
     onSelectAll: onSelectAll.bind(this),
     selected: selected
   };
-  const createCustomButtonGroup = props => {    
+  const createCustomButtonGroup = props => {
     return (
-      <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>        
+      <ButtonGroup className='my-custom-class' sizeClass='btn-group-md'>
         <button type='button' className={`btn btn-warning react-bs-table-del-btn`} onClick={deleteRows.bind(this)}>
           <i className="glyphicon glyphicon-trash"></i>&nbsp;Delete
         </button>
@@ -40,7 +40,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
     handleConfirmDeleteRow: next => { next(); } // By default, react-bootstrap-table confirms choice using an alert. We want to override that behaviour.
   };
 
-  const dateFormatter = cell => {    
+  const dateFormatter = cell => {
     if(cell!=''){
       return moment(cell).format('lll');
     }else{
@@ -76,7 +76,7 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
       </div>
     );
   };
- 
+
   const clickthroughsFormatter = (cell, row) => {
     return row['trackLinksEnabled'] ? cell : 'n/a';
   };
@@ -97,9 +97,9 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
     } else if (status == 'draft') {
       return `<span class="label label-warning">Draft</span>`;
     } else if (status == 'done') {
-      return `<span class="label label-success">Done</span>`;
+      return `<span class="label label-success">Sent</span>`;
     } else if (status == 'archive') {
-      return `<span class="label label-danger">Archive</span>`;
+      return `<span class="label label-default">Archive</span>`;
     }
   };
 
@@ -116,11 +116,11 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
         /* defaultFocus={true} */
       >
         <TabList>
-          <Tab>Done Campaign's</Tab>
-          <Tab>Interrupted Campaign's</Tab>
-          <Tab>Ready Campaign's</Tab>
-          <Tab>Draft Campaign's</Tab>
-          <Tab>Archive Campaign's</Tab>
+          <Tab>Sent</Tab>
+          <Tab>Interrupted</Tab>
+          <Tab>Ready</Tab>
+          <Tab>Draft</Tab>
+          <Tab>Archived</Tab>
         </TabList>
 
         <TabPanel>
@@ -279,11 +279,11 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
           }
         </TabPanel>
       </Tabs>
-      
-      
-      
-      
-    </div>  
+
+
+
+
+    </div>
   );
 };
 
