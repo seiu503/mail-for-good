@@ -1,3 +1,35 @@
 .skin-green .main-header .logo {
   background-color: #531078 !important;
 }
+
+/*tabs css*/
+.nav > li > a.nav-link {    
+    color: #000000;
+}
+.nav > li > a.nav-link.active {
+    background: #531078;
+    color: #FFFFFF;
+}
+li.react-tabs__tab--selected{
+    background: #531078 !important;
+    color: #FFFFFF;
+}
+.react-tabs__tab-list {
+    padding: 0;
+    list-style: none;
+    display: inline-block;
+    width: 100%;
+    /* margin-left:10px; */
+    border-bottom:1px solid #ccc
+}
+.react-tabs__tab-list li {
+    padding: 15px 30px;
+    float: left;
+    background: #f2f2f2;
+    margin-right: 5px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+}
+.my-custom-class .action-btn {
+    margin-left: 2px !important;
+}

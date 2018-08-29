@@ -50,7 +50,8 @@ module.exports = (req, res, io) => {
             type: req.body.type,
             trackingPixelEnabled: req.body.trackingPixelEnabled,
             trackLinksEnabled: req.body.trackLinksEnabled,
-            unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
+            /* unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled, */
+            unsubscribeLinkEnabled: true,
             userId: req.user.id,
             listId: valueFromValidation.listId,
             slug: slug(req.body.campaignName),
@@ -174,7 +175,8 @@ module.exports = (req, res, io) => {
               type: req.body.type,
               trackingPixelEnabled: req.body.trackingPixelEnabled,
               trackLinksEnabled: req.body.trackLinksEnabled,
-              unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
+              /* unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled, */
+              unsubscribeLinkEnabled: true,
               userId: req.user.id,
               listId: valueFromValidation.listId,
               slug: slug(req.body.campaignName),

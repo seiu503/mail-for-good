@@ -48,7 +48,8 @@ export class CreateTemplateComponent extends Component {
     page: 1,
     initialFormValues: {
       templateName: `Template - ${moment().format('l, h:mm:ss')}`,
-      type: 'Plaintext'
+      type: 'Plaintext',
+      unsubscribeLinkEnabled: true
     },
     editor: '',
     reset: null,
@@ -93,10 +94,7 @@ export class CreateTemplateComponent extends Component {
         this.setState({ isEdit: true});
       }
     }else{
-      const correctForm = Object.assign({}, {
-        ['templateName']: this.state.initialFormValues.templateName,
-        ['type']: this.state.initialFormValues.type,
-      });
+      const correctForm = Object.assign({}, this.state.initialFormValues);
       this.props.initialize('createTemplate', correctForm);
     }
   }

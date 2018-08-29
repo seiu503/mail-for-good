@@ -27,10 +27,15 @@ function insertUnsubscribeLink(body, unsubscribeId, type, whiteLabelUrl) {
   const unsubscribeUrl = `${host}/unsubscribe/${unsubscribeId}`;
 
   if (type === 'Plaintext') {
-    return body + '\t\r\n\t\r\n\t\r\n\t\r\n\t\r\n\t\r\n' + unsubscribeUrl;
-  }
-
-  return body + "<br/><br/><br/><br/><br/>" + `<a href="${unsubscribeUrl}">unsubscribe</a>`
+    let insertLink = body.replace(/%%unsubscribe%%/g, unsubscribeUrl);      
+    return insertLink;
+    //return body + '\t\r\n\t\r\n\t\r\n\t\r\n\t\r\n\t\r\n' + unsubscribeUrl;
+  }  
+  let url = `<a href="${unsubscribeUrl}">unsubscribe</a>`;  
+  let insertLink = body.replace(/%%unsubscribe%%/g, url);
+  
+  return insertLink;
+  //return body + "<br/><br/><br/><br/><br/>" + url;
 }
 
 function insertTrackingPixel(body, trackingId, type, whiteLabelUrl) {

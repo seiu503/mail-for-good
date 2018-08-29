@@ -20,7 +20,7 @@ const ManageTemplatesTable = ({ data, deleteRows, getTemplateView, duplicateTemp
         <button type='button' className={`btn btn-warning react-bs-table-del-btn `} onClick={deleteRows.bind(this)}>
           <i className="glyphicon glyphicon-trash"></i>&nbsp;Delete
         </button>
-        <button type='button' className={`btn btn-primary react-bs-table-pri-btn`} onClick={duplicateTemplates.bind(this)}>
+        <button type='button' className={`btn btn-primary react-bs-table-pri-btn action-btn`} onClick={duplicateTemplates.bind(this)}>
           <i className="glyphicon glyphicon-duplicate"></i>&nbsp;Copy
         </button>
       </ButtonGroup>
