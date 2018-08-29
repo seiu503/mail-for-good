@@ -3,7 +3,7 @@ import { Editor } from '@tinymce/tinymce-react';
 
 import { FormControl } from 'react-bootstrap';
 import { Field } from 'redux-form';
-import { renderField, renderHiddenField } from '../common/FormRenderWrappers';
+import { renderHiddenField } from '../common/FormRenderWrappers';
 // Change <p> tags to <div> tags as empty lines are rendered as <p><br></p> which is two spaces, <div><br></div> is one
 // Adapted from https://codepen.io/alexkrolick/pen/PWrKdx?editors=0010 and https://codepen.io/quill/pen/VjgorV
 
@@ -15,45 +15,43 @@ export default class TextEditorRich extends Component {
     }
     onUpload(e) {
         const files = e.target.files;
-        var file = files[0];
-        var reader = new FileReader();
-        var field_name=this.props.inputName;
-        
+        const file = files[0];
+        const reader = new FileReader();
+        const field_name=this.props.inputName;
+
         reader.readAsText(file, "UTF-8");
-        reader.onload = function (evt) {            
-            var ev1 = new Event('input', { bubbles: true });
+        reader.onload = function (evt) {
+            const ev1 = new Event('input', { bubbles: true });
             ev1.simulated = true;
             document.querySelector("input[name='" + field_name + "']").value = evt.target.result;
             document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
 
             $('#Plaintext').click();
             $('#HTML').click();
-        }
-        reader.onerror = function (evt) {
+        };
+        reader.onerror = function () {
             console.log('error');
-        }
+        };
     }
-    handleEditorChange = (e) => {        
-        var field_name = this.props.inputName;
-        var ev1 = new Event('input', { bubbles: true });
+    handleEditorChange = (e) => {
+        const field_name = this.props.inputName;
+        const ev1 = new Event('input', { bubbles: true });
         ev1.simulated = true;
         document.querySelector("input[name='" + field_name + "']").value = e.target.getContent();
         document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
     }
     render() {
-        const { value, inputName, onChange } = this.props;
+        const { value, inputName } = this.props;
         const bounds='#'+this.props.inputName;
         return (
-            <div> 
-                <label className="red-lable">NOTE: To add unsubscribe link paste the <b>'%%unsubscribe%%'</b> into your editor.</label>
-                <br/>
+            <div>
                 <label htmlFor="fileInput" className="btn btn-success btn-lg import-html">Import HTML</label>
-                <FormControl id="fileInput" accept=".html" style={{ display: "none" }} className="btn" type="file" onChange={this.onUpload.bind(this)} />                
+                <FormControl id="fileInput" accept=".html" style={{ display: "none" }} className="btn" type="file" onChange={this.onUpload.bind(this)} />
                 <div hidden={true}>
                     <Field name={inputName}  id={inputName} component={renderHiddenField} label="EmailBody" type="text"/>
                 </div>
                 <div>
-                    <Editor                        
+                    <Editor
                         readOnly={false}
                         id={inputName}
                         bounds={bounds}
@@ -65,7 +63,7 @@ export default class TextEditorRich extends Component {
                             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
                             height:"400"
                         }}
-                        onChange={this.handleEditorChange}                        
+                        onChange={this.handleEditorChange}
                     />
                 </div>
             </div>
