@@ -19,7 +19,7 @@ export default class TextEditorUnlayer extends Component {
     return (
       <div>
         <div>
-          <label className="red-lable">NOTE: To add unsubscribe link paste the '&lt;a href="unsubscribe_url"&gt;unsubscribe&lt;/a&gt;' into your editor.<br/>After editing email design click on 'Save Email Design' to reflect changes!</label>
+          <label className="red-lable">NOTE: To add unsubscribe link paste the <b>'%%unsubscribe%%'</b> into your editor.<br/>After editing email design click on 'Save Email Design' to reflect changes!</label>
           <br/>
           <button type="button" id="exporthtml" onClick={this.exportHtml} className="btn btn-success btn-lg">Save Email Design</button>
         </div>

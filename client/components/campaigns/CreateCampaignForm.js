@@ -135,7 +135,6 @@ CreateCampaignForm.propTypes = {
 
 const validate = (values, props) => {
   const errors = {};  
-  
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -163,51 +162,24 @@ const validate = (values, props) => {
   if (!values.emailBodyPlaintext && values.type === 'Plaintext') {
     errors.emailBodyPlaintext = 'Required';
   }else{
-    if (typeof $("#inputtext").html() !== 'undefined') {
-      let gotLink = 0;
-      var html = $("#inputtext").html(values.emailBodyPlaintext);      
-      $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1) {
-          gotLink = 1;
-        }
-      });      
-      if (gotLink == 0) {
-        errors.emailBodyPlaintext = 'Please add unsubscribe link';
-      }
-    }
+    if (values.emailBodyPlaintext && values.emailBodyPlaintext.indexOf('%%unsubscribe%%') == -1) {
+      errors.emailBodyPlaintext = 'Please add unsubscribe link';
+    }    
   }
   // <div><br></div> is what an empty quill editor contains
   if (!values.emailBodyHTML && values.type === 'HTML') {
     errors.emailBodyHTML = 'Required';
   } else {
-    if (typeof $("#inputtext").html() !== 'undefined') {
-      let gotLink = 0;
-      var html = $("#inputtext").html(values.emailBodyHTML);
-      $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1) {
-          gotLink = 1;
-        }
-      });
-      if (gotLink == 0) {
-        errors.emailBodyHTML = 'Please add unsubscribe link';
-      }
-    }
+    if (values.emailBodyHTML && values.emailBodyHTML.indexOf('%%unsubscribe%%') == -1) {
+      errors.emailBodyHTML = 'Please add unsubscribe link';
+    }    
   }
   if (!values.emailBodyHTMLEditor && values.type === 'HTMLEditor') {
     errors.emailBodyHTMLEditor = 'Required';
   } else {
-    if (typeof $("#inputtext").html() !== 'undefined') {
-      let gotLink = 0;
-      var html = $("#inputtext").html(values.emailBodyHTMLEditor);
-      $("#inputtext").find("a").map(function () {
-        if (this.text.indexOf('unsubscribe') != -1) {
-          gotLink = 1;
-        }
-      });
-      if (gotLink == 0) {
-        errors.emailBodyHTMLEditor = 'Please add unsubscribe link';
-      }
-    }
+    if (values.emailBodyHTMLEditor && values.emailBodyHTMLEditor.indexOf('%%unsubscribe%%') == -1) {
+      errors.emailBodyHTMLEditor = 'Please add unsubscribe link';
+    }    
   }
 
   if (!values.type) {

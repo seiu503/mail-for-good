@@ -9,6 +9,7 @@ const deleteCampaignSequence = require('../controllers/campaign/delete-campaign-
 const getCampaigns = require('../controllers/campaign/get-campaigns');
 const createCampaign = require('../controllers/campaign/create-campaign');
 const createCampaignCopy = require('../controllers/campaign/create-campaign-copy');
+const changeCampaignStatus = require('../controllers/campaign/change-campaign-status');
 const deleteCampaigns = require('../controllers/campaign/delete-campaigns');
 const exportSentUnsentCSV = require('../controllers/campaign/export-sent-unsent-csv');
 const stopCampaignSending = require('../controllers/campaign/stop-campaign-sending');
@@ -51,6 +52,11 @@ module.exports = function(app, io, redis) {
   // Post copy campaign
   app.post('/api/campaigncopy', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     createCampaignCopy(req, res, io);
+  });
+  
+  // Post chnage campaign status
+  app.post('/api/changecampaignstatus', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    changeCampaignStatus(req, res, io);
   });
 
   // Delete campaign(s)

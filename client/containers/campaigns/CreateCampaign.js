@@ -83,7 +83,8 @@ export class CreateCampaignComponent extends Component {
     page: 1,
     initialFormValues: {
       campaignName: `Campaign - ${moment().format('l, h:mm:ss')}`,
-      type: 'Plaintext'
+      type: 'Plaintext',
+      unsubscribeLinkEnabled: true
     },
     reset: null,
     showTestSendModal: false,
@@ -167,7 +168,8 @@ export class CreateCampaignComponent extends Component {
         const correctForm = Object.assign({}, getCampaignBySlug, {
           ['campaignName']: getCampaignBySlug.name,
           [`emailBody${getCampaignBySlug.type}`]: getCampaignBySlug.emailBody,
-          ['scheduleDateEnabled']: (getCampaignBySlug.scheduledatetime !='')?true:false
+          ['scheduleDateEnabled']: (getCampaignBySlug.scheduledatetime !='')?true:false,
+          ['unsubscribeLinkEnabled'] : true
         });
         
         delete correctForm['campaignanalytic.clickthroughCount'];
@@ -246,7 +248,8 @@ export class CreateCampaignComponent extends Component {
     if (template) {
       // Set the template's emailBody prop to emailBodyPlaintext or emailBodyHTML
       const FilterTemplate = Object.assign({}, template);      
-      delete FilterTemplate.id;      
+      delete FilterTemplate.id;
+      delete FilterTemplate.unsubscribeLinkEnabled;      
       const correctTemplate = Object.assign({}, FilterTemplate, {
         [`emailBody${template.type}`]: template.emailBody,
       });

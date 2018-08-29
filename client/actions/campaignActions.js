@@ -11,7 +11,7 @@ import {
   COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES,
   REQUEST_STOP_SENDING, COMPLETE_STOP_SENDING
 } from '../constants/actionTypes';
-import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT } from '../constants/endpoints';
+import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT, API_CAMPAIGN_CHANGE_STATUS_ENDPOINT } from '../constants/endpoints';
 import { notify } from './notificationActions';
 import { destroy } from 'redux-form';
 
@@ -261,6 +261,21 @@ export function postCreateTemplateCopy(form)  {
   };
 }
 
+export function archiveCampaigns(campaignIds) {
+  return dispatch => {
+    const jsonCampaignIds = JSON.stringify({ data: campaignIds });
+    dispatch(requestPostCreateCampaign());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_CAMPAIGN_CHANGE_STATUS_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completePostCreateCampaign());
+      dispatch(getCampaigns());
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(jsonCampaignIds);    
+  };
+}
 export function postCreateCampaignCopy(form) {
   return dispatch => {
     dispatch(requestPostCreateCampaign());
