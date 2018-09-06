@@ -15,7 +15,7 @@ function mapStateToProps(state) {
     isGetting: state.manageList.isGetting
   };
 }
- 
+
 const mapDispatchToProps = { submitCSV, notify };
 
 export class CreateListComponent extends Component {
@@ -36,11 +36,13 @@ export class CreateListComponent extends Component {
     this.handleCSVSubmit = this.handleCSVSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.notification = this.notification.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);    
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.handleTermConditions = this.handleTermConditions.bind(this);
   }
 
   state = {
-    title: ''    
+    title: '',
+    term_conditions: false
   }
 
   notification(notification) {
@@ -52,7 +54,7 @@ export class CreateListComponent extends Component {
   }
 
   handleCSVSubmit(file, headers) {
-    const { title } = this.state;
+    const { title, term_conditions } = this.state;
     // List title should not be empty
     if (title === '') {
       this.props.notify({ message: 'Please provide a name for this list' });
@@ -60,6 +62,10 @@ export class CreateListComponent extends Component {
     else if (this.props.lists.some(x => x.name === title)) {
       // Notify if list name exists
       this.props.notify({ message: 'This list already exists, please provide a unique name' });
+    }
+    else if (term_conditions == false) {
+      // Notify if user not checked the term and conditions
+      this.props.notify({ message: 'Please check the terms and conditions.' });
     }
     else {
       this.props.submitCSV(file, headers, title);
@@ -76,7 +82,11 @@ export class CreateListComponent extends Component {
       [e.target.id]: e.target.value
     });
   }
-
+  handleTermConditions(val) {    
+    this.setState({
+      term_conditions: val
+    });
+  }
   render() {
     return (
       <div>
@@ -93,7 +103,7 @@ export class CreateListComponent extends Component {
               <div className="box box-primary">
                 <Row>
                   <Col md={12}>
-                    
+
                     <div className="box-header">
                       <h3 className="box-title">List name</h3>
                     </div>
@@ -105,7 +115,7 @@ export class CreateListComponent extends Component {
                             <a href="#tab_1-1" data-toggle="tab">Add single email</a>
                           </li>*/}
                           <li className="pull-left header">
-                            <i className="fa fa-th"/>
+                            <i className="fa fa-th" />
                             Import a list
                           </li>
                         </ul>
@@ -115,20 +125,20 @@ export class CreateListComponent extends Component {
                           <div className="form-group">
                             <input className="form-control" id="title" placeholder="The name of this list" type="text" value={this.state.title} onChange={this.handleChange} />
                           </div>
+                          <ImportCSV handleCSVSubmit={this.handleCSVSubmit} notification={this.notification} handleTermConditions={this.handleTermConditions} />
                         </form>
-                        <ImportCSV handleCSVSubmit={this.handleCSVSubmit} notification={this.notification}/>
                       </div>
 
                     </div>
-                </Col>
-              </Row>
+                  </Col>
+                </Row>
 
-            {this.props.isGetting && <div className="overlay">
-              <FontAwesome name="refresh" spin/>
-            </div>}
-          </div>
+                {this.props.isGetting && <div className="overlay">
+                  <FontAwesome name="refresh" spin />
+                </div>}
+              </div>
 
-          </Col>
+            </Col>
           </Row>
         </section>
       </div>
