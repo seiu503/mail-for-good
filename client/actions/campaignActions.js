@@ -11,7 +11,7 @@ import {
   COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES,
   REQUEST_STOP_SENDING, COMPLETE_STOP_SENDING
 } from '../constants/actionTypes';
-import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT, API_CAMPAIGN_CHANGE_STATUS_ENDPOINT } from '../constants/endpoints';
+import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT, API_CAMPAIGN_CHANGE_STATUS_ENDPOINT } from '../constants/endpoints';
 import { notify } from './notificationActions';
 import { destroy } from 'redux-form';
 
@@ -208,16 +208,36 @@ export function getAllCampaigns() {
         const currentDate = new Date();
         Object.keys(campaignsArray).forEach(function (key) {
           const row = campaignsArray[key];
-          if (currentDate.getTime() >= row.scheduledatetime.getTime()) {
-            if (row.status != 'done') {
+          if (currentDate.getTime() >= row.scheduledatetime.getTime()) {            
+            if (row.status != 'done' && row.status != 'draft' && row.status != 'archive') {              
               const form = { userId: row.userId, id: row.id };
               const xhr = new XMLHttpRequest();
               xhr.open('POST', API_SEND_CRON_CAMPAIGN_ENDPOINT);
-              xhr.onload = () => {
-                //console.log(form);
+              xhr.onload = () => {                
               };
               xhr.setRequestHeader('Content-Type', 'application/json');
               xhr.send(JSON.stringify(form));
+            }else{
+              if (row.status == 'done' && row.sequenceCount>0){                
+                const form = { userId: row.userId, id: row.id };
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', API_SEND_CRON_CAMPAIGN_SEQUENCE_ENDPOINT);
+                xhr.onload = () => {                  
+                };
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(form));
+              }
+            }
+          }else{
+            
+            if (row.status == 'done' && row.sequenceCount>0){              
+              const form = { userId: row.userId, id: row.id };
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', API_SEND_CRON_CAMPAIGN_SEQUENCE_ENDPOINT);
+                xhr.onload = () => {                  
+                };
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify(form));
             }
           }
         });

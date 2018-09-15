@@ -6,7 +6,10 @@ module.exports = function(sequelize, DataTypes) {
     status: DataTypes.STRING,
     bounceType: DataTypes.STRING,
     bounceSubType: DataTypes.STRING,
-    sent: { type: DataTypes.BOOLEAN, defaultValue: false }
+    sent: { type: DataTypes.BOOLEAN, defaultValue: false },
+    sequenceLastSendID: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
+    lastSendEmailDateTime: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
+
   }, {
     classMethods: {
       associate: function(models) {

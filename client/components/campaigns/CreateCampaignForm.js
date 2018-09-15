@@ -66,47 +66,40 @@ const CreateCampaignForm = props => {
     reset();
   };
 
-  return (
+  return (    
     <div>
+      <h3>Apply template</h3>
+      <Combobox id="templates" data={templates} suggest={true} onSelect={value => applyForm(value)} filter="contains" />
+      <br />
 
       <form onSubmit={resetFormAndSubmit}>
-        <div className="row">
-          <div className="col-sm-6 col-xs-12">
-            <h3>Mailing List*</h3>
-{/*            <Field name="listName" component={renderCombobox} data={lists} />*/}
-            <Combobox id="listName" data={lists} suggest={true} onSelect={value => applyForm(value)} filter="contains" className="combo"/>
-          </div>
-          <div className="col-sm-6 col-xs-12">
-            <h3>Template</h3>
-            <Combobox id="templates" data={templates} suggest={true} onSelect={value => applyForm(value)} filter="contains" className="combo"/>
-          </div>
+        <h3>Select a List*</h3>
+        <div>
+          <Field name="listName" component={renderCombobox} data={lists} />
         </div>
 
         <hr />
-        <div className="row">
-          <div className="col-sm-6 col-xs-12">
-            <h3>Campaign details</h3>
-            {/* TODO: This needs to be validated via regex. Doesn't need to be a slug but must resolve to a unique slug so there's no possibility of conflict. */}
-            <Field name="campaignName" component={renderField} label="Campaign Name*" type="text" />
-            <Field name="fromName" component={renderField} label="From Name*" type="text" />
-            <Field name="fromEmail" component={renderField} label="From Email*" type="email" />
-          </div>
-          <div className="col-sm-6 col-xs-12">
 
-            <h3>Analytics</h3>
-            <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
-            <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
-            {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}
-            <div><label><Field name="scheduleDateEnabled" component="input" type="checkbox" onClick={scheduleCampaign.bind(this)} /> Schedule campaign</label></div>
-            {showScheduleDate &&
-            <div>
-            <Field hidden={showScheduleDate} name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
-            <hr />
-              </div>
-            }
-          </div>
-        </div>
+        <h3>Campaign details</h3>
+        {/* TODO: This needs to be validated via regex. Doesn't need to be a slug but must resolve to a unique slug so there's no possibility of conflict. */}
+        <Field name="campaignName" component={renderField} label="Campaign Name*" type="text" />
+        <Field name="fromName" component={renderField} label="From Name*" type="text" />
+        <Field name="fromEmail" component={renderField} label="From Email*" type="email" />
+
         <hr />
+
+        <h3>Analytics</h3>
+        <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackingPixelEnabled" component="input" type="checkbox" /> Insert tracking pixel. Available for HTML emails only.</label></div>
+        <div><label><Field disabled={textEditorType == 'Plaintext'} name="trackLinksEnabled" component="input" type="checkbox" /> Track link clickthroughs, syntax: {`{linklabel/http://mylinktotrack.com}`}. Available for HTML emails only. </label></div>
+        {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}
+        <div><label><Field name="scheduleDateEnabled" component="input" type="checkbox" onClick={scheduleCampaign.bind(this)} /> Schedule campaign</label></div>
+        <hr />
+        {showScheduleDate && 
+        <div>
+        <Field hidden={showScheduleDate} name="scheduledatetime" dateFormat="YYYY-MM-DD" component={renderDatePicker} label="Campaign Schedule*" type="text" />
+        <hr />
+          </div>
+        }
 
         <h3>Create email</h3>
         <Field name="type" component={renderEditorTypeRadio} label="Type of email" />
@@ -141,7 +134,7 @@ CreateCampaignForm.propTypes = {
 };
 
 const validate = (values, props) => {
-  const errors = {};
+  const errors = {};  
   if (!values.listName) {
     errors.listName = 'Required';
   } else if (_.find(props.lists, list => list.name == values.listName).status != 'ready') {
@@ -171,7 +164,7 @@ const validate = (values, props) => {
   }else{
     if (values.emailBodyPlaintext && values.emailBodyPlaintext.indexOf('%%unsubscribe%%') == -1) {
       errors.emailBodyPlaintext = 'Please add unsubscribe link';
-    }
+    }    
   }
   // <div><br></div> is what an empty quill editor contains
   if (!values.emailBodyHTML && values.type === 'HTML') {
@@ -179,14 +172,14 @@ const validate = (values, props) => {
   } else {
     if (values.emailBodyHTML && values.emailBodyHTML.indexOf('%%unsubscribe%%') == -1) {
       errors.emailBodyHTML = 'Please add unsubscribe link';
-    }
+    }    
   }
   if (!values.emailBodyHTMLEditor && values.type === 'HTMLEditor') {
     errors.emailBodyHTMLEditor = 'Required';
   } else {
     if (values.emailBodyHTMLEditor && values.emailBodyHTMLEditor.indexOf('%%unsubscribe%%') == -1) {
       errors.emailBodyHTMLEditor = 'Please add unsubscribe link';
-    }
+    }    
   }
 
   if (!values.type) {

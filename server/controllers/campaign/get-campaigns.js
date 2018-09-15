@@ -42,7 +42,7 @@ module.exports = (req, res) => {
       'status',
       'totalCampaignSubscribers',
       'scheduledatetime',
-      /* 'sequenceCount', */
+      'sequenceCount',
       'listId'
     ],
     raw: true

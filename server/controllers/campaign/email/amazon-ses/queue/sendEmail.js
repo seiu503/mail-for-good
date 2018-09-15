@@ -25,10 +25,13 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
    */
 
   function _updateAnalytics(data, task, campaignInfo) {
+    const sequenceId = (task.sequenceId) ? task.sequenceId: null;    
     const p1 = CampaignSubscriber.update(
       {
         messageId: data.MessageId,
-        sent: true
+        sent: true,
+        sequenceLastSendID: sequenceId,
+        lastSendEmailDateTime: new Date()
       },
       {
         where: {

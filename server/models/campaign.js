@@ -9,8 +9,8 @@ module.exports = function(sequelize, DataTypes) {
     type: DataTypes.STRING,
     slug: DataTypes.STRING,
     status: { type: DataTypes.STRING, defaultValue: 'creating' },
-    scheduledatetime: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
-    /* sequenceCount: { type: DataTypes.INTEGER, defaultValue: 0 }, */
+    scheduledatetime: { type: DataTypes.DATE, allowNull: true, defaultValue: null },    
+    sequenceCount: { type: DataTypes.INTEGER, defaultValue: 0 },
     userId: DataTypes.INTEGER,
     trackingPixelEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     trackLinksEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },

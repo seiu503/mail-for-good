@@ -17,6 +17,7 @@ const sendCampaign = require('../controllers/campaign/send-campaign');
 const sendTestEmail = require('../controllers/campaign/email/amazon-ses/send-test');
 const getAllCampaigns = require('../controllers/campaign/get-allcampaigns');
 const sendCronCampaign = require('../controllers/campaign/send-croncampaign');
+const sendCronCampaignSequence = require('../controllers/campaign/send-croncampaign-sequence');
 
 // Middleware
 const { apiIsAuth } = require('./middleware/auth');
@@ -80,6 +81,10 @@ module.exports = function(app, io, redis) {
   // Post to send a cron campaign
   app.post('/api/cronsend', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     sendCronCampaign(req, res, io, redis);
+  });
+  // Post to send a cron campaign sequence
+  app.post('/api/cronsendsequence', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    sendCronCampaignSequence(req, res, io, redis);
   });
   // Post new campaign
   app.post('/api/campaignsequence', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {

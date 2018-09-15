@@ -16,7 +16,7 @@ function mapStateToProps(state) {
     isPosting: state.createCampaign.isPosting,
     lists: state.manageList.lists,
     isGetting: state.manageList.isGetting,
-    templates: state.manageTemplates.templates,
+    templates: state.manageTemplates.templates,    
     campaigns: state.manageCampaign.campaigns,
     isGettingCampaigns: state.manageCampaign.isGetting,
 
@@ -96,7 +96,7 @@ export class CreateCampaignComponent extends Component {
 
   componentDidMount() {
     const slug = this.props.params.slug;
-    if (slug === undefined) {
+    if(slug=== undefined){      
       this.props.initialize('createCampaign', this.state.initialFormValues);
     }
     this.props.getLists();
@@ -108,7 +108,7 @@ export class CreateCampaignComponent extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.campaigns && nextProps.campaigns.length && !this.props.campaigns.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist
+    if (nextProps.campaigns && nextProps.campaigns.length && !this.props.campaigns.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist    
       this.getSingleCampaign(nextProps);
     }
 
@@ -150,12 +150,12 @@ export class CreateCampaignComponent extends Component {
         });
       }
     }
-
+    
   }
   getSingleCampaign(props) {
     const slug = this.props.params.slug;
-    if (slug) {
-      const getCampaignBySlug = props.campaigns.find(campaigns => campaigns.slug === slug);
+    if (slug) {      
+      const getCampaignBySlug = props.campaigns.find(campaigns => campaigns.slug === slug);      
       if (getCampaignBySlug) {
         if(getCampaignBySlug.status=='done'){
           this.props.notify({
@@ -171,7 +171,7 @@ export class CreateCampaignComponent extends Component {
           ['scheduleDateEnabled']: (getCampaignBySlug.scheduledatetime !='')?true:false,
           ['unsubscribeLinkEnabled'] : true
         });
-
+        
         delete correctForm['campaignanalytic.clickthroughCount'];
         delete correctForm['campaignanalytic.complaintCount'];
         delete correctForm['campaignanalytic.openCount'];
@@ -180,27 +180,27 @@ export class CreateCampaignComponent extends Component {
         delete correctForm['campaignanalytic.transientBounceCount'];
         delete correctForm['campaignanalytic.undeterminedBounceCount'];
         delete correctForm['status'];
-        /* delete correctForm['sequenceCount']; */
+        delete correctForm['sequenceCount'];
         delete correctForm['emailBody'];
         delete correctForm['createdAt'];
         delete correctForm['updatedAt'];
 
         this.props.initialize('createCampaign', correctForm);
-
-        //show/hide schedule date
+        
+        //show/hide schedule date 
         (getCampaignBySlug.scheduledatetime !='') ? this.setState({ showScheduleDate: true}) : '';
-
-        setTimeout(() => {
+        
+        setTimeout(() => {          
           const formValues = this.props.form.values;
-          const listId = getCampaignBySlug.listId;
-          const listIdName = this.props.lists.find(lists => lists.id === listId);
-          if (listIdName){
+          const listId = getCampaignBySlug.listId;          
+          const listIdName = this.props.lists.find(lists => lists.id === listId);          
+          if (listIdName){            
             const correctForm = Object.assign({}, formValues, {
               ['listName']: listIdName.name
             });
             this.props.initialize('createCampaign', correctForm);
           }
-        }, 1000);
+        }, 1000);      
       }
     }
   }
@@ -218,8 +218,8 @@ export class CreateCampaignComponent extends Component {
     if (status == 'ready' && this.state.showScheduleDate ==false){
       this.setState({ sendCampaign: true});
     }
-    delete correctForm[`emailBody${formValues.type}`];
-
+    delete correctForm[`emailBody${formValues.type}`];    
+    
     this.props.postCreateCampaign(JSON.stringify(correctForm), this.state.reset);
     let message='';
     if (this.state.isEdit && status !='ready'){
@@ -241,15 +241,15 @@ export class CreateCampaignComponent extends Component {
         });
       }
     }
-
+    
   }
 
   applyTemplate(template) {
     if (template) {
       // Set the template's emailBody prop to emailBodyPlaintext or emailBodyHTML
-      const FilterTemplate = Object.assign({}, template);
+      const FilterTemplate = Object.assign({}, template);      
       delete FilterTemplate.id;
-      delete FilterTemplate.unsubscribeLinkEnabled;
+      delete FilterTemplate.unsubscribeLinkEnabled;      
       const correctTemplate = Object.assign({}, FilterTemplate, {
         [`emailBody${template.type}`]: template.emailBody,
       });
@@ -265,9 +265,9 @@ export class CreateCampaignComponent extends Component {
 
 
   scheduleCampaign(test){
-    if (this.state.showScheduleDate == false) {
+    if (this.state.showScheduleDate == false) {      
       this.setState({ showScheduleDate: true });
-    } else {
+    } else {      
       this.setState({ showScheduleDate: false });
     }
   }
@@ -289,7 +289,7 @@ export class CreateCampaignComponent extends Component {
   passResetToState(reset) {
     this.setState({ reset });
   }
-  openTestSendModal() {
+  openTestSendModal() {    
     this.setState({
       showTestSendModal: true
     });
@@ -299,7 +299,7 @@ export class CreateCampaignComponent extends Component {
       showTestSendModal: false
     });
   }
-  handleChange(e) {
+  handleChange(e) {    
     this.setState({
       [e.target.id]: e.target.value
     });
@@ -311,16 +311,16 @@ export class CreateCampaignComponent extends Component {
       this.props.notify({ message: 'Please provide an email' });
       return;
     }
-
+    
     const formValues = this.props.form.values;
     const listIdName = this.props.lists.find(lists => lists.name === formValues.listName);
-
+    
     const correctForm = Object.assign({}, formValues, {
       ['name']: formValues.campaignName,
       ['emailBody']: formValues[`emailBody${formValues.type}`],
       ['listId']: listIdName.id
     });
-
+    
     const campaignId='';
     const form = { testEmail, campaignId, correctForm};
     this.props.postTestEmail(JSON.stringify(form));
@@ -331,8 +331,8 @@ export class CreateCampaignComponent extends Component {
   }
   render() {
     const { page, initialFormValues, showTestSendModal, testEmail, isEdit, showScheduleDate } = this.state;
-    const { lists, templates, form, isGetting, isPosting, isGettingCampaigns, isPostingSendTest, isPostingSendCampaign } = this.props;
-    const type = (this.props.form && this.props.form.values.type) ? this.props.form.values.type : this.state.initialFormValues.type;
+    const { lists, templates, form, isGetting, isPosting, isGettingCampaigns, isPostingSendTest, isPostingSendCampaign } = this.props;    
+    const type = (this.props.form && this.props.form.values.type) ? this.props.form.values.type : this.state.initialFormValues.type;    
     return (
       <div>
         <div className="content-header">

@@ -119,13 +119,25 @@ const validate = (values, props) => {
     // But multiple state fields
     if (!values.emailBodyPlaintext && values.type === 'Plaintext') {
         errors.emailBodyPlaintext = 'Required';
+    } else {
+        if (values.emailBodyPlaintext && values.emailBodyPlaintext.indexOf('%%unsubscribe%%') == -1) {
+            errors.emailBodyPlaintext = 'Please add unsubscribe link';
+        }
     }
     // <div><br></div> is what an empty quill editor contains
     if (!values.emailBodyHTML && values.type === 'HTML') {
         errors.emailBodyHTML = 'Required';
+    } else {
+        if (values.emailBodyHTML && values.emailBodyHTML.indexOf('%%unsubscribe%%') == -1) {
+            errors.emailBodyHTML = 'Please add unsubscribe link';
+        }
     }
     if (!values.emailBodyHTMLEditor && values.type === 'HTMLEditor') {
         errors.emailBodyHTMLEditor = 'Required';
+    } else {
+        if (values.emailBodyHTMLEditor && values.emailBodyHTMLEditor.indexOf('%%unsubscribe%%') == -1) {
+            errors.emailBodyHTMLEditor = 'Please add unsubscribe link';
+        }
     }
 
     if (!values.type) {

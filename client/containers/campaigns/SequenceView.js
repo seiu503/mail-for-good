@@ -266,7 +266,7 @@ export class SequenceViewComponent extends Component {
             <div>
                 <div className="content-header">
                     <h1>Your Campaign
-                        <small>View and send your campaign</small>
+                        <small>View your campaign sequences</small>
                     </h1>
                 </div>
 
@@ -305,23 +305,15 @@ export class SequenceViewComponent extends Component {
                                         }
                                         <br />
                                         <div className="form-inline">
-                                            <button className="btn btn-info btn-lg" type="button" value={CampaignSequence.id} onClick={this.editSequence.bind(this)}>Edit</button>
+                                            <button disabled={['done', 'interrupted'].includes(status)} className="btn btn-info btn-lg" type="button" value={CampaignSequence.id} onClick={this.editSequence.bind(this)}>Edit</button>
                                             &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <button className="btn btn-danger btn-lg" type="button" value={CampaignSequence.id} onClick={this.openDeleteModal}>Delete</button>
+                                            <button disabled={['done', 'interrupted'].includes(status)} className="btn btn-danger btn-lg" type="button" value={CampaignSequence.id} onClick={this.openDeleteModal}>Delete</button>
                                         </div>
                                         <br/>
                                         <hr/>
                                     </div>
                                 );
-                            })}
-                           {/*  <PreviewCampaignSequenceForm sequenceView={thisCampaign} /> */}
-
-                            {/* <div className="form-inline">
-                                <button disabled={!['ready', 'interrupted'].includes(status)} className="btn btn-success btn-lg" type="button" onClick={this.openSendModal}>Send</button>
-                                <button className="btn btn-info btn-lg" style={{ "marginLeft": "1rem" }} type="button" onClick={this.openTestSendModal}>Send a test email</button>
-                                <button className="btn btn-lg btn-primary" style={{ "marginLeft": "1rem" }} onClick={() => { window.location = downloadUnsentSubscribersUrl; }}>Export unsent</button>
-                                <button disabled={status !== 'sending'} className="btn btn-danger btn-lg" style={{ "marginLeft": "1rem" }} type="button" onClick={this.stopSending.bind(this)}>Stop sending</button>
-                            </div> */}
+                            })}                            
                             {/* Delete sequence modal*/}
                             <Modal show={showDeleteModal} onHide={this.closeDeleteModal}>
                                 <Modal.Header closeButton>

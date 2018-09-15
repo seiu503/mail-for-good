@@ -193,7 +193,7 @@ export class CreateCampaignSequenceComponent extends Component {
             <div>
                 <div className="content-header">
                     <h1>Create Campaign Sequence
-            <small>Create a new sequence</small>
+                        <small>Create a new sequence</small>
                     </h1>
                 </div>
 

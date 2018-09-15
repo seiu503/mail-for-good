@@ -50,7 +50,7 @@ module.exports = (req, res, io, redis) => {
       whiteLabelUrl,
       quotas
     };
-
+    
     yield email.amazon.controller(generator, redis, campaignAndListInfo, amazonAccountInfo, io, req);
 
     // 8. TODO: If there was an error, handle it here
@@ -100,7 +100,7 @@ module.exports = (req, res, io, redis) => {
           trackingPixelEnabled,
           trackLinksEnabled,
           unsubscribeLinkEnabled,
-          status
+          status          
         } = campaignObject;
 
         generator.next({
@@ -115,7 +115,7 @@ module.exports = (req, res, io, redis) => {
           trackingPixelEnabled,
           trackLinksEnabled,
           unsubscribeLinkEnabled,
-          status
+          status          
         });
       }
     }).catch(err => {

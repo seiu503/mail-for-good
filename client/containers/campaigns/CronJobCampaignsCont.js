@@ -39,7 +39,6 @@ export class CronJobCampaignsContComponent extends Component {
         // Update campaigns only if we need to
         this.props.getAllCampaigns();
     }
-
     /* deleteRows(campaignIds) { // campaignIds [...Numbers]
         this.props.deleteCampaigns(campaignIds, this.props.campaigns);
     } */
@@ -58,9 +57,9 @@ export class CronJobCampaignsContComponent extends Component {
 
                 <div className="box-body">
 
-                    <ManageCampaignsTable
+                    {/* <ManageCampaignsTable
                         data={this.props.campaigns}
-                        getCampaignView={this.getCampaignView} />
+                        getCampaignView={this.getCampaignView} /> */}
                     {this.props.isGetting && <div className="overlay">
                         <FontAwesome name="refresh" spin />
                     </div>}

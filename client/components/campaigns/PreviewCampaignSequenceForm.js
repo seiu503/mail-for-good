@@ -54,7 +54,7 @@ const PreviewCampaignSequenceForm = props => {
             {(lastPage && handleSubmit) &&
                 <div className="box-footer">
                     <div className="btn-group">
-                        <button style={{ margin: "1em", width: "200px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit}>Create Campaign</button>
+                        <button style={{ margin: "1em", width: "250px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit}>Create Campaign Sequence</button>
                         <button style={{ margin: "1em", width: "200px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
                     </div>
                 </div>}

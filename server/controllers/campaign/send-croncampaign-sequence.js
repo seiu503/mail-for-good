@@ -11,7 +11,7 @@ module.exports = (req, res, io, redis) => {
         return;
     }
 
-    function* sendCronCampaign() {
+    function* sendCronCampaignSequence() {        
         const campaignId = req.body.id;
         // NOTE: Current assumption is that the user is using Amazon SES. Can modularise and change this if necessary.
 
@@ -47,14 +47,14 @@ module.exports = (req, res, io, redis) => {
             whiteLabelUrl,
             quotas
         };
-        
-        yield email.amazon.controller(generator, redis, campaignAndListInfo, amazonAccountInfo, io, req);
+
+        yield email.amazon.sequenceController(generator, redis, campaignAndListInfo, amazonAccountInfo, io, req);
 
         // 8. TODO: If there was an error, handle it here
 
     }
 
-    const generator = sendCronCampaign();
+    const generator = sendCronCampaignSequence();
     generator.next();
 
     // Validate the campaign belongs to the user
@@ -72,11 +72,11 @@ module.exports = (req, res, io, redis) => {
 
                 // Only send the campaign if it has been freshly created or
                 // has been interrupted (resume)
-                if (!['ready', 'interrupted'].includes(campaignObject.status)) {
+                if (!['ready', 'interrupted','done'].includes(campaignObject.status)) {
                     // Campaign is not ready to send - show appropriate error message
                     const errorMessages = {
                         sending: 'Your campaign is already being sent',
-                        done: 'Your campaign has been delivered already',
+                        /* done: 'Your campaign has been delivered already', */
                         creating: 'Your campaign is still being created and will be ready to send soon'
                     };
                     console.log(errorMessages[campaignObject.status]); // eslint-disable-line
@@ -112,7 +112,7 @@ module.exports = (req, res, io, redis) => {
                     trackingPixelEnabled,
                     trackLinksEnabled,
                     unsubscribeLinkEnabled,
-                    status                    
+                    status
                 });
             }
         }).catch(err => {

@@ -28,7 +28,7 @@ module.exports = (req, res, io) => {
         delete campaign['campaignanalytic.transientBounceCount'];
         delete campaign['campaignanalytic.undeterminedBounceCount'];        
         delete campaign['id'];
-        /* delete campaign['sequenceCount']; */
+        delete campaign['sequenceCount'];
         delete campaign['totalCampaignSubscribers'];
         delete campaign['createdAt'];
         delete campaign['updatedAt'];

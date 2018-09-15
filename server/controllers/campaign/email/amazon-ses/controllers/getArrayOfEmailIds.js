@@ -6,7 +6,18 @@ const db = require('../../../../../models');
  * @return {array} Plain array of unique listsubscriber ids {number}, we will email these users.
  */
 
-module.exports = (campaignInfo) => {
+module.exports = (campaignInfo, campaignSubscriberStatus=false) => {  
+  let whereCondition;
+  if (campaignSubscriberStatus==true){
+    whereCondition={
+      campaignId: campaignInfo.campaignId    
+    }
+  }else{
+    whereCondition = {
+      campaignId: campaignInfo.campaignId,
+      sent: campaignSubscriberStatus
+    }
+  }  
   function getListSubscriberIds() {
     return db.listsubscriber.findAll({
       where: {
@@ -15,10 +26,7 @@ module.exports = (campaignInfo) => {
       },
       include: [{
         model: db.campaignsubscriber,
-        where: {
-          campaignId: campaignInfo.campaignId,
-          sent: false
-        }
+        where: whereCondition
       }],
       attributes: [
         'id'
