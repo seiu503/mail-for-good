@@ -180,9 +180,13 @@ module.exports = (req, res, io) => {
               } else {
                 if (typeof row.additionalData.emailoptout !== typeof undefined) {
                   let subscribedStatus = '';
-                  if (row.additionalData.emailoptout.toLowerCase() == 'true') {
-                    row['subscribed'] = row.additionalData.emailoptout;
-                    subscribedStatus = row.additionalData.emailoptout;
+                  if (row.additionalData.emailoptout.toLowerCase() == 'false') {
+                    row['subscribed'] = true;
+                    subscribedStatus = true;
+                  }
+                  else if (row.additionalData.emailoptout.toLowerCase() == 'true') {
+                    row['subscribed'] = false;
+                    subscribedStatus = false;
                   } else {
                     row['subscribed'] = false;
                     subscribedStatus = false;
