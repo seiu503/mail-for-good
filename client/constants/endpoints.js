@@ -9,6 +9,7 @@ export const API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT = BASE_URL + '/api/campaigns
 export const API_SEND_CAMPAIGN_ENDPOINT = BASE_URL + '/api/send';
 export const API_TEST_SEND_CAMPAIGN_ENDPOINT = BASE_URL + '/api/test';
 export const API_TEMPLATE_ENDPOINT = BASE_URL + '/api/template';
+export const API_TEMPLATE_PUBLISH_ENDPOINT = BASE_URL + '/api/templatepublish';
 export const API_STOP_SENDING = BASE_URL + '/api/stop';
 export const API_CRON_CAMPAIGN_ENDPOINT = BASE_URL + '/api/allcampaign';
 export const API_SEND_CRON_CAMPAIGN_ENDPOINT = BASE_URL + '/api/cronsend';

@@ -28,8 +28,10 @@ const CreateCampaignForm = props => {
   } = props;
 
   const lists = props.lists.map(x => x.name);
-  const templates = props.templates.map(x => x.name);
+  const publishTemplates = props.templates.filter(x => x.status=='publish');
+  const templates = publishTemplates.map(x => x.name);
   const nameArray = [
+    'id',
     'listName',
     'campaignName',
     'fromName',
@@ -73,6 +75,9 @@ const CreateCampaignForm = props => {
       <br />
 
       <form onSubmit={resetFormAndSubmit}>
+        <div style={{"display": "none"}}>
+          <Field name="id" component={renderField} label="id" type="text" />
+        </div>
         <h3>Select a List*</h3>
         <div>
           <Field name="listName" component={renderCombobox} data={lists} />
@@ -111,7 +116,7 @@ const CreateCampaignForm = props => {
         <div hidden={true} id="inputtext"></div>
         <div className="box-footer">
           <div className="btn-group">
-            <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Next Step</button>
+            <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Preview</button>
             <button className="btn btn-danger btn-lg btn-hug" type="button" disabled={pristine || submitting} onClick={resetForm}>Reset</button>
           </div>
         </div>

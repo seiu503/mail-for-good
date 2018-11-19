@@ -51,7 +51,7 @@ const PreviewTemplateForm = props => {
 
       {(lastPage && handleSubmit) &&
         <div className="box-footer">
-          <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit} disabled={submitting}>{submitting ? 'Saving Template' : 'Save Template'}</button>
+        <button style={{ margin: "1em", width: "200px" }} className="btn btn-lg btn-success" type="button" onClick={handleSubmit} disabled={submitting}>{submitting ? 'Publishing Template' : 'Publish to Template'}</button>
           <button style={{ margin: "1em", width: "160px" }} className="btn btn-lg btn-primary" type="button" onClick={lastPage}>Go back</button>
         </div>}
 

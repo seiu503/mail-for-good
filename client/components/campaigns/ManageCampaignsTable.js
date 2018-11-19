@@ -70,11 +70,11 @@ const ManageCampaignsTable = ({ data, deleteRows, getCampaignView, addCampaignSe
         {row.status != 'done' && row.status != 'interrupted' &&
           <span>
           <a href="#" onClick={editCampaign.bind(this, row)} title="Edit Campaign"><i className="glyphicon glyphicon-edit"></i></a> <span>&nbsp;&nbsp;</span>
-          <a href="#" onClick={addCampaignSequence.bind(this, row)} title="Create Sequence"><i className="glyphicon glyphicon-plus-sign"></i></a>
+          {/* <a href="#" onClick={addCampaignSequence.bind(this, row)} title="Create Sequence"><i className="glyphicon glyphicon-plus-sign"></i></a> */}
           </span>
         }
-        {row.status != 'done' && row.status != 'interrupted' && <span>&nbsp;&nbsp;</span>}
-        <a href="#" onClick={ManageCampaignSequence.bind(this, row)} title="Manage Sequence">{row.sequenceCount}</a>
+        {/* row.status != 'done' && row.status != 'interrupted' && <span>&nbsp;&nbsp;</span> */}
+        {/* <a href="#" onClick={ManageCampaignSequence.bind(this, row)} title="Manage Sequence">{row.sequenceCount}</a> */}
       </div>
     );
   };

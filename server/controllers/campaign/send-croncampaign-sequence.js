@@ -174,41 +174,49 @@ module.exports = (req, res, io, redis) => {
     function countListSubscribers(listId, AvailableToday, campaignId) {
         let totalListSubscribers,
             totalEmailsToSend;
-
-        db.listsubscriber.count({
+        db.listsubscribersrelation.findAll({
             where: {
-                listId,
-                subscribed: true
-            }
-        }).then(total => {
-            totalListSubscribers = total;
-            return db.listsubscriber.count({
-                where: {
-                    listId,
-                    subscribed: true
-                },
-                include: [
-                    {
-                        model: db.campaignsubscriber,
-                        where: {
-                            campaignId,
-                            sent: false
-                        }
-                    }
-                ]
+                listId
+            },
+            raw: true
+        }).then(listSubscriberIds => {
+            const subscriberIds = listSubscriberIds.map(list => {
+                return list.listsubscriberId;
             });
-        }).then(total => {
-            totalEmailsToSend = total;
-
-            if (totalEmailsToSend > AvailableToday && process.env.NODE_ENV === 'production') {
-                res.status(400).send({ message: `This list exceeds your 24 hour allowance of ${AvailableToday} emails. Please upgrade your SES limit.` });
-            } else {
-                generator.next({ totalListSubscribers, totalEmailsToSend });
-            }
-            return null;
-        }).catch(err => {
-            res.status(500).send(err);
-            console.log(err); //eslint-disable-line
+            db.listsubscriber.count({
+                where: {
+                    id: subscriberIds,
+                    subscribed: true
+                }
+            }).then(total => {
+                totalListSubscribers = total;
+                return db.listsubscriber.count({
+                    where: {
+                        id: subscriberIds,
+                        subscribed: true
+                    },
+                    include: [
+                        {
+                            model: db.campaignsubscriber,
+                            where: {
+                                campaignId,
+                                /* sent: false */
+                            }
+                        }
+                    ]
+                });
+            }).then(total => {
+                totalEmailsToSend = total;
+                if (totalEmailsToSend > AvailableToday && process.env.NODE_ENV === 'production') {
+                    res.status(400).send({ message: `This list exceeds your 24 hour allowance of ${AvailableToday} emails. Please upgrade your SES limit.` });
+                } else {
+                    generator.next({ totalListSubscribers, totalEmailsToSend });
+                }
+                return null;
+            }).catch(err => {
+                res.status(500).send(err);
+                console.log(err); //eslint-disable-line
+            });
         });
     }
 

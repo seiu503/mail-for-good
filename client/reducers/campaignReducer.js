@@ -2,10 +2,12 @@ import initialState from './initialState';
 import {
   REQUEST_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_DELETE_CAMPAIGNSEQUENCE,
   REQUEST_POST_CREATECAMPAIGN, COMPLETE_POST_CREATECAMPAIGN,
+  REQUEST_POST_DRAFTCAMPAIGN, COMPLETE_POST_DRAFTCAMPAIGN,
   REQUEST_GET_CAMPAIGNS, COMPLETE_GET_CAMPAIGNS,
   REQUEST_POST_SENDCAMPAIGN, COMPLETE_POST_SENDCAMPAIGN,
   REQUEST_POST_SENDTESTEMAIL, COMPLETE_POST_SENDTESTEMAIL,
   REQUEST_POST_CREATETEMPLATE, COMPLETE_POST_CREATETEMPLATE,
+  REQUEST_POST_PUBLISHTEMPLATE, COMPLETE_POST_PUBLISHTEMPLATE,
   REQUEST_GET_TEMPLATES, COMPLETE_GET_TEMPLATES,
   COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES, REQUEST_GET_CAMPAIGNSSEQUENCE, COMPLETE_GET_CAMPAIGNSSEQUENCE
 } from '../constants/actionTypes';
@@ -20,6 +22,16 @@ export function createCampaign(state = initialState.createCampaign, action) {
     case COMPLETE_POST_CREATECAMPAIGN: {
         return {...state,
           isPosting: false
+        };
+    }
+    case REQUEST_POST_DRAFTCAMPAIGN: {
+        return {...state,
+          campaignId: 0
+        };
+    }
+    case COMPLETE_POST_DRAFTCAMPAIGN: {
+        return {...state,
+          campaignId: action.campaignId
         };
     }
     default:
@@ -47,13 +59,27 @@ export function createTemplate(state = initialState.createTemplate, action) {
   switch (action.type) {
     case REQUEST_POST_CREATETEMPLATE: {
         return {...state,
-          isPosting: true
+          isPosting: true,
+          templateId: 0
         };
     }
     case COMPLETE_POST_CREATETEMPLATE: {
         return {...state,
-          isPosting: false
+          isPosting: false,
+          templateId: action.templateId
         };
+    }
+    case REQUEST_POST_PUBLISHTEMPLATE: {
+      return {
+        ...state,
+        templatePublish: true
+      };
+    }
+    case COMPLETE_POST_PUBLISHTEMPLATE: {
+      return {
+        ...state,
+        templatePublish: false
+      };
     }
     default:
       return state;

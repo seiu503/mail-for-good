@@ -21,6 +21,7 @@ const CreateTemplateForm = props => {
   } = props;
 
   const nameArray = [
+    'id',
     'templateName',
     'fromName',
     'fromEmail',
@@ -55,8 +56,11 @@ const CreateTemplateForm = props => {
       <h3>Template details</h3>
       <Field name="templateName" component={renderField} label="Template Name*" type="text" />
       <hr/>
-
+ 
       <h3>Campaign details</h3>
+      <div style={{ display: "none" }}>
+      <Field name="id" component={renderField} label="id" type="text" />
+      </div>
       <Field name="fromName" component={renderField} label="From Name" type="text" />
       <Field name="fromEmail" component={renderField} label="From Email" type="email" />
       <hr/>
@@ -75,7 +79,7 @@ const CreateTemplateForm = props => {
       <div hidden={true} id="inputtext"></div>
       <div className="box-footer">
         <div className="btn-group">
-          <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Next Step</button>
+          <button className="btn btn-success btn-lg btn-hug" type="submit" disabled={pristine || submitting}>Preview</button>
           <button className="btn btn-danger btn-lg btn-hug" type="button" disabled={pristine || submitting} onClick={resetForm}>Reset</button>
         </div>
       </div>

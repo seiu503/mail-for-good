@@ -18,30 +18,41 @@ module.exports = (campaignInfo, campaignSubscriberStatus=false) => {
       sent: campaignSubscriberStatus
     }
   }  
+
   function getListSubscriberIds() {
-    return db.listsubscriber.findAll({
+    return db.listsubscribersrelation.findAll({
       where: {
-        listId: campaignInfo.listId,
-        subscribed: true
+        listId: campaignInfo.listId
       },
-      include: [{
-        model: db.campaignsubscriber,
-        where: whereCondition
-      }],
-      attributes: [
-        'id'
-      ],
       raw: true
-    })
-    .then(instances => {
-      const plainArrayOfIdNumbers = instances.map(x => x.id);
-      return plainArrayOfIdNumbers;
-    })
-    .catch(err => {
-      // This should never happen - so we can throw an error here if it does.
-      throw new Error('Error getting list subscribers ids in getArrayOfEmailIds - ', err);
+    }).then(listSubscriberIds => {
+      const subscriberIds = listSubscriberIds.map(list => {
+        return list.listsubscriberId;
+      });
+
+      return db.listsubscriber.findAll({
+        where: {
+          id: subscriberIds,
+          subscribed: true
+        },
+        include: [{
+          model: db.campaignsubscriber,
+          where: whereCondition
+        }],
+        attributes: [
+          'id'
+        ],
+        raw: true
+      })
+        .then(instances => {
+          const plainArrayOfIdNumbers = instances.map(x => x.id);
+          return plainArrayOfIdNumbers;
+        })
+        .catch(err => {
+          // This should never happen - so we can throw an error here if it does.
+          throw new Error('Error getting list subscribers ids in getArrayOfEmailIds - ', err);
+        });
     });
   }
-
   return getListSubscriberIds();
 };

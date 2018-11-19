@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-        listsubscriber.belongsTo(models.list);
+        /* listsubscriber.belongsTo(models.list); */
         listsubscriber.hasMany(models.campaignanalyticslink);
         listsubscriber.hasMany(models.campaignanalyticsopen);
         listsubscriber.hasMany(models.campaignsubscriber);

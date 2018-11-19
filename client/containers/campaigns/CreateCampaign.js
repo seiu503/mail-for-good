@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { initialize } from 'redux-form';
 import CreateCampaignForm from '../../components/campaigns/CreateCampaignForm';
 import PreviewCampaignForm from '../../components/campaigns/PreviewCampaignForm';
-import { postCreateCampaign, getTemplates, getCampaigns, postTestEmail } from '../../actions/campaignActions';
+import { postCreateCampaign, postDraftCampaign, getTemplates, getCampaigns, postTestEmail } from '../../actions/campaignActions';
 import { notify } from '../../actions/notificationActions';
 import { getLists } from '../../actions/listActions';
 import FontAwesome from 'react-fontawesome';
@@ -14,6 +14,7 @@ function mapStateToProps(state) {
   return {
     form: state.form.createCampaign,
     isPosting: state.createCampaign.isPosting,
+    campaignId: state.createCampaign.campaignId,
     lists: state.manageList.lists,
     isGetting: state.manageList.isGetting,
     templates: state.manageTemplates.templates,    
@@ -31,7 +32,7 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = { postCreateCampaign, getLists, getTemplates, initialize, notify, getCampaigns, postTestEmail };
+const mapDispatchToProps = { postCreateCampaign, postDraftCampaign, getLists, getTemplates, initialize, notify, getCampaigns, postTestEmail };
 
 export class CreateCampaignComponent extends Component {
 
@@ -39,6 +40,8 @@ export class CreateCampaignComponent extends Component {
     form: PropTypes.object,
     isPosting: PropTypes.bool.isRequired,
     postCreateCampaign: PropTypes.func.isRequired,
+    campaignId: PropTypes.number.isRequired,
+    postDraftCampaign: PropTypes.func.isRequired,
     postTestEmail: PropTypes.func.isRequired,
     getLists: PropTypes.func.isRequired,
     lists: PropTypes.array.isRequired,
@@ -111,11 +114,17 @@ export class CreateCampaignComponent extends Component {
     if (nextProps.campaigns && nextProps.campaigns.length && !this.props.campaigns.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist    
       this.getSingleCampaign(nextProps);
     }
-
+    //console.log('State ' + this.props.campaignId + ' ----props ' + nextProps.campaignId);
+    if (nextProps.campaignId > 0 && this.props.campaignId != nextProps.campaignId) {      
+      const correctForm = Object.assign({}, this.props.form.values, {
+        ['id']: nextProps.campaignId
+      });
+      this.props.initialize('createCampaign', correctForm);
+    }
     // Show success/failure toast for send campaign
     const sendCampaignResponseExists = !!nextProps.sendCampaignResponse;
-    const justSentCampaign = !nextProps.isPostingSendCampaign && this.props.isPostingSendCampaign;
-    if (sendCampaignResponseExists && justSentCampaign) {
+    const justSentCampaign = !nextProps.isPostingSendCampaign && this.props.isPostingSendCampaign;    
+    if (sendCampaignResponseExists && justSentCampaign) {      
       this.setState({ haveShownMessage: true });
       if (nextProps.sendCampaignStatus === 200) {
         this.props.notify({
@@ -130,7 +139,7 @@ export class CreateCampaignComponent extends Component {
       this.context.router.push(`/campaigns/manage`);
     }else{
       // Fires when campaign has been successfully created
-      if (this.props.isPosting === true && nextProps.isPosting === false && this.state.sendCampaign==false) {
+      if (this.props.isPosting === true && nextProps.isPosting === false && this.state.sendCampaign==false) {        
         this.context.router.push(`/campaigns/manage`);
       }
     }
@@ -179,7 +188,7 @@ export class CreateCampaignComponent extends Component {
         delete correctForm['campaignanalytic.totalSentCount'];
         delete correctForm['campaignanalytic.transientBounceCount'];
         delete correctForm['campaignanalytic.undeterminedBounceCount'];
-        delete correctForm['status'];
+        //delete correctForm['status'];
         delete correctForm['sequenceCount'];
         delete correctForm['emailBody'];
         delete correctForm['createdAt'];
@@ -206,7 +215,8 @@ export class CreateCampaignComponent extends Component {
   }
   handleSubmit(status) {
     const formValues = this.props.form.values;
-    // Extract emailBodyPlaintext or emailBodyHTML as our emailBody
+    /* 
+    // Extract emailBodyPlaintext or emailBodyHTML as our emailBody    
     const correctForm = Object.assign({}, formValues, {
       emailBody: formValues[`emailBody${formValues.type}`],
       status: status,
@@ -218,9 +228,17 @@ export class CreateCampaignComponent extends Component {
     if (status == 'ready' && this.state.showScheduleDate ==false){
       this.setState({ sendCampaign: true});
     }
-    delete correctForm[`emailBody${formValues.type}`];    
-    
-    this.props.postCreateCampaign(JSON.stringify(correctForm), this.state.reset);
+    delete correctForm[`emailBody${formValues.type}`]; */
+    let sendCampaign='';
+    if (status == 'ready' && this.state.showScheduleDate == false){
+      this.setState({ sendCampaign: true });
+      sendCampaign = 1;
+    }else{
+      sendCampaign = 0;
+    }
+    let form = { 'id': formValues.id, 'status': status, sendCampaign: sendCampaign };
+
+    this.props.postCreateCampaign(JSON.stringify(form), this.state.reset);
     let message='';
     if (this.state.isEdit && status !='ready'){
       message='Campaign is being updated.'
@@ -273,6 +291,23 @@ export class CreateCampaignComponent extends Component {
   }
 
   nextPage() {
+    const formValues = this.props.form.values;
+
+    // Extract emailBodyPlaintext or emailBodyHTML as our emailBody
+    const correctForm = Object.assign({}, formValues, {
+      emailBody: formValues[`emailBody${formValues.type}`],
+      status: 'draft',
+      scheduledatetime: (this.state.showScheduleDate == false) ? '' : formValues.scheduledatetime
+    });
+    if (this.state.showScheduleDate == false) {
+      delete correctForm['scheduledatetime'];
+    }
+    if (status == 'ready' && this.state.showScheduleDate == false) {
+      this.setState({ sendCampaign: true });
+    }
+    delete correctForm[`emailBody${formValues.type}`];    
+    this.props.postDraftCampaign(JSON.stringify(correctForm), this.state.reset);
+    
     this.setState({ page: this.state.page + 1 });
   }
 

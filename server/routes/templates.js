@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser')();
 // Template controllers
 const getTemplates = require('../controllers/template/get-templates');
 const createTemplate = require('../controllers/template/create-template');
+const publishTemplate = require('../controllers/template/publish-template');
 const deleteTemplates = require('../controllers/template/delete-templates');
 const createTemplateCopy = require('../controllers/template/create-template-copy');
 
@@ -28,6 +29,13 @@ module.exports = function(app) {
   app.post('/api/template', apiIsAuth, parseJson, cookieParser, writeTemplateAccess, (req, res) => {
     createTemplate(req, res);
   });
+  
+  // Publish template
+  app.post('/api/templatepublish', apiIsAuth, parseJson, cookieParser, writeTemplateAccess, (req, res) => {
+    publishTemplate(req, res);
+  });
+
+
   // Delete template(s)
   app.delete('/api/template', apiIsAuth, parseJson, cookieParser, writeTemplateAccess, (req, res) => {
     deleteTemplates(req, res);

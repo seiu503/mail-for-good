@@ -1,7 +1,6 @@
-const list = require('../../models').list;
-const listsubscriber = require('../../models').listsubscriber;
+const db = require('../../models');
 
-module.exports = (req, res) => {
+module.exports = (req, res) => {  
   // Find all subscribers belonging to a list
   const listId = req.query.listId;
   const offset = req.query.offset;
@@ -9,7 +8,7 @@ module.exports = (req, res) => {
   const filters = JSON.parse(req.query.filters) || {};
   const userId = req.user.id;
 
-  list.findOne({
+  db.list.findOne({
     where: {
       userId,
       id: listId
@@ -26,9 +25,7 @@ module.exports = (req, res) => {
       send({message: 'not authorised to view list or list does not exist'});
       return;
     } else {
-      let where = {
-        listId
-      };
+      let where = {};
       if (filters.subscribed === 'true') {
         where.subscribed = true;
       } else if (filters.subscribed === 'false') {
@@ -39,29 +36,45 @@ module.exports = (req, res) => {
       if (statusFilters.includes(filters.mostRecentStatus)) {
         where.mostRecentStatus = filters.mostRecentStatus;
       }
-
-      listsubscriber.findAll({
-        where,
-        offset: (offset - 1) * limit,
-        limit,
-        order: [
-          ['id', 'ASC']
-        ],
+      db.listsubscribersrelation.findAll({
+        where: {
+          listId
+        },
         attributes: [
-          'id',
-          'email',
-          'subscribed',
-          'createdAt',
-          'updatedAt',
-          'mostRecentStatus',
-          'additionalData'
+          'listsubscriberId',
         ],
         raw: true
-      }).then(instancesArray => {
-        listsubscriber.count({where}).then(total => {
-          res.send({subscribers: instancesArray, total, additionalFields});
-        });
-      });
+      }).then(listsubscriberIds => {
+        if (listsubscriberIds) {
+          const ids = listsubscriberIds.map(x => x.listsubscriberId);
+          where.id = ids;          
+          db.listsubscriber.findAll({
+            where,
+            offset: (offset - 1) * limit,
+            limit,
+            order: [
+              ['id', 'ASC']
+            ],
+            attributes: [
+              'id',
+              'email',
+              'subscribed',
+              'createdAt',
+              'updatedAt',
+              'mostRecentStatus',
+              'additionalData'
+            ],
+            raw: true
+          }).then(instancesArray => {
+            db.listsubscriber.count({where}).then(total => {
+              res.send({subscribers: instancesArray, total, additionalFields});
+            });
+          });
+        } else {          
+          res.send();
+        }
+        }).catch((err) => { console.log(err); res.send(); });
+
     }
   });
 };

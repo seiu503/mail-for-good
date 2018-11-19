@@ -24,6 +24,8 @@ const sendUpdateNotification = require('../websockets/send-update-notification')
 */
 
 module.exports = (req, res, io) => {
+  let listSubscribersRelationIds=[];
+
   /*
     Steps in this file
     1. Check if the list (req.body.list) exists. If so, use it. If not, create it.
@@ -144,7 +146,7 @@ module.exports = (req, res, io) => {
       }
 
       function updateListStatusReady() {
-        db.listsubscriber.count({
+        db.listsubscribersrelation.count({
           where: { listId: listId }
         }).then(total => {
           db.list.update(
@@ -171,12 +173,41 @@ module.exports = (req, res, io) => {
           return new Promise(resolve => {
             model.findOne({
               where: {
-                listId,
+                /* listId, */
                 email: row.email
               }
             }).then(instance => {
-              if (instance) { // Email already exists
-                resolve(null);
+              if (instance) { // Email already exists                
+                if (typeof row.additionalData.emailoptout !== typeof undefined) {
+                  let subscribedStatus = null;
+                  if (row.additionalData.emailoptout.toLowerCase() == 'false') {
+                    subscribedStatus = true;
+                  } else if (row.additionalData.emailoptout.toLowerCase() == 'true') {
+                    subscribedStatus = false;
+                  }
+                  if (subscribedStatus !==null){                  
+                    model.update({
+                      subscribed: subscribedStatus
+                    },
+                      {
+                        where: {
+                          email: row.email
+                        },
+                      }).then(result => {
+                        listSubscribersRelationIds[listSubscribersRelationIds.length] = { listId: listId, listsubscriberId: instance.dataValues.id };
+                        resolve(null); 
+                      }).catch(err => {
+                        listSubscribersRelationIds[listSubscribersRelationIds.length] = { listId: listId, listsubscriberId: instance.dataValues.id };
+                        resolve(null);
+                      });
+                  }else{
+                    listSubscribersRelationIds[listSubscribersRelationIds.length] = { listId: listId, listsubscriberId: instance.dataValues.id };
+                    resolve(null);  
+                  }
+                }else{
+                  listSubscribersRelationIds[listSubscribersRelationIds.length] = { listId: listId, listsubscriberId 	: instance.dataValues.id };
+                  resolve(null);
+                }
               } else {
                 if (typeof row.additionalData.emailoptout !== typeof undefined) {
                   let subscribedStatus = '';
@@ -228,8 +259,7 @@ module.exports = (req, res, io) => {
                 }
 
               }
-            }
-              );
+            });
           });
         });
 
@@ -244,9 +274,21 @@ module.exports = (req, res, io) => {
 
       const c = cargo((tasks, callback) => {
         const tasksLength = tasks.length;
-        returnUniqueItems(db.listsubscriber, tasks).then(uniqueTasks => {
-          db.listsubscriber.bulkCreate(uniqueTasks).then(() => {
-
+        returnUniqueItems(db.listsubscriber, tasks).then(uniqueTasks => {                  
+          db.listsubscriber.bulkCreate(uniqueTasks, { returning: true }).then((subscribersIDS) => {
+                       
+            let relationIDS = subscribersIDS.map(subid => {              
+              return { listId: listId, listsubscriberId 	: subid.dataValues.id }
+            });
+                        
+            if(relationIDS.length>0){
+              listSubscribersRelationIds=listSubscribersRelationIds.concat(relationIDS);
+            }            
+            if (listSubscribersRelationIds.length>0){              
+              db.listsubscribersrelation.bulkCreate(listSubscribersRelationIds, { returning: true }).then((response) => {
+                listSubscribersRelationIds = [];                
+              });
+            }
             // Track how many emails we've processed so far.
             numberProcessed += tasksLength;
 
@@ -302,7 +344,7 @@ module.exports = (req, res, io) => {
         } else {
           // Add fields to row
           bufferArray.push({
-            listId,
+            /* listId, */
             email: row.email,
             additionalData: _.omit(row, 'email')
           });

@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     emailBodyDesign: DataTypes.TEXT,
     type: DataTypes.STRING,
     slug: DataTypes.STRING,
+    status: { type: DataTypes.STRING, defaultValue: 'draft' },
     trackingPixelEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     trackLinksEnabled: { type: DataTypes.BOOLEAN, defaultValue: false },
     unsubscribeLinkEnabled: { type: DataTypes.BOOLEAN, defaultValue: false }

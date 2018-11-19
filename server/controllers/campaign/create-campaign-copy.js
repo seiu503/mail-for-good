@@ -91,48 +91,61 @@ module.exports = (req, res, io) => {
                             // at once.
                             //res.send({ message: 'Campaign is being created - it will be ready to send soon.' }); // Should use notification/status rather than simple response
                             function createCampaignSubscribers(offset = 0, limit = 10000) {
-                                db.listsubscriber.findAll({
+                                db.listsubscribersrelation.findAll({
                                     where: {
                                         listId: valueFromValidation.listId
                                     },
                                     limit,
                                     offset,
-                                    attributes: [
-                                        [
-                                            'id', 'listsubscriberId'
-                                        ],
-                                        'email'
-                                    ], // Nested array used to rename id to listsubscriberId
                                     order: [
                                         ['id', 'ASC']
                                     ],
                                     raw: true
-                                }).then(listSubscribers => {
-                                    if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
-                                        totalCampaignSubscribersProcessed += listSubscribers.length;
-                                        listSubscribers = listSubscribers.map(listSubscriber => {
-                                            listSubscriber.campaignId = campaignId;
-                                            return listSubscriber;
-                                        });
-                                        db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
-                                            createCampaignSubscribers(offset + limit);
-                                        });
-                                    } else {
-                                        db.campaign.update({
-                                            status: 'draft',
-                                            totalCampaignSubscribers: totalCampaignSubscribersProcessed
-                                        }, {
-                                                where: {
-                                                    id: campaignId
-                                                }
-                                            }).then(() => {
-                                                //sendSuccessNotification();
-                                                return;
-                                            }).catch(err => {
-                                                throw err;
+                                }).then(listSubscriberIds => {
+                                    const subscriberIds = listSubscriberIds.map(list => {
+                                        return list.listsubscriberId;
+                                    });
+                                    db.listsubscriber.findAll({
+                                        where: {
+                                            id: subscriberIds
+                                        },                                        
+                                        attributes: [
+                                            [
+                                                'id', 'listsubscriberId'
+                                            ],
+                                            'email'
+                                        ], // Nested array used to rename id to listsubscriberId
+                                        order: [
+                                            ['id', 'ASC']
+                                        ],
+                                        raw: true
+                                    }).then(listSubscribers => {
+                                        if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
+                                            totalCampaignSubscribersProcessed += listSubscribers.length;
+                                            listSubscribers = listSubscribers.map(listSubscriber => {
+                                                listSubscriber.campaignId = campaignId;
+                                                return listSubscriber;
                                             });
-                                    }
-                                });
+                                            db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
+                                                createCampaignSubscribers(offset + limit);
+                                            });
+                                        } else {
+                                            db.campaign.update({
+                                                status: 'draft',
+                                                totalCampaignSubscribers: totalCampaignSubscribersProcessed
+                                            }, {
+                                                    where: {
+                                                        id: campaignId
+                                                    }
+                                                }).then(() => {
+                                                    //sendSuccessNotification();
+                                                    return;
+                                                }).catch(err => {
+                                                    throw err;
+                                                });
+                                        }
+                                    });
+                                });    
                             }
                             createCampaignSubscribers(); // Start creating CampaignSubscribers
                         });

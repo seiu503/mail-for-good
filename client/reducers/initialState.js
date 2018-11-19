@@ -1,12 +1,15 @@
 const initialState = {
   createCampaign: {
-    isPosting: false // Posting a new campaign?
+    isPosting: false, // Posting a new campaign?
+    campaignId: 0
   },
   createCampaignSequence: {
     isPosting: false // Posting a new campaign?
   },
   createTemplate: {
-    isPosting: false
+    isPosting: false,
+    templateId: 0,
+    templatePublish: false
   },
   manageCampaign: {
     campaigns: [], // Array of objects for campaigns

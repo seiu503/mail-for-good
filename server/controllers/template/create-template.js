@@ -23,13 +23,14 @@ module.exports = (req, res) => {
       trackingPixelEnabled: req.body.trackingPixelEnabled,
       trackLinksEnabled: req.body.trackLinksEnabled,
       unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
-      type: req.body.type,      
+      type: req.body.type,
+      status: req.body.status, 
       slug: slug(req.body.templateName)
     }, {
         where: { id: id }
       }).then((instance) => {
         if (instance == 1) {
-          res.send({ message: 'template updated' }); // Should use notification/status rather than simple 
+          res.send({ templateId: id, message: 'template updated' }); // Should use notification/status rather than simple 
         } else {
           res.status(400).send();
         }
@@ -55,14 +56,16 @@ module.exports = (req, res) => {
         unsubscribeLinkEnabled: req.body.unsubscribeLinkEnabled,
         type: req.body.type,
         userId: userId,
+        status: req.body.status,
         slug: slug(req.body.templateName)
       }
-    }).then(templateInstance => {
-      if (templateInstance) { // Does the template already exist?
+    }).then(templateInstance => {      
+      res.send({ templateId: templateInstance[0].id, message: 'template added'});
+      /* if (templateInstance) { // Does the template already exist?
         res.status(400).send();
-      } else {
+      } else {        
         res.send();
-      }
+      } */
     }).catch(err => {
       throw err;
     });

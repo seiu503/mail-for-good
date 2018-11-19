@@ -58,6 +58,14 @@ const ManageTemplatesTable = ({ data, deleteRows, getTemplateView, duplicateTemp
       </div>
     );
   };
+
+  const statusFormatter = status => {
+    if (status == 'publish') {
+      return `<span class="label label-success">Published</span>`;
+    } else if (status == 'draft') {
+      return `<span class="label label-warning">Draft</span>`;
+    }
+  };
   // ID will be used as the rowKey, but the column itself is hidden as it has no value. Slugs are also hidden.
   return (
     <BootstrapTable data={data}
@@ -71,7 +79,8 @@ const ManageTemplatesTable = ({ data, deleteRows, getTemplateView, duplicateTemp
       clearSearch={true}>
 
       <TableHeaderColumn dataField="id" hidden={true} isKey={true}>Id</TableHeaderColumn>
-      <TableHeaderColumn dataField="name" width="250" dataAlign="center" dataSort={true}>Name</TableHeaderColumn>
+      <TableHeaderColumn dataField="name" width="220" dataAlign="center" dataSort={true}>Name</TableHeaderColumn>
+      <TableHeaderColumn dataField="status" width="30" dataAlign="center" dataSort={true} dataFormat={statusFormatter} >Status</TableHeaderColumn>
       <TableHeaderColumn dataAlign="center" width="20" dataFormat={actionButtonsFormatter.bind(this)}>Actions</TableHeaderColumn>
       <TableHeaderColumn dataField="createdAt" dataAlign="center" dataSort={true} dataFormat={dateFormatter} width="60">Created</TableHeaderColumn>
       <TableHeaderColumn dataField="updatedAt" dataAlign="center" dataSort={true} dataFormat={dateFormatter} width="60">Updated</TableHeaderColumn>

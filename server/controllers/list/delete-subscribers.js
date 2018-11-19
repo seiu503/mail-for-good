@@ -1,12 +1,11 @@
-const List = require('../../models').list;
-const ListSubscriber = require('../../models').listsubscriber;
+const db = require('../../models');
 
 module.exports = (req, res) => {
 
   const listSubscriberIds = req.body.listSubscribers;
   const userId = req.user.id;
 
-  List.findAll({
+  db.list.findAll({
     where: { userId },
     attributes: [ 'id' ]
   }).then(result => {
@@ -14,9 +13,9 @@ module.exports = (req, res) => {
       return list.id;
     });
 
-    ListSubscriber.destroy({
+    db.listsubscribersrelation.destroy({
       where: {
-        id: listSubscriberIds,
+        listsubscriberId: listSubscriberIds,
         listId: ownedListIds
       }
     }).then(numDeleted => {

@@ -77,7 +77,7 @@ module.exports = async function (generator, redis, campaignAndListInfo, amazonAc
         let amazonEmailArray = await getAmazonEmailArrayForSequence(currentBlockOfEmails, campaignInfo, whiteLabelUrl,CampaignSequences);
         
         let LENGTH_OF_AMAZON_EMAIL_ARRAY = amazonEmailArray.length;
-        for (let x = 0; x < LENGTH_OF_AMAZON_EMAIL_ARRAY; x++) {            
+        for (let x = 0; x < LENGTH_OF_AMAZON_EMAIL_ARRAY; x++) {
             IsEmailSend=true;
             // 2. Add the email to the send queue. Continue when the queue tells us that it has space for our next email.
             await addToQueue(amazonEmailArray[x], campaignInfo);

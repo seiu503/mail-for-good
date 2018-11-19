@@ -112,7 +112,8 @@ describe('(Reducer/Action Creator) campaign', () => {
       createTemplate(undefined, requestPostCreateTemplate())
     ).to.deep.equal({
       ...initialState.createTemplate,
-      isPosting: true
+      isPosting: true,
+      templateId: 0
     });
   });
 
@@ -121,7 +122,8 @@ describe('(Reducer/Action Creator) campaign', () => {
       createTemplate(undefined, completePostCreateTemplate())
     ).to.deep.equal({
       ...initialState.createTemplate,
-      isPosting: false
+      isPosting: false,
+      templateId: 0
     });
   });
 

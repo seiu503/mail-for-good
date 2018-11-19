@@ -4,7 +4,7 @@ import { initialize } from 'redux-form';
 import FontAwesome from 'react-fontawesome';
 import CreateTemplateForm from '../../components/templates/CreateTemplateForm';
 import PreviewTemplateForm from '../../components/templates/PreviewTemplateForm';
-import { postCreateTemplate, getTemplates } from '../../actions/campaignActions';
+import { postCreateTemplate, postPublishTemplate, getTemplates } from '../../actions/campaignActions';
 import { notify } from '../../actions/notificationActions';
 import moment from 'moment';
 
@@ -13,19 +13,24 @@ function mapStateToProps(state) {
   return {
     form: state.form.createTemplate,
     isPosting: state.createTemplate.isPosting,
+    templateId: state.createTemplate.templateId,
+    templatePublish: state.createTemplate.templatePublish,
     templates: state.manageTemplates.templates,
     isGetting: state.manageTemplates.isGetting
   };
 }
 
-const mapDispatchToProps = { postCreateTemplate, notify, getTemplates, initialize };
+const mapDispatchToProps = { postCreateTemplate, postPublishTemplate, notify, getTemplates, initialize };
 
 export class CreateTemplateComponent extends Component {
 
   static propTypes = {
     form: PropTypes.object,
     isPosting: PropTypes.bool.isRequired,
+    templateId: PropTypes.number.isRequired,
+    templatePublish: PropTypes.bool.isRequired,
     postCreateTemplate: PropTypes.func.isRequired,
+    postPublishTemplate: PropTypes.func.isRequired,
     templates: PropTypes.array.isRequired,
     isGetting: PropTypes.bool.isRequired,
     notify: PropTypes.func.isRequired,
@@ -61,14 +66,24 @@ export class CreateTemplateComponent extends Component {
     this.getSingleTemplate(this.props);
   }
 
-  componentWillReceiveProps(props) {
-    if (this.props.isPosting === true && props.isPosting === false) { // Fires when template has been successfully created
+  componentWillReceiveProps(props) {    
+    
+    if (this.props.templatePublish === true && props.templatePublish === false) { // Fires when template has been successfully publish
       this.setState({ page: 1 });
       this.props.notify({
-        message: (this.state.isEdit == false) ? 'Your template was created successfully' :'Your template was updated successfully',
+        message: (this.state.isEdit == false) ? 'Your template published successfully' : 'Your template updated successfully',
         colour: 'green'
       });
       this.context.router.push(`/templates/manage`);
+    }
+    if (this.props.isPosting === true && props.isPosting === false) { // Fires when template has been successfully created
+      if (props.templateId > 0) {
+        this.setState({ templateId: props.templateId});
+        const correctForm = Object.assign({}, this.props.form.values, {
+          ['id']: props.templateId
+        });        
+        this.props.initialize('createTemplate', correctForm);
+      }      
     }    
     if (props.templates && props.templates.length && !this.props.templates.length) { // Guarded and statement that confirms campaigns is in the new props, confirms the array isn't empty, and then confirms that current props do not exist
       this.getSingleTemplate(props);
@@ -89,6 +104,7 @@ export class CreateTemplateComponent extends Component {
         delete correctForm['userId'];
         delete correctForm['name'];
         delete correctForm['slug'];
+        delete correctForm['status'];
         
         this.props.initialize('createTemplate', correctForm);
         this.setState({ isEdit: true});
@@ -99,10 +115,18 @@ export class CreateTemplateComponent extends Component {
     }
   }
   handleSubmit() {
-    this.props.postCreateTemplate(JSON.stringify(this.props.form.values), this.state.reset);
+    if (confirm('Are you sure that you want to publishing this template. It will update this template for any campaigns or drips currently using this template?')){
+      let form = { id: this.state.templateId, status:'publish'};
+      this.props.postPublishTemplate(JSON.stringify(form), this.state.reset);
+    }
   }
 
-  nextPage() {
+  nextPage() {    
+    const correctForm = Object.assign({}, this.props.form.values, {
+      ['status']: 'draft'
+    });
+    this.props.initialize('createTemplate', correctForm);        
+    this.props.postCreateTemplate(JSON.stringify(correctForm), this.state.reset);
     this.setState({ page: this.state.page + 1 });
   }
 
