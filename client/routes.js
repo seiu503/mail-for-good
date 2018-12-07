@@ -5,6 +5,11 @@ import { connect } from 'react-redux';
 import App from './containers/App';
 // Dashboard
 import Dashboard from './containers/Dashboard';
+// Drips
+import CreateDrip from './containers/drips/CreateDrip';
+import ManageDrips from './components/drips/ManageDrips';
+import DripView from './containers/drips/DripView';
+
 // Campaigns
 import CreateCampaign from './containers/campaigns/CreateCampaign';
 import CreateCampaignSequence from './containers/campaigns/CreateCampaignSequence';
@@ -77,6 +82,13 @@ export default class RouterConfig extends Component {
       <Router history={history}>
         <Route path="/" component={App}>
           <IndexRoute component={Dashboard} onEnter={this.onEnter} />
+
+          <Route path="drips" onEnter={this.onEnter} >
+            <Route path="create" component={CreateDrip}/>
+            <Route path="create/:slug" component={CreateDrip}/>
+            <Route path="manage" component={ManageDrips}/>
+            <Route path="manage/:slug" component={DripView}/>
+          </Route>
 
           <Route path="campaigns" onEnter={this.onEnter} >
             <Route path="create" component={CreateCampaign}/>

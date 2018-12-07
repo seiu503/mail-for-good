@@ -1,4 +1,17 @@
 const initialState = {
+  createDrip: {
+    isPosting: false, // Posting a new drip? 
+    sendDripStatus: 0,
+    dripId:0   
+  },
+  submitDrip: {
+    isDripSubmited: false, 
+  },
+  manageDrip: {
+    drips: [], // Array of objects for drips
+    isGetting: false // Getting drips?
+  },
+
   createCampaign: {
     isPosting: false, // Posting a new campaign?
     campaignId: 0

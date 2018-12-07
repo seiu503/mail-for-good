@@ -2,6 +2,14 @@ export const BASE_URL = window.location.origin;
 
 // Dashboard
 
+// Drip 
+export const API_POST_DRIP_ENDPOINT = BASE_URL + '/api/createdrip';
+export const API_DRIP_CHANGE_STATUS_ENDPOINT = BASE_URL + '/api/changedripstatus';
+export const API_GET_DRIP_ENDPOINT = BASE_URL + '/api/getdrips';
+export const API_DRIP_COPY_ENDPOINT = BASE_URL + '/api/dripcopy';
+export const API_DRIP_DELETE_ENDPOINT = BASE_URL + '/api/deletedrip';
+
+
 // Campaigns
 export const API_CAMPAIGN_ENDPOINT = BASE_URL + '/api/campaign'; // REST (post = new campaign, get = get list of campaigns, put = update campaign, del = delete campaign)
 export const API_CAMPAIGN_SEQUENCE_ENDPOINT = BASE_URL + '/api/campaignsequence'; // REST (post = new campaign, get = get list of campaigns, put = update campaign, del = delete campaign)

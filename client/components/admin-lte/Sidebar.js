@@ -58,6 +58,13 @@ const Sidebar = (props) => { // eslint-disable-line no-unused-vars
               <SidebarLink to="/campaigns/manage">Manage Campaigns</SidebarLink> {/* delete, resend, edit, view report (analytics) */}
             </SidebarTreeview>
           : <DisabledLink icon="fa-envelope">Campaigns</DisabledLink>}
+          
+          {(!anotherAccountIsActive || (activeAccount.campaigns && activeAccount.drips !== 'none'))
+            ? <SidebarTreeview name="Drips" icon="fa-envelope">
+              <SidebarLink to="/drips/create">Create Drip</SidebarLink> {/* typeofcampaign (html, plain etc), use template, steps= 1. to who - 2. campaign info (name, from, subject, from email, options for tracking) 3. Template 4. Write the actual email 5. send & confirm*/}              
+              <SidebarLink to="/drips/manage">Manage Drips</SidebarLink> {/* delete, resend, edit, view report (analytics) */}
+            </SidebarTreeview>
+            : <DisabledLink icon="fa-envelope">Drips</DisabledLink>}
 
           {!anotherAccountIsActive
           ? <SidebarTreeview name="Permissions" icon="fa-users">

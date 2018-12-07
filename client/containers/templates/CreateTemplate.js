@@ -114,9 +114,9 @@ export class CreateTemplateComponent extends Component {
       this.props.initialize('createTemplate', correctForm);
     }
   }
-  handleSubmit() {
+  handleSubmit() {    
     if (confirm('Are you sure that you want to publishing this template. It will update this template for any campaigns or drips currently using this template?')){
-      let form = { id: this.state.templateId, status:'publish'};
+      let form = { id: this.state.templateId, status: 'publish', emailBody: this.props.form.values.emailBody};
       this.props.postPublishTemplate(JSON.stringify(form), this.state.reset);
     }
   }

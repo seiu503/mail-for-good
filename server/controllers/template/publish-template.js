@@ -6,10 +6,11 @@ module.exports = (req, res) => {
     const userId = req.user.id;
     const id = req.body.id;
     const status = req.body.status;
-    
+    const publishedEmailBody = req.body.emailBody;
     if (id > 0) {
         db.template.update({
-            status: status
+            status: status,
+            publishedEmailBody: publishedEmailBody
         }, {
                 where: { id: id }
             }).then((instance) => {

@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
     fromEmail: DataTypes.STRING,
     emailSubject: DataTypes.STRING,
     emailBody: DataTypes.TEXT,
+    publishedEmailBody: { type: DataTypes.TEXT, defaultValue: null },
     emailBodyDesign: DataTypes.TEXT,
     type: DataTypes.STRING,
     slug: DataTypes.STRING,

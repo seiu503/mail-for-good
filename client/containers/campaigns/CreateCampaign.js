@@ -193,7 +193,7 @@ export class CreateCampaignComponent extends Component {
         delete correctForm['emailBody'];
         delete correctForm['createdAt'];
         delete correctForm['updatedAt'];
-
+        console.log(correctForm);
         this.props.initialize('createCampaign', correctForm);
         
         //show/hide schedule date 

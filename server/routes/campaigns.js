@@ -3,6 +3,12 @@ const parseJson = bodyParser.json();
 const cookieParser = require('cookie-parser')();
 
 // Campaign controllers
+const createDrip = require('../controllers/campaign/create-drip');
+const changeDripStatus = require('../controllers/campaign/change-drip-status');
+const getDrips = require('../controllers/campaign/get-drips');
+const createDripCopy = require('../controllers/campaign/create-drip-copy');
+const deleteDrips = require('../controllers/campaign/delete-drips');
+
 const getCampaignsSeuence = require('../controllers/campaign/get-campaign-sequence');
 const createCampaignSequence = require('../controllers/campaign/create-campaign-sequence');
 const deleteCampaignSequence = require('../controllers/campaign/delete-campaign-sequence');
@@ -11,6 +17,7 @@ const createCampaign = require('../controllers/campaign/create-campaign');
 const createCampaignCopy = require('../controllers/campaign/create-campaign-copy');
 const changeCampaignStatus = require('../controllers/campaign/change-campaign-status');
 const deleteCampaigns = require('../controllers/campaign/delete-campaigns');
+
 const exportSentUnsentCSV = require('../controllers/campaign/export-sent-unsent-csv');
 const stopCampaignSending = require('../controllers/campaign/stop-campaign-sending');
 const sendCampaign = require('../controllers/campaign/send-campaign');
@@ -31,6 +38,26 @@ const writeCampaignAccess = (req, res, next) => writeAccess(req, res, next, camp
 const readCampaignAccess = (req, res, next) => readAccess(req, res, next, campaignPermission);
 
 module.exports = function(app, io, redis) {
+
+  // Post new Drip
+  app.post('/api/createdrip', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    createDrip(req, res, io);
+  });
+  app.post('/api/changedripstatus', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    changeDripStatus(req, res, io);
+  });
+  app.get('/api/getdrips', apiIsAuth, cookieParser, readCampaignAccess, (req, res) => {
+    getDrips(req, res);
+  });
+  app.post('/api/dripcopy', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    createDripCopy(req, res, io);
+  });
+  // Delete campaign(s)
+  app.delete('/api/deletedrip', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    deleteDrips(req, res);
+  });
+
+
   // Get a list of all campaigns
   app.get('/api/campaign', apiIsAuth, cookieParser, readCampaignAccess, (req, res) => {
     getCampaigns(req, res);
@@ -55,10 +82,11 @@ module.exports = function(app, io, redis) {
     createCampaignCopy(req, res, io);
   });
   
+  
   // Post chnage campaign status
   app.post('/api/changecampaignstatus', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     changeCampaignStatus(req, res, io);
-  });
+  });  
 
   // Delete campaign(s)
   app.delete('/api/campaign', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {

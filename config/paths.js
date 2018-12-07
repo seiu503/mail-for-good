@@ -13,6 +13,8 @@ const routes = {
   PATH_GOOGLE_CALLBACK: returnRoute('/auth/google/callback', false),
   /* AUTH */
   PATH_LOGOUT: returnRoute('/logout'),
+  
+  PATH_DRIP: returnRoute('/api/createdrip'),
   // Campaigns
   PATH_CAMPAIGN: returnRoute('/api/campaign'),
   PATH_ALLCAMPAIGN: returnRoute('/api/allcampaign'),

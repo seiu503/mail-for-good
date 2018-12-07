@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     sent: { type: DataTypes.BOOLEAN, defaultValue: false },
     sequenceLastSendID: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
     lastSendEmailDateTime: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
+    dripId: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
 
   }, {
     classMethods: {

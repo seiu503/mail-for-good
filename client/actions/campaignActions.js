@@ -1,5 +1,8 @@
 import axios from 'axios';
 import {
+  REQUEST_POST_CREATEDRIP, COMPLETE_POST_CREATEDRIP,
+  REQUEST_POST_SUBMITDRIP, COMPLETE_POST_SUBMITDRIP,
+  REQUEST_GET_DRIPS, COMPLETE_GET_DRIPS, COMPLETE_DELETE_DRIPS,
   REQUEST_POST_CREATECAMPAIGNSEQUENCE, COMPLETE_POST_CREATECAMPAIGNSEQUENCE,
   REQUEST_GET_CAMPAIGNSSEQUENCE, COMPLETE_GET_CAMPAIGNSSEQUENCE, COMPLETE_DELETE_CAMPAIGNSEQUENCE,
   REQUEST_POST_CREATECAMPAIGN, COMPLETE_POST_CREATECAMPAIGN,
@@ -13,9 +16,11 @@ import {
   COMPLETE_DELETE_CAMPAIGNS, COMPLETE_DELETE_TEMPLATES,
   REQUEST_STOP_SENDING, COMPLETE_STOP_SENDING
 } from '../constants/actionTypes';
-import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEMPLATE_PUBLISH_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT, API_CAMPAIGN_CHANGE_STATUS_ENDPOINT } from '../constants/endpoints';
+import { API_CAMPAIGN_ENDPOINT, API_SEND_CAMPAIGN_ENDPOINT, API_TEMPLATE_ENDPOINT, API_TEMPLATE_PUBLISH_ENDPOINT, API_TEST_SEND_CAMPAIGN_ENDPOINT, API_STOP_SENDING, API_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_ENDPOINT, API_SEND_CRON_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_ENDPOINT, API_CAMPAIGN_SEQUENCE_LISTING_ENDPOINT, API_TEMPLATE_COPY_ENDPOINT, API_CAMPAIGN_COPY_ENDPOINT, API_CAMPAIGN_CHANGE_STATUS_ENDPOINT, API_POST_DRIP_ENDPOINT, API_DRIP_CHANGE_STATUS_ENDPOINT, API_GET_DRIP_ENDPOINT, API_DRIP_COPY_ENDPOINT, API_DRIP_DELETE_ENDPOINT } from '../constants/endpoints';
 import { notify } from './notificationActions';
 import { destroy } from 'redux-form';
+
+
 
 //Campaign seqeuences
 export function requestGetCampaignSequence() {
@@ -117,6 +122,119 @@ export function requestStopSending(campaignId) {
 }
 export function completeStopSending() {
   return { type: COMPLETE_STOP_SENDING };
+}
+
+//Drip
+export function requestPostDrip() {
+  return { type: REQUEST_POST_CREATEDRIP };
+}
+export function completePostDrip(sendDripStatus, dripId) {
+  return { type: COMPLETE_POST_CREATEDRIP, sendDripStatus: sendDripStatus, dripId: dripId };
+}
+export function requestSubmitDrip() {
+  return { type: REQUEST_POST_SUBMITDRIP };
+}
+export function completeSubmitDrip() {
+  return { type: COMPLETE_POST_SUBMITDRIP };
+}
+// Get array of existing drips
+export function requestGetDrip() {
+  return { type: REQUEST_GET_DRIPS };
+}
+export function completeGetDrip(drips) {
+  return { type: COMPLETE_GET_DRIPS, drips };
+}
+
+
+
+export function deleteDrips(dripIds) {
+  return dispatch => {
+    const jsondripIds = JSON.stringify({ data: dripIds });
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', API_DRIP_DELETE_ENDPOINT);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(jsondripIds);
+    xhr.onload = () => {
+      dispatch(getDrips());
+    };
+  };
+}
+
+
+export function postCreateDripCopy(form) {
+  return dispatch => {
+    dispatch(requestPostCreateCampaign());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_DRIP_COPY_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completePostCreateCampaign());
+      dispatch(getDrips());
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+
+
+export function getDrips() {
+  return dispatch => {
+    dispatch(requestGetDrip());
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', API_GET_DRIP_ENDPOINT);
+    xhr.setRequestHeader('Accept', 'application/json, text/javascript');
+    xhr.onload = () => {
+      if (xhr.responseText) {
+        // Convert response from JSON
+        const dripsArray = JSON.parse(xhr.responseText).map(x => {
+          x.createdAt = new Date(x.createdAt);
+          x.updatedAt = new Date(x.updatedAt);
+          x.startdatetime = (x.startdatetime !== null) ? new Date(x.startdatetime) : '';
+          return x;
+        });        
+        dispatch(completeGetDrip(dripsArray));
+      } else {
+        dispatch(completeGetDrip(dripsArray));
+      }
+    };
+    xhr.send();
+  };
+}
+
+export function postCreateDrip(form) {
+  return dispatch => {
+    dispatch(requestPostDrip());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_POST_DRIP_ENDPOINT);
+    xhr.onload = () => {
+      let response = JSON.parse(xhr.responseText);  
+      dispatch(completePostDrip(xhr.status, response.dripId));            
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
+}
+
+export function changeDripStatus(form) {
+  return dispatch => {    
+    dispatch(requestSubmitDrip());
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_DRIP_CHANGE_STATUS_ENDPOINT);
+    xhr.onload = () => {
+      dispatch(completeSubmitDrip());
+      dispatch(getDrips());
+      const formArray = JSON.parse(form);
+      if (formArray.submitType == 'single'){
+        setTimeout(() => {
+          dispatch(destroy('createDrip'));
+        }, 2000);
+      }
+    };
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(form);
+  };
 }
 
 
