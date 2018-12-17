@@ -64,12 +64,13 @@ export class CreateDripComponent extends Component {
         this.addSequence = this.addSequence.bind(this);   
         this.removeSequence = this.removeSequence.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this); 
-
+        this.handleKeypress = this.handleKeypress.bind(this)
     }   
      
     state = {
         initialFormValues: {
-            name: `Drip - ${moment().format('l, h:mm:ss')}`,            
+            name: `Drip - ${moment().format('l, h:mm:ss')}`, 
+            startTime: new Date()           
         },
         submitDrip: false,
         page: 1,
@@ -80,7 +81,8 @@ export class CreateDripComponent extends Component {
         previewForm: [],
         isEdit: false,
         sequencedayError: [],
-        listId: 0
+        listId: 0,
+        lastAddedSequenceId: 0
     }
     componentDidMount() {
         const slug = this.props.params.slug;
@@ -164,18 +166,35 @@ export class CreateDripComponent extends Component {
                     this.setState(prevState => ({ inputs: prevState.inputs.concat([index]) }));                    
                 }
                 setTimeout(() => {
+                    let lastId = 0;
                     let field_name = 'sequenceday[0]';
                     let ev1 = new Event('input', { bubbles: true });
                     ev1.simulated = true;
+                    lastId = sequences[0].sequenceId;
                     document.querySelector("input[name='" + field_name + "']").value = sequences[0].sequenceday;
                     document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);    
-                    for (let index = 1; index < sequences.length; index++) {                    
+                    for (let index = 1; index < sequences.length; index++) {
+                        lastId = sequences[index].sequenceId;
                         let field_name = 'sequenceday[' + index + ']';
                         let ev1 = new Event('input', { bubbles: true });
                         ev1.simulated = true;
                         document.querySelector("input[name='" + field_name + "']").value = sequences[index].sequenceday;
                         document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
-                    }                
+                    }                    
+                    this.setState({lastAddedSequenceId: lastId});
+                    let fieldName = 'sequenceId[0]';
+                    let ev2 = new Event('input', { bubbles: true });
+                    ev2.simulated = true;
+                    document.querySelector("input[name='" + fieldName + "']").value = sequences[0].sequenceId;
+                    document.querySelector("input[name='" + fieldName + "']").dispatchEvent(ev2);
+                    for (let index = 1; index < sequences.length; index++) {
+                        let field_name = 'sequenceId[' + index + ']';
+                        let ev1 = new Event('input', { bubbles: true });
+                        ev1.simulated = true;
+                        document.querySelector("input[name='" + field_name + "']").value = sequences[index].sequenceId;
+                        document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
+                    }
+
                 }, 1000);
                 delete correctForm['sequences'];
                 this.props.initialize('createDrip', correctForm);
@@ -188,7 +207,7 @@ export class CreateDripComponent extends Component {
                     if (listIdName) {
                         const correctForm = Object.assign({}, formValues, {
                             ['listName']: listIdName.name,
-                            "sequenceday[0]": 3
+                            /* "sequenceday[0]": 3 */
                         });
                         this.props.initialize('createDrip', correctForm);
                     }
@@ -208,7 +227,7 @@ export class CreateDripComponent extends Component {
         const formValues = this.props.form.values;
         let selectedTemplates = this.state.selectedTemplates;
         let sequencesday = formValues.sequenceday;
-        //console.log(sequencesday);       
+        let sequencesdIds = formValues.sequenceId;       
         let seqCount = this.state.inputs.length;
         let showError = false;
         if (typeof sequencesday === 'undefined'){
@@ -221,17 +240,14 @@ export class CreateDripComponent extends Component {
             for (let i = 0; i <= selectedTemplates.length - 1; i++) {
                 if (typeof selectedTemplates[i] !== 'undefined') {
                     templateCount++;
-                    //console.log(sequencesday[i]);
-                    if (typeof sequencesday[i] === 'undefined'){
+                    if (typeof sequencesday === 'undefined' || typeof sequencesday[i] === 'undefined'){
                         showError = true;
                     }else{
                         if (sequencesday[i] < 0){
-                            //console.log('number less then 0');
                             errorMsg ="send day should be postive number";
                             showError = true;
                         }
                     }
-                    //console.log(selectedTemplates[i]);
                     if (!selectedTemplates[i]) {
                         showError = true;
                     }
@@ -241,37 +257,32 @@ export class CreateDripComponent extends Component {
                 showError = true;
             }            
         }
-        console.log(showError);
+        //console.log(showError);
         if (showError){
-            this.validationFailed(errorMsg);  
+            this.validationFailed(errorMsg);
+            return;  
         }
-        /* let seqCount = this.state.inputs.length;
-        console.log(seqCount);
-        console.log(formValues);
-        let sequencedayError = this.state.sequencedayError;
-        if (formValues.sequenceday){
-            formValues.sequenceday
-        }else{                    
-            for (let i = 0; i <= seqCount; i++) {
-                sequencedayError[i] = 1;                
-            }  
-            this.setState({ sequencedayError },()=>{
-                console.log(sequencedayError);
-            });
-        }
-        return; */
-        //const listIdName = this.props.lists.find(lists => lists.name === formValues.listName);
-
         let sequences = [];
         let previewSequences = [];
+        let lastSequenceId =0;
+       // console.log(sequencesdIds);
         Object.keys(selectedTemplates).forEach(key => {
+            if (typeof sequencesdIds !== 'undefined' && typeof sequencesdIds[key] !=='undefined'){
+                lastSequenceId = sequencesdIds[key];
+            }else{
+                let newId = lastSequenceId;                
+                lastSequenceId = parseInt(newId)+1;
+            }
+            let sequenceId = key;
             let templateIdName = this.props.templates.find(template => template.name === selectedTemplates[key]);
-            sequences[sequences.length] = { sequenceday : sequencesday[key], templateId: templateIdName.id };
+            sequences[sequences.length] = { sequenceId: lastSequenceId, sequenceday : sequencesday[key], templateId: templateIdName.id };
             previewSequences[previewSequences.length] = { sequenceday: sequencesday[key], templateName: selectedTemplates[key]};
         });
         let form = { id: formValues.id, listId: this.state.listId , name: formValues.name, listName: formValues.listName, startTime: formValues.startTime, sequences: sequences };
         let previewForm = { id: formValues.id, name: formValues.name, listName: formValues.listName, startTime: formValues.startTime, previewSequences: previewSequences };
-        //console.log(form);
+        
+        /* console.log(form);
+        return; */
         this.props.postCreateDrip(JSON.stringify(form));
         this.setState({ previewForm: previewForm }, () => {            
             this.setState({ page: this.state.page + 1 });
@@ -293,11 +304,20 @@ export class CreateDripComponent extends Component {
         this.setState({ inputs: newInput });
         this.setState({ selectedTemplates: selectedTemplates });
     }
-    addSequence () {   
+    addSequence () {
         var newInput = this.state.indexNo;
         newInput++;        
         this.setState(prevState => ({ inputs: prevState.inputs.concat([newInput]) }));
         this.setState({ indexNo: newInput });
+        setTimeout(() => {
+            let newSeqeunceId = this.state.lastAddedSequenceId;
+            let field_name = 'sequenceId[' + newInput + ']';
+            let ev1 = new Event('input', { bubbles: true });
+            ev1.simulated = true;
+            document.querySelector("input[name='" + field_name + "']").value = parseInt(newSeqeunceId)+1;
+            document.querySelector("input[name='" + field_name + "']").dispatchEvent(ev1);
+            this.setState({ lastAddedSequenceId: parseInt(newSeqeunceId) + 1});
+        }, 200);
        // console.log(this.state.inputs);
     }
     
@@ -317,7 +337,27 @@ export class CreateDripComponent extends Component {
         selectedTemplates[index] = template;
         this.setState({ selectedTemplates });
     }
+    handleKeypress (e) {                
+        if (/^\+?(0|[1-9]\d*)$/.test(e.target.value)) {
+            return;
+        }else{
+            e.preventDefault()
+        }
+        /* const characterCode = e.key
+        console.log(characterCode);
+        if (characterCode === 'Backspace') return
 
+        const characterNumber = Number(characterCode)
+        if (characterNumber >= 0 && characterNumber <= 9) {
+            if (e.currentTarget.value && e.currentTarget.value.length) {
+                return
+            } else if (characterNumber === 0) {
+                e.preventDefault()
+            }
+        } else {
+            e.preventDefault()
+        } */
+    }
     render() {
         const { lists, templates, isGetting, form } = this.props; 
         const { page, selectedTemplates, indexNo, inputs, previewForm, sequencedayError} = this.state;
@@ -346,6 +386,7 @@ export class CreateDripComponent extends Component {
                                 removeSequence={this.removeSequence}
                                 inputs={inputs}
                                 sequencedayError={sequencedayError}
+                                handleKeypress={this.handleKeypress}
                             />}
                             {page === 2 &&
                             <PreviewDripForm 

@@ -8,6 +8,7 @@ const changeDripStatus = require('../controllers/campaign/change-drip-status');
 const getDrips = require('../controllers/campaign/get-drips');
 const createDripCopy = require('../controllers/campaign/create-drip-copy');
 const deleteDrips = require('../controllers/campaign/delete-drips');
+const sendCronDrip = require('../controllers/campaign/send-crondrip');
 
 const getCampaignsSeuence = require('../controllers/campaign/get-campaign-sequence');
 const createCampaignSequence = require('../controllers/campaign/create-campaign-sequence');
@@ -25,6 +26,7 @@ const sendTestEmail = require('../controllers/campaign/email/amazon-ses/send-tes
 const getAllCampaigns = require('../controllers/campaign/get-allcampaigns');
 const sendCronCampaign = require('../controllers/campaign/send-croncampaign');
 const sendCronCampaignSequence = require('../controllers/campaign/send-croncampaign-sequence');
+
 
 // Middleware
 const { apiIsAuth } = require('./middleware/auth');
@@ -52,9 +54,13 @@ module.exports = function(app, io, redis) {
   app.post('/api/dripcopy', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     createDripCopy(req, res, io);
   });
-  // Delete campaign(s)
+  // Delete drip(s)
   app.delete('/api/deletedrip', apiIsAuth, parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     deleteDrips(req, res);
+  });
+  // Post to send a cron drip
+  app.post('/api/cronsenddrip', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
+    sendCronDrip(req, res, io, redis);
   });
 
 
@@ -109,7 +115,7 @@ module.exports = function(app, io, redis) {
   // Post to send a cron campaign
   app.post('/api/cronsend', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     sendCronCampaign(req, res, io, redis);
-  });
+  });  
   // Post to send a cron campaign sequence
   app.post('/api/cronsendsequence', parseJson, cookieParser, writeCampaignAccess, (req, res) => {
     sendCronCampaignSequence(req, res, io, redis);

@@ -138,54 +138,56 @@ module.exports = (req, res, io) => {
                 listId: valueFromValidation.listId,
             }).then((instance) => {        
                 const dripId = instance.dataValues.id;
-                res.send({ dripId: dripId, message: 'Drips is being created - it will be ready to send soon.' });        
-                function createDripSubscribers(offset = 0, limit = 10000) {
-                    db.listsubscribersrelation.findAll({
-                    where: {
-                        listId: valueFromValidation.listId
-                    },
-                    limit,
-                    offset,                    
-                    order: [
-                        ['id', 'ASC']
-                    ],
-                    raw: true
-                    }).then(listSubscriberIds => {
-                        const subscriberIds = listSubscriberIds.map(list => {
-                            return list.listsubscriberId;
-                        });                    
-                        db.listsubscriber.findAll({
-                            where: {
-                            id: subscriberIds
-                            },                      
-                            attributes: [
-                            [
-                                'id', 'listsubscriberId'
-                            ],
-                            'email'
-                            ], // Nested array used to rename id to listsubscriberId
-                            order: [
+                res.send({ dripId: dripId, message: 'Drips is being created - it will be ready to send soon.' });
+                db.campaignanalytics.create({ dripId }).then(() => {
+                    function createDripSubscribers(offset = 0, limit = 10000) {
+                        db.listsubscribersrelation.findAll({
+                        where: {
+                            listId: valueFromValidation.listId
+                        },
+                        limit,
+                        offset,                    
+                        order: [
                             ['id', 'ASC']
-                            ],
-                            raw: true
-                        }).then(listSubscribers => {                      
-                            if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
-                            //totalCampaignSubscribersProcessed += listSubscribers.length;
-                            listSubscribers = listSubscribers.map(listSubscriber => {
-                                listSubscriber.campaignId = null;
-                                listSubscriber.dripId = dripId;
-                                return listSubscriber;
+                        ],
+                        raw: true
+                        }).then(listSubscriberIds => {
+                            const subscriberIds = listSubscriberIds.map(list => {
+                                return list.listsubscriberId;
+                            });                    
+                            db.listsubscriber.findAll({
+                                where: {
+                                id: subscriberIds
+                                },                      
+                                attributes: [
+                                [
+                                    'id', 'listsubscriberId'
+                                ],
+                                'email'
+                                ], // Nested array used to rename id to listsubscriberId
+                                order: [
+                                ['id', 'ASC']
+                                ],
+                                raw: true
+                            }).then(listSubscribers => {                      
+                                if (listSubscribers.length) { // If length is 0 then there are no more ListSubscribers, so we can cleanup
+                                //totalCampaignSubscribersProcessed += listSubscribers.length;
+                                listSubscribers = listSubscribers.map(listSubscriber => {
+                                    listSubscriber.campaignId = null;
+                                    listSubscriber.dripId = dripId;
+                                    return listSubscriber;
+                                });
+                                db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
+                                    createDripSubscribers(offset + limit);
+                                });
+                                } else {
+                                    return;
+                                }
                             });
-                            db.campaignsubscriber.bulkCreate(listSubscribers).then(() => {
-                                createDripSubscribers(offset + limit);
-                            });
-                            } else {
-                                return;
-                            }
                         });
-                    });
-                }
-                createDripSubscribers(); // Start creating CampaignSubscribers
+                    }
+                    createDripSubscribers(); // Start creating CampaignSubscribers
+                });    
             }, err => {
                 throw err;
             });

@@ -41,7 +41,7 @@ module.exports = (rateLimit, ses) => {
      });
    };
 
-   const scheduleEmailSend = (amazonEmail, campaignInfo) => {
+   const scheduleEmailSend = (amazonEmail, campaignInfo) => {     
      limiter.schedule(sendEmail, amazonEmail, campaignInfo, ses);
      return canSend();
    };

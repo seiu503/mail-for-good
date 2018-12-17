@@ -4,17 +4,18 @@ import FontAwesome from 'react-fontawesome';
 
 import ManageCampaignsTable from '../../components/campaigns/ManageCampaignsTable';
 
-import { getAllCampaigns } from '../../actions/campaignActions';
+import { getAllCampaigns, getAllDrips } from '../../actions/campaignActions';
 
 function mapStateToProps(state) {
     // State reducer @ state.manageCampaign
     return {
         campaigns: state.manageCampaign.campaigns,
-        isGetting: state.manageCampaign.isGetting
+        isGetting: state.manageCampaign.isGetting,
+        drips: state.manageDrip.drips,        
     };
 }
 
-const mapDispatchToProps = { getAllCampaigns };
+const mapDispatchToProps = { getAllCampaigns, getAllDrips };
 
 export class CronJobCampaignsContComponent extends Component {
 
@@ -22,6 +23,8 @@ export class CronJobCampaignsContComponent extends Component {
         campaigns: PropTypes.array.isRequired,
         isGetting: PropTypes.bool.isRequired,
         getAllCampaigns: PropTypes.func.isRequired,
+        getAllDrips: PropTypes.func.isRequired,
+        drips: PropTypes.array.isRequired,
         //deleteCampaigns: PropTypes.func.isRequired
     }
 
@@ -38,6 +41,7 @@ export class CronJobCampaignsContComponent extends Component {
     componentDidMount() {
         // Update campaigns only if we need to
         this.props.getAllCampaigns();
+        this.props.getAllDrips();
     }
     /* deleteRows(campaignIds) { // campaignIds [...Numbers]
         this.props.deleteCampaigns(campaignIds, this.props.campaigns);

@@ -16,7 +16,7 @@ module.exports = function (sequelize, DataTypes) {
                     drip.belongsTo(models.list);
                     drip.hasMany(models.campaignsubscriber);
                     drip.hasOne(models.campaignanalytics);
-                    drip.hasMany(models.campaignsequence);
+                    drip.hasMany(models.campaignsequence);                    
                 }
             }
         });

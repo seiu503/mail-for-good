@@ -10,7 +10,7 @@ const PreviewDripForm = props => {
     let viewDrip = false;
     if (isCreateDripPreview) {        
         form = props.previewForm; 
-        console.log(form);      
+       // console.log(form);      
     } else {
         viewDrip = true;
         // In this case, the preview is rendered within the dripView container

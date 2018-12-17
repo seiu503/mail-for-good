@@ -10,11 +10,11 @@ module.exports = (campaignInfo, campaignSubscriberStatus=false) => {
   let whereCondition;
   if (campaignSubscriberStatus==true){
     whereCondition={
-      campaignId: campaignInfo.campaignId    
+      dripId: campaignInfo.dripId
     }
   }else{
     whereCondition = {
-      campaignId: campaignInfo.campaignId,
+      dripId: campaignInfo.dripId,
       sent: campaignSubscriberStatus
     }
   }  

@@ -36,7 +36,7 @@ const AmazonEmail = require('../lib/amazon');
  */
 
 module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, CampaignSequences) {    
-    let arrayToMerge = { 'listId': campaignInfo['listId'], 'fromName': campaignInfo['fromName'], 'fromEmail': campaignInfo['fromEmail'], 'trackingPixelEnabled': campaignInfo['trackingPixelEnabled'], 'trackLinksEnabled': campaignInfo['trackLinksEnabled'], 'unsubscribeLinkEnabled': campaignInfo['unsubscribeLinkEnabled'], 'campaignAnalyticsId': campaignInfo['campaignAnalyticsId'] };
+    /* let arrayToMerge = { 'listId': campaignInfo['listId'], 'fromName': campaignInfo['fromName'], 'fromEmail': campaignInfo['fromEmail'], 'trackingPixelEnabled': campaignInfo['trackingPixelEnabled'], 'trackLinksEnabled': campaignInfo['trackLinksEnabled'], 'unsubscribeLinkEnabled': campaignInfo['unsubscribeLinkEnabled'], 'campaignAnalyticsId': campaignInfo['campaignAnalyticsId'] }; */
     /**
      * @description Get the list subscriber and join their campaign subscriber information.
      */
@@ -53,7 +53,7 @@ module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, Campai
                 model: db.campaignsubscriber,
                 required: true,
                 where: {
-                    campaignId: campaignInfo.campaignId
+                    dripId: campaignInfo.dripId
                 }
             }
         ],
@@ -69,7 +69,7 @@ module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, Campai
     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); */
 
     /*Set which campaign sequence send to subsriber by one's last send sequence*/
-    let arrayCampaignInfo = arrayOfIds.map((arrayOfId) => {
+    let arrayCampaignInfo = await Promise.all(arrayOfIds.map(async (arrayOfId) => {
         let subscriber = subscribers.filter(subscriber => subscriber.id == arrayOfId);        
         
         
@@ -83,33 +83,57 @@ module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, Campai
         
         let lastSequenceId = subscriber[0]['campaignsubscribers.sequenceLastSendID'];
         if (lastSequenceId == null){
-            if (diffDays >= CampaignSequences[0].sequenceday){
-                let selectedSequence = Object.assign({}, CampaignSequences[0], arrayToMerge);
-                return selectedSequence;
+            if (diffDays >= CampaignSequences[0].sequenceday){                
+                let template= await db.template.findOne({
+                    where: {
+                        id: CampaignSequences[0].templateId
+                    },
+                    raw: true
+                });
+                template.emailBody = template.publishedEmailBody;
+                let arrayToMerge = { 'listId': campaignInfo['listId'], 'fromName': template['fromName'], 'fromEmail': template['fromEmail'], 'trackingPixelEnabled': template['trackingPixelEnabled'], 'trackLinksEnabled': template['trackLinksEnabled'], 'unsubscribeLinkEnabled': template['unsubscribeLinkEnabled'], 'campaignAnalyticsId': campaignInfo['campaignAnalyticsId'], sequenceId: CampaignSequences[0].sequenceId };
+                let selectedSequence = Object.assign({}, template, arrayToMerge);   
+                             
+                return selectedSequence;                
             }else{
                 let index = arrayOfIds.findIndex(id => id == arrayOfId);
                 delete arrayOfIds[index];
                 delete subscribers[index];
             }
         }else{
-            let lastSequenceIdIndex = CampaignSequences.findIndex(cs => cs.id == lastSequenceId);
-            let nextIndex = lastSequenceIdIndex + 1;            
-            if (CampaignSequences[nextIndex]){                
-                if (diffDays >= (CampaignSequences[nextIndex].sequenceday - CampaignSequences[lastSequenceIdIndex].sequenceday)){
-                    let selectedSequence = Object.assign({}, CampaignSequences[nextIndex], arrayToMerge);
+            let nextCampaignSequences; 
+            for (let index = 0; index < CampaignSequences.length; index++) {
+                if (CampaignSequences[index].sequenceId > lastSequenceId){
+                    nextCampaignSequences = CampaignSequences[index];
+                    break;
+                }                
+            }
+            /* console.log(diffDays);
+            console.log(nextCampaignSequences); return; */
+            if (typeof nextCampaignSequences !== 'undefined'){                
+                if (diffDays >= nextCampaignSequences.sequenceday ) {
+                    let template = await db.template.findOne({
+                        where: {
+                            id: nextCampaignSequences.templateId
+                        },
+                        raw: true
+                    });
+                    template.emailBody = template.publishedEmailBody;
+                    let arrayToMerge = { 'listId': campaignInfo['listId'], 'fromName': template['fromName'], 'fromEmail': template['fromEmail'], 'trackingPixelEnabled': template['trackingPixelEnabled'], 'trackLinksEnabled': template['trackLinksEnabled'], 'unsubscribeLinkEnabled': template['unsubscribeLinkEnabled'], 'campaignAnalyticsId': campaignInfo['campaignAnalyticsId'], sequenceId: nextCampaignSequences.sequenceId };
+                    let selectedSequence = Object.assign({}, template, arrayToMerge);                           
                     return selectedSequence;
-                }else{
+                } else {
                     let index = arrayOfIds.findIndex(id => id == arrayOfId);
                     delete arrayOfIds[index];
                     delete subscribers[index];
                 }
             }else{
                 let index = arrayOfIds.findIndex(id => id == arrayOfId);
-                delete arrayOfIds[index];                
+                delete arrayOfIds[index];
                 delete subscribers[index];
             }
         }
-    });
+    }));
     /*Clear the null elements for array */
     arrayOfIds = arrayOfIds.filter((obj) => obj);
     subscribers = subscribers.filter((obj) => obj);    
@@ -145,12 +169,13 @@ module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, Campai
      */
 
     // Iterate through both links and opens - adding things where necessary
+    //console.log(arrayCampaignInfo);
     const arrayAmazonEmails = [];    
     for (let i = 0; i < arrayOfIds.length; i++) {
-        // If this campaign has enabled the unsubscribe link, inject it into configuredCampaignInfo
-        if (arrayCampaignInfo[i].unsubscribeLinkEnabled) {
+        // If this campaign has enabled the unsubscribe link, inject it into configuredCampaignInfo        
+        //if (arrayCampaignInfo[i].unsubscribeLinkEnabled) {
             arrayCampaignInfo[i].emailBody = insertUnsubscribeLink(arrayCampaignInfo[i].emailBody, subscribers[i].unsubscribeKey, arrayCampaignInfo[i].type, whiteLabelUrl);
-        }
+        //}        
         // Replace any {{variables}} with data from campaignInfo
         arrayCampaignInfo[i].emailBody = mailMerge(subscribers[i], arrayCampaignInfo[i]);
         // If this campaign has enabled tracking links, wrap the links
@@ -161,8 +186,8 @@ module.exports = async function (arrayOfIds, campaignInfo, whiteLabelUrl, Campai
         if (arrayCampaignInfo[i].trackingPixelEnabled) {
             arrayCampaignInfo[i].emailBody = insertTrackingPixel(arrayCampaignInfo[i].emailBody, opens[i].trackingId, arrayCampaignInfo[i].type, whiteLabelUrl);
         }
-        Object.assign(subscribers[i], {sequenceId: arrayCampaignInfo[i].id});
-        /* console.log(JSON.stringify(subscribers[i]));
+        Object.assign(subscribers[i], { sequenceId: arrayCampaignInfo[i].sequenceId});
+        /* console.log(JSON.stringify(arrayCampaignInfo[i]));
         console.log('-------------------------');         */
         arrayAmazonEmails.push(AmazonEmail(subscribers[i], arrayCampaignInfo[i]));
     }

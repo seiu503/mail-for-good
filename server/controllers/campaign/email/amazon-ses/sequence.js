@@ -24,7 +24,9 @@ module.exports = async function (generator, redis, campaignAndListInfo, amazonAc
     const {
     campaignInfo, // See object passed by send-campaign.js, contains info about the campaigns table
     } = campaignAndListInfo;        
-    let CampaignSequences = await getArrayOfCampaignSequences(campaignInfo);
+    //let CampaignSequences = await getArrayOfCampaignSequences(campaignInfo);
+    let CampaignSequences = campaignInfo.sequences;
+    
     //console.log(JSON.stringify(CampaignSequences));
     //return;
     const {
@@ -74,12 +76,14 @@ module.exports = async function (generator, redis, campaignAndListInfo, amazonAc
         }
         // 1. Get the getAmazonEmailArray
         let currentBlockOfEmails = arrayOfIds[i];
-        let amazonEmailArray = await getAmazonEmailArrayForSequence(currentBlockOfEmails, campaignInfo, whiteLabelUrl,CampaignSequences);
-        
+        let amazonEmailArray = await getAmazonEmailArrayForSequence(currentBlockOfEmails, campaignInfo, whiteLabelUrl,CampaignSequences);        
         let LENGTH_OF_AMAZON_EMAIL_ARRAY = amazonEmailArray.length;
+        /* console.log(JSON.stringify(amazonEmailArray));
+        return; */
         for (let x = 0; x < LENGTH_OF_AMAZON_EMAIL_ARRAY; x++) {
             IsEmailSend=true;
             // 2. Add the email to the send queue. Continue when the queue tells us that it has space for our next email.
+            //console.log(amazonEmailArray[x]);
             await addToQueue(amazonEmailArray[x], campaignInfo);
         }
 
@@ -92,9 +96,9 @@ module.exports = async function (generator, redis, campaignAndListInfo, amazonAc
 
     redis.subscriber.unsubscribe('stop-campaign-sending');    
     if (IsEmailSend== true){        
-        finishCampaignSend(cancelCampaignSend, campaignInfo); // Change the campaign status. Users cannot resend the campaign after this.
+        //finishCampaignSend(cancelCampaignSend, campaignInfo); // Change the campaign status. Users cannot resend the campaign after this.
         //sendCampaignSuccessEmail(campaignInfo, startTime, ses); // Send an email to the campaign owner notifying them that this finished.
-        console.log("Sent campaign delivery success email");
+        console.log("Sent drip delivery success email");
         const outcome = cancelCampaignSend ? 'cancelled' : 'success';
         sendFinalNotification(outcome, campaignInfo, io, req);
     }

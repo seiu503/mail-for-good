@@ -8,6 +8,7 @@ export const API_DRIP_CHANGE_STATUS_ENDPOINT = BASE_URL + '/api/changedripstatus
 export const API_GET_DRIP_ENDPOINT = BASE_URL + '/api/getdrips';
 export const API_DRIP_COPY_ENDPOINT = BASE_URL + '/api/dripcopy';
 export const API_DRIP_DELETE_ENDPOINT = BASE_URL + '/api/deletedrip';
+export const API_SEND_CRON_DRIP_ENDPOINT = BASE_URL + '/api/cronsenddrip';
 
 
 // Campaigns

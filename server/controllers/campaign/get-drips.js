@@ -1,4 +1,5 @@
 const drip = require('../../models').drip;
+const CampaignAnalytics = require('../../models').campaignanalytics;
 
 module.exports = (req, res) => {
 
@@ -9,6 +10,21 @@ module.exports = (req, res) => {
         where: {
             userId
         },        
+        include: [
+            {
+                model: CampaignAnalytics, // Campaign summary analytics
+                required: true,
+                attributes: [
+                    'complaintCount',
+                    'permanentBounceCount',
+                    'transientBounceCount',
+                    'undeterminedBounceCount',
+                    'totalSentCount',
+                    'openCount',
+                    'clickthroughCount'
+                ]
+            }
+        ],
         raw: true
     }).then(instancesArray => {
         if (instancesArray) {

@@ -25,7 +25,21 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
    */
 
   function _updateAnalytics(data, task, campaignInfo) {
-    const sequenceId = (task.sequenceId) ? task.sequenceId: null;    
+    const sequenceId = (task.sequenceId) ? task.sequenceId: null;
+    let where ='';
+    if (typeof campaignInfo.campaignId !== 'undefined'){
+      where = {
+          id: task['campaignsubscribers.id'],
+          listsubscriberId: task.id,
+          campaignId: campaignInfo.campaignId
+        }
+    }else{
+      where = {
+        id: task['campaignsubscribers.id'],
+        listsubscriberId: task.id,
+        dripId: campaignInfo.dripId
+      }
+    }    
     const p1 = CampaignSubscriber.update(
       {
         messageId: data.MessageId,
@@ -34,11 +48,7 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
         lastSendEmailDateTime: new Date()
       },
       {
-        where: {
-          id: task['campaignsubscribers.id'],
-          listsubscriberId: task.id,
-          campaignId: campaignInfo.campaignId
-        },
+        where,
         limit: 1
       }
     );

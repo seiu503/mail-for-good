@@ -138,7 +138,7 @@ const ManageDripsTable = ({ data, deleteRows, getDripView, editDrip, duplicateDr
                             selectRow={selectRowProp}
                             options={options}
                             search={true}
-                            searchPlaceholder="Filter campaigns"
+                            searchPlaceholder="Filter drips"
                             clearSearch={true}
                             exportCSV={false}>
 
@@ -169,7 +169,7 @@ const ManageDripsTable = ({ data, deleteRows, getDripView, editDrip, duplicateDr
                             selectRow={selectRowProp}
                             options={options}
                             search={true}
-                            searchPlaceholder="Filter campaigns"
+                            searchPlaceholder="Filter drips"
                             clearSearch={true}
                             exportCSV={false}>
 
@@ -200,7 +200,7 @@ const ManageDripsTable = ({ data, deleteRows, getDripView, editDrip, duplicateDr
                             selectRow={selectRowProp}
                             options={options}
                             search={true}
-                            searchPlaceholder="Filter campaigns"
+                            searchPlaceholder="Filter drips"
                             clearSearch={true}
                             exportCSV={false}>
 
@@ -231,7 +231,7 @@ const ManageDripsTable = ({ data, deleteRows, getDripView, editDrip, duplicateDr
                             selectRow={selectRowProp}
                             options={options}
                             search={true}
-                            searchPlaceholder="Filter campaigns"
+                            searchPlaceholder="Filter drips"
                             clearSearch={true}
                             exportCSV={false}>
 

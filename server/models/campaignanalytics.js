@@ -15,6 +15,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         campaignanalytics.belongsTo(models.campaign);
+        campaignanalytics.belongsTo(models.drip);
         campaignanalytics.hasMany(models.campaignanalyticslink);
         campaignanalytics.hasMany(models.campaignanalyticsopen);
       }

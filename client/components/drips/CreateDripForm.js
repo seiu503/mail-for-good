@@ -30,6 +30,7 @@ const CreateDripForm = props => {
         inputs,
         nextPage,
         sequencedayError,
+        handleKeypress,
     } = props;    
     const lists = props.lists.map(x => x.name);
     const publishTemplates = props.templates.filter(x => x.status == 'publish');
@@ -39,6 +40,7 @@ const CreateDripForm = props => {
         'name',
         'listName',
         'startTime',
+        'sequenceId[]',
         'sequenceday[]',
         'template[]',                
     ]; // A list of all fields that need to show errors/warnings
@@ -63,8 +65,6 @@ const CreateDripForm = props => {
     const resetForm = () => {
         reset();
     };
-        
-
     return (
         <div>
             <form onSubmit={resetFormAndSubmit}>
@@ -79,30 +79,29 @@ const CreateDripForm = props => {
                 <h3>Drip Sequences</h3>
                 <br/>
                 <div className="sequence-section seq_0">
-                    <a href="javascript:;" onClick={addSequence.bind(this)} title="Add Sequence"><i className="glyphicon glyphicon-plus"></i></a>
-                    <Field name={"sequenceday[0]"} type="number" component={renderField} label="Send after how many day*"/>
+                    {/* <a href="javascript:;" onClick={addSequence.bind(this)} title="Add Sequence"><i className="glyphicon glyphicon-plus"></i></a> */}
+                    <div style={{ "display": "none" }}><Field name={"sequenceId[0]"} type="number" component={renderField} label="sequenceId"/></div>
+                    <Field name={"sequenceday[0]"} type="number" component={renderField} onChange={handleKeypress.bind(this)}  label="Wait how many days after previous step?*"/>
                     {sequencedayError[0] == 1 && <span className="text-red"><i className="fa fa-exclamation"></i>Required<br /></span>}
-                    
                     <label>Select template*</label>
                     <Combobox id={"template[0]"} name={"template[0]"} value={selectedTemplates[0]} data={templates} suggest={true} onChange={value => applyForm(value,0)} filter="contains" />
-                    
                     <br />                    
                 </div>
-                <div id="sequences_section">                    
+                <div id="sequences_section">
                     {inputs.map(indexNo => 
                     <div className={"sequence-section seq_" + indexNo} key={indexNo}>
                         <hr/>
                         <a href="javascript:;" onClick={removeSequence.bind(this, indexNo)} title="Remove Sequence"><i className="glyphicon glyphicon-remove"></i></a>
-                        <Field name={"sequenceday[" + indexNo + "]"} type="number" component={renderField} label="Send after how many day*" />
-                            {sequencedayError[indexNo] == 1 && <span className="text-red"><i className="fa fa-exclamation"></i>Required<br /></span>}
-                                
+                        <div style={{ "display": "none" }}><Field name={"sequenceId[" + indexNo + "]"} type="number"  component={renderField} label="sequenceId" /></div>
+                        <Field name={"sequenceday[" + indexNo + "]"} type="number" onChange={handleKeypress.bind(this)} component={renderField} label="Wait how many days after previous step?*" />
+                        {sequencedayError[indexNo] == 1 && <span className="text-red"><i className="fa fa-exclamation"></i>Required<br /></span>}
                         <label>Select template*</label>
                         <Combobox id={"template[" + indexNo + "]"} name={"template[" + indexNo + "]"} value={selectedTemplates[indexNo]} data={templates} suggest={true} onChange={value => applyForm(value, indexNo)} filter="contains" />
-                        
                         <br />
                     </div>)}
                 </div>
-                
+                <hr />
+                <button style={{ width: "183px" }} className="btn btn-success btn-lg btn-hug" type="button" onClick={addSequence.bind(this)} >Add New Sequence</button>
                 <div className="box-footer">
                     <div className="btn-group">
                         <button style={{ width: "150px" }} className="btn btn-success btn-lg btn-hug" type="submit" >Preview Drip</button>
@@ -128,6 +127,7 @@ CreateDripForm.propTypes = {
     removeSequence: PropTypes.func.isRequired,
     inputs: PropTypes.array,
     sequencedayError: PropTypes.array,
+    handleKeypress: PropTypes.func.isRequired,
 };
 
 const validate = (values, props) => {
