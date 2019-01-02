@@ -7,21 +7,22 @@ const mailMerge = require('./lib/mail-merge');
 module.exports = (req, res) => {
 
   let userId = req.user.id;
+  let campaign;
 
   const { testEmail, campaignId } = req.body;
 
-  if(req.body.campaignId==''){
-    campaign =req.body.correctForm;
+  if(req.body.campaignId == ''){
+    campaign = req.body.correctForm;
   }else{
-    let campaign = {}; // eslint-disable-line
+    campaign = {}; // eslint-disable-line
   }
- 
+
   let amazonSettings = {}; // eslint-disable-line
 
   const campaignBelongsToUser = new Promise((resolve, reject) => {
-    if(req.body.campaignId==''){
+    if (req.body.campaignId == '') {
       resolve();
-    }else{    
+    } else {
         return db.campaign.findOne({
           where: {
             id: campaignId,
@@ -66,7 +67,7 @@ module.exports = (req, res) => {
           reject();
           throw err;
         });
-    }    
+    }
   });
 
   const getAmazonKeysAndRegion = new Promise((resolve, reject) => {
@@ -144,20 +145,20 @@ module.exports = (req, res) => {
           console.log(data);
           console.log(err);
           if(err){
-            if (err.MessageId!=''){
-              res.send({message:'Your test email is being sent'});
-            }else{
-             res.status(400).send(err); 
+            if (err.MessageId!='') {
+              return res.send({message:'Your test email is being sent'});
+            } else {
+              return res.status(400).send(err);
             }
-          }  
-          else{
-            res.status(400).send(data); 
+          }
+          else {
+            return res.status(400).send(data);
           }
         });
       });
     })
   .catch(err => {
-    res.status(500).send(err);
+    return res.status(500).send(err);
     throw err;
   });
 

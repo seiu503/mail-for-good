@@ -84,8 +84,9 @@ body, html {
 }
 
 .flex-login__button-text {
-  font-size: 12px;
-  padding: 14px 0;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 13px 0;
 }
 
 .flex-login__form--header {

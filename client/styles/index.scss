@@ -52,3 +52,10 @@ html, body, h1, h2, h3, h4, h5, h6, p {
 .sequence-section a {
   float: right;
 }
+
+// set max-width for content box for wide screens
+
+.content {
+  max-width: 1200px;
+  margin-left: 0;
+}
