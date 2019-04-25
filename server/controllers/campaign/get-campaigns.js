@@ -1,8 +1,7 @@
-const Campaign = require('../../models').campaign;
-const CampaignAnalytics = require('../../models').campaignanalytics;
+const Campaign = require("../../models").campaign;
+const CampaignAnalytics = require("../../models").campaignanalytics;
 
 module.exports = (req, res) => {
-
   const userId = req.user.id;
 
   // Find all campaigns belonging to a user & send it to them
@@ -15,47 +14,49 @@ module.exports = (req, res) => {
         model: CampaignAnalytics, // Campaign summary analytics
         required: true,
         attributes: [
-          'complaintCount',
-          'permanentBounceCount',
-          'transientBounceCount',
-          'undeterminedBounceCount',
-          'totalSentCount',
-          'openCount',
-          'clickthroughCount'
+          "complaintCount",
+          "permanentBounceCount",
+          "transientBounceCount",
+          "undeterminedBounceCount",
+          "totalSentCount",
+          "openCount",
+          "clickthroughCount"
         ]
       }
     ],
     attributes: [
-      'name',
-      'fromName',
-      'fromEmail',
-      'emailSubject',
-      'emailBody',
-      'createdAt',
-      'updatedAt',
-      'id',
-      'slug',
-      'trackingPixelEnabled',
-      'trackLinksEnabled',
-      'unsubscribeLinkEnabled',
-      'type',
-      'status',
-      'totalCampaignSubscribers',
-      'scheduledatetime',
-      'sequenceCount',
-      'listId'
+      "name",
+      "fromName",
+      "fromEmail",
+      "emailSubject",
+      "emailBody",
+      "createdAt",
+      "updatedAt",
+      "id",
+      "slug",
+      "trackingPixelEnabled",
+      "trackLinksEnabled",
+      "unsubscribeLinkEnabled",
+      "type",
+      "status",
+      "totalCampaignSubscribers",
+      "scheduledatetime",
+      "sequenceCount",
+      "listId"
     ],
     raw: true
-  }).then(instancesArray => {
-    if (instancesArray) {
-      res.send(instancesArray);
-    } else {
+  })
+    .then(instancesArray => {
+      if (instancesArray) {
+        res.send(instancesArray);
+      } else {
+        res.send();
+      }
+    })
+    .catch(() => {
       res.send();
-    }
-  }).catch(() => {
-    res.send();
-  }).catch(err => {
-    res.status(400).send(err);
-  });
-
+    })
+    .catch(err => {
+      res.status(400).send(err);
+    });
 };
