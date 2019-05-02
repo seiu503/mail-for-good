@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser")();
 const createDrip = require("../controllers/campaign/create-drip");
 const changeDripStatus = require("../controllers/campaign/change-drip-status");
 const getDrips = require("../controllers/campaign/get-drips");
+const getDripSequences = require("../controllers/campaign/get-drip-sequences");
 const createDripCopy = require("../controllers/campaign/create-drip-copy");
 const deleteDrips = require("../controllers/campaign/delete-drips");
 const sendCronDrip = require("../controllers/campaign/send-crondrip");
@@ -86,6 +87,18 @@ module.exports = function(app, io, redis) {
       getDrips(req, res);
     }
   );
+
+  //API to Get Drip Sequences By DripId
+  app.get(
+    "/api/getdripsequences",
+    apiIsAuth,
+    cookieParser,
+    readCampaignAccess,
+    (req, res) => {
+      getDripSequences(req, res);
+    }
+  );
+
   app.post(
     "/api/dripcopy",
     apiIsAuth,

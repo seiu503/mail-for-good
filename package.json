@@ -20,8 +20,8 @@
     "start:main": "nodemon server/index.js",
     "start:consumer": "node server/feedback-consumer/consumer.js",
     "production":
-      "DEV_SEND_RATE=200 TEST_PRODUCTION=true NODE_ENV=production node server/index.js",
-    "dev": "DEV_SEND_RATE=200 NODE_ENV=development nodemon server/index.js",
+      "DEV_SEND_RATE=200 TEST_PRODUCTION=true NODE_ENV=production nodemon server/index.js",
+    "dev": "DEV_SEND_RATE=200 NODE_ENV=development node server/index.js",
     "debug":
       "DEV_SEND_RATE=200 NODE_ENV=development node --inspect --debug-brk server/index.js",
     "build": "babel-node tools/build.js",

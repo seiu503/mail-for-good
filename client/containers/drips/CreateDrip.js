@@ -11,7 +11,8 @@ import moment from "moment";
 import {
   postCreateDrip,
   changeDripStatus,
-  getDrips
+  getDrips,
+  getDripSequences
 } from "../../actions/campaignActions";
 
 function mapStateToProps(state) {
@@ -25,9 +26,11 @@ function mapStateToProps(state) {
     sendDripStatus: state.createDrip.sendDripStatus,
     dripId: state.createDrip.dripId,
     isDripSubmited: state.submitDrip.isDripSubmited,
-    drips: state.manageDrip.drips
+    drips: state.manageDrip.drips,
+    dripsequences: state.manageDrip.dripsequences
   };
 }
+
 const mapDispatchToProps = {
   initialize,
   notify,
@@ -35,7 +38,8 @@ const mapDispatchToProps = {
   getTemplates,
   postCreateDrip,
   changeDripStatus,
-  getDrips
+  getDrips,
+  getDripSequences
 };
 
 export class CreateDripComponent extends Component {
@@ -98,6 +102,7 @@ export class CreateDripComponent extends Component {
     lastAddedSequenceId: 0
   };
   componentDidMount() {
+    this.props.getDripSequences(0);
     const slug = this.props.params.slug;
     if (slug === undefined) {
       this.props.initialize("createDrip", this.state.initialFormValues);
@@ -125,7 +130,7 @@ export class CreateDripComponent extends Component {
       });
       this.props.initialize("createDrip", correctForm);
     }
-    //console.log(this.props.isDripSubmited + ' nextProps--- ' + nextProps.isDripSubmited + ' submitDrip--- ' + this.state.submitDrip);
+
     if (
       this.props.isDripSubmited === true &&
       nextProps.isDripSubmited === false &&
@@ -143,6 +148,7 @@ export class CreateDripComponent extends Component {
     if (slug) {
       const getDripBySlug = props.drips.find(drips => drips.slug === slug);
       if (getDripBySlug) {
+        this.props.getDripSequences(getDripBySlug.id);
         if (
           getDripBySlug.status != "draft" &&
           getDripBySlug.status != "paused"
@@ -168,69 +174,37 @@ export class CreateDripComponent extends Component {
         this.setState({ listId });
         delete correctForm["listId"];
 
-        const sequences = JSON.parse(correctForm.sequences);
-        const sequencesCount = sequences.length;
+        const sequencesCount = this.props.dripsequences.length;
         this.setState({ indexNo: sequencesCount - 1 });
-        let template_zero = this.props.templates.find(
-          templates => templates.id == sequences[0].templateId
-        );
-        let selectedTemplates = this.state.selectedTemplates;
-        selectedTemplates[0] = template_zero.name;
-        this.setState({ selectedTemplates });
-
-        for (let index = 1; index < sequences.length; index++) {
-          let template = this.props.templates.find(
-            templates => templates.id == sequences[index].templateId
-          );
-          let selectedTemplates = this.state.selectedTemplates;
-          selectedTemplates[index] = template.name;
-          this.setState({ selectedTemplates });
-
-          this.setState(prevState => ({
-            inputs: prevState.inputs.concat([index])
-          }));
-        }
         setTimeout(() => {
           let lastId = 0;
           let field_name = "sequenceday[0]";
-          let ev1 = new Event("input", { bubbles: true });
-          ev1.simulated = true;
-          lastId = sequences[0].sequenceId;
-          document.querySelector("input[name='" + field_name + "']").value =
-            sequences[0].sequenceday;
-          document
-            .querySelector("input[name='" + field_name + "']")
-            .dispatchEvent(ev1);
-          for (let index = 1; index < sequences.length; index++) {
-            lastId = sequences[index].sequenceId;
-            let field_name = "sequenceday[" + index + "]";
-            let ev1 = new Event("input", { bubbles: true });
-            ev1.simulated = true;
-            document.querySelector("input[name='" + field_name + "']").value =
-              sequences[index].sequenceday;
+          let ev = new Event("input", { bubbles: true });
+          ev.simulated = true;
+          this.props.dripsequences.map((dripseq, key) => {
+            // Set Sequence Days
+            document.querySelector(
+              "input[name='sequenceday[" + key + "]']"
+            ).value =
+              dripseq.send_after_days;
             document
-              .querySelector("input[name='" + field_name + "']")
-              .dispatchEvent(ev1);
-          }
+              .querySelector("input[name='sequenceday[" + key + "]']")
+              .dispatchEvent(ev);
+            // Set Sequence Ids as Hidden Input
+            document.querySelector(
+              "input[name='sequenceId[" + key + "]']"
+            ).value =
+              dripseq.id;
+            document
+              .querySelector("input[name='sequenceId[" + key + "]']")
+              .dispatchEvent(ev);
+            lastId = dripseq.id;
+
+            this.setState(prevState => ({
+              inputs: prevState.inputs.concat([key])
+            }));
+          });
           this.setState({ lastAddedSequenceId: lastId });
-          let fieldName = "sequenceId[0]";
-          let ev2 = new Event("input", { bubbles: true });
-          ev2.simulated = true;
-          document.querySelector("input[name='" + fieldName + "']").value =
-            sequences[0].sequenceId;
-          document
-            .querySelector("input[name='" + fieldName + "']")
-            .dispatchEvent(ev2);
-          for (let index = 1; index < sequences.length; index++) {
-            let field_name = "sequenceId[" + index + "]";
-            let ev1 = new Event("input", { bubbles: true });
-            ev1.simulated = true;
-            document.querySelector("input[name='" + field_name + "']").value =
-              sequences[index].sequenceId;
-            document
-              .querySelector("input[name='" + field_name + "']")
-              .dispatchEvent(ev1);
-          }
         }, 1000);
         delete correctForm["sequences"];
         this.props.initialize("createDrip", correctForm);
@@ -428,7 +402,7 @@ export class CreateDripComponent extends Component {
         } */
   }
   render() {
-    const { lists, templates, isGetting, form } = this.props;
+    const { lists, templates, isGetting, form, dripsequences } = this.props;
     const {
       page,
       selectedTemplates,
@@ -464,6 +438,7 @@ export class CreateDripComponent extends Component {
                   inputs={inputs}
                   sequencedayError={sequencedayError}
                   handleKeypress={this.handleKeypress}
+                  dripSequences={dripsequences}
                 />
               )}
               {page === 2 && (

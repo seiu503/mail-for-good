@@ -6,6 +6,7 @@ import {
   COMPLETE_POST_SUBMITDRIP,
   REQUEST_GET_DRIPS,
   COMPLETE_GET_DRIPS,
+  COMPLETE_GET_DRIP_SEQUENCES,
   COMPLETE_DELETE_DRIPS,
   REQUEST_POST_CREATECAMPAIGNSEQUENCE,
   COMPLETE_POST_CREATECAMPAIGNSEQUENCE,
@@ -51,6 +52,7 @@ import {
   API_POST_DRIP_ENDPOINT,
   API_DRIP_CHANGE_STATUS_ENDPOINT,
   API_GET_DRIP_ENDPOINT,
+  API_GET_DRIP_SEQUENCES_ENDPOINT,
   API_DRIP_COPY_ENDPOINT,
   API_DRIP_DELETE_ENDPOINT,
   API_SEND_CRON_DRIP_ENDPOINT,
@@ -192,6 +194,10 @@ export function completeGetDrip(drips) {
   return { type: COMPLETE_GET_DRIPS, drips };
 }
 
+export function completeGetDripSequence(dripsequences) {
+  return { type: COMPLETE_GET_DRIP_SEQUENCES, dripsequences };
+}
+
 export function deleteDrips(dripIds) {
   return dispatch => {
     const jsondripIds = JSON.stringify({ data: dripIds });
@@ -245,6 +251,27 @@ export function getDrips() {
   };
 }
 
+// Get Drip Sequences By Drip Id
+export function getDripSequences(dripId) {
+  return dispatch => {
+    if (dripId == 0) {
+      dispatch(completeGetDripSequence([]));
+    } else {
+      axios
+        .get(API_GET_DRIP_SEQUENCES_ENDPOINT, {
+          params: { dripId },
+          responseType: "json"
+        })
+        .then(response => {
+          dispatch(completeGetDripSequence(response.data));
+        })
+        .catch(response => {
+          console.log(response);
+        });
+    }
+  };
+}
+
 export function getAllDrips() {
   return dispatch => {
     dispatch(requestGetDrip());
@@ -292,7 +319,7 @@ export function postCreateDrip(form) {
     xhr.onload = () => {
       let response = JSON.parse(xhr.responseText);
       dispatch(completePostDrip(xhr.status, response.dripId));
-      dispatch(prepareDripSequence(response));
+      //dispatch(prepareDripSequence(response));
     };
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(form);

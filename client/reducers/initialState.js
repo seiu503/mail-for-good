@@ -1,14 +1,15 @@
 const initialState = {
   createDrip: {
-    isPosting: false, // Posting a new drip? 
+    isPosting: false, // Posting a new drip?
     sendDripStatus: 0,
-    dripId:0   
+    dripId: 0
   },
   submitDrip: {
-    isDripSubmited: false, 
+    isDripSubmited: false
   },
   manageDrip: {
     drips: [], // Array of objects for drips
+    dripsequences: [], // Array of objects for drips
     isGetting: false // Getting drips?
   },
 
@@ -39,12 +40,12 @@ const initialState = {
   },
   sendCampaign: {
     isPosting: false,
-    sendCampaignResponse: '',
+    sendCampaignResponse: "",
     sendCampaignStatus: 0
   },
   sendTest: {
     isPosting: false,
-    sendTestEmailResponse: '',
+    sendTestEmailResponse: "",
     sendTestEmailStatus: 0
   },
   createList: {
@@ -56,7 +57,7 @@ const initialState = {
     reports: [], // Array of objects for reports
     isReportGetting: false, // Getting reports?
     isReportDetailsGetting: false, // Getting reports?
-    reportDetails: [], // Array of objects for report Details
+    reportDetails: [] // Array of objects for report Details
   },
   manageList: {
     lists: [], // Array of objects for lists
@@ -73,28 +74,33 @@ const initialState = {
     loading: false,
     fieldsExist: {}
   },
-  notifications: { // Internal notifcations for things such as errors on importing CSV files and so forth
+  notifications: {
+    // Internal notifcations for things such as errors on importing CSV files and so forth
     stack: []
   },
   profile: {
     user: {},
     ws_notification: []
   },
-  grantPermissions: { // Refers to GrantPermissions container
+  grantPermissions: {
+    // Refers to GrantPermissions container
     isGetting: false,
     grantedPermissions: [],
     isPosting: false,
     response: {}
   },
-  receivedPermissionOffers: { // Permission offers received from another user
+  receivedPermissionOffers: {
+    // Permission offers received from another user
     isGetting: false,
     receivedPermissionOffers: []
   },
-  activePermissions: { // Permission offers active for a user (permissions they've been granted)
+  activePermissions: {
+    // Permission offers active for a user (permissions they've been granted)
     isGetting: false,
     activePermissions: []
   },
-  grantOfferedPermissions: { // Permission offers that have been offered to another user
+  grantOfferedPermissions: {
+    // Permission offers that have been offered to another user
     isGetting: false,
     grantOfferedPermissions: []
   },
