@@ -11,6 +11,7 @@ module.exports = (req, res) => {
         userId,
         dripId
       },
+      order: [["display_order"], ["id"]],
       raw: true
     })
     .then(instancesArray => {

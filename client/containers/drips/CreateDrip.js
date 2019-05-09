@@ -99,7 +99,8 @@ export class CreateDripComponent extends Component {
     isEdit: false,
     sequencedayError: [],
     listId: 0,
-    lastAddedSequenceId: 0
+    lastAddedSequenceId: 0,
+    deletedSequences: []
   };
   componentDidMount() {
     this.props.getDripSequences(0);
@@ -174,37 +175,72 @@ export class CreateDripComponent extends Component {
         this.setState({ listId });
         delete correctForm["listId"];
 
-        const sequencesCount = this.props.dripsequences.length;
+        const sequences = JSON.parse(correctForm.sequences);
+        const sequencesCount = sequences.length;
         this.setState({ indexNo: sequencesCount - 1 });
+        let template_zero = this.props.templates.find(
+          templates => templates.id == sequences[0].templateId
+        );
+        let selectedTemplates = this.state.selectedTemplates;
+        selectedTemplates[0] = template_zero.name;
+        this.setState({ selectedTemplates });
+
         setTimeout(() => {
-          let lastId = 0;
-          let field_name = "sequenceday[0]";
-          let ev = new Event("input", { bubbles: true });
-          ev.simulated = true;
-          this.props.dripsequences.map((dripseq, key) => {
-            // Set Sequence Days
-            document.querySelector(
-              "input[name='sequenceday[" + key + "]']"
-            ).value =
-              dripseq.send_after_days;
-            document
-              .querySelector("input[name='sequenceday[" + key + "]']")
-              .dispatchEvent(ev);
-            // Set Sequence Ids as Hidden Input
-            document.querySelector(
-              "input[name='sequenceId[" + key + "]']"
-            ).value =
-              dripseq.id;
-            document
-              .querySelector("input[name='sequenceId[" + key + "]']")
-              .dispatchEvent(ev);
-            lastId = dripseq.id;
+          let sequencess = this.props.dripsequences;
+
+          for (let index = 1; index < sequencess.length; index++) {
+            let template = this.props.templates.find(
+              templates => templates.id == sequencess[index].templateId
+            );
+            let selectedTemplates = this.state.selectedTemplates;
+            selectedTemplates[index] = template.name;
+            this.setState({ selectedTemplates });
 
             this.setState(prevState => ({
-              inputs: prevState.inputs.concat([key])
+              inputs: prevState.inputs.concat([index])
             }));
-          });
+          }
+
+          let lastId = 0;
+          let field_name = "sequenceday[0]";
+          let ev1 = new Event("input", { bubbles: true });
+          ev1.simulated = true;
+          lastId = sequencess[0].id;
+          document.querySelector("input[name='" + field_name + "']").value =
+            sequencess[0].send_after_days;
+          document
+            .querySelector("input[name='" + field_name + "']")
+            .dispatchEvent(ev1);
+          for (let index = 1; index < sequencess.length; index++) {
+            lastId = sequencess[index].id;
+            let field_name = "sequenceday[" + index + "]";
+            let ev1 = new Event("input", { bubbles: true });
+            ev1.simulated = true;
+            document.querySelector("input[name='" + field_name + "']").value =
+              sequencess[index].send_after_days;
+            document
+              .querySelector("input[name='" + field_name + "']")
+              .dispatchEvent(ev1);
+          }
           this.setState({ lastAddedSequenceId: lastId });
+          let fieldName = "sequenceId[0]";
+          let ev2 = new Event("input", { bubbles: true });
+          ev2.simulated = true;
+          document.querySelector("input[name='" + fieldName + "']").value =
+            sequencess[0].id;
+          document
+            .querySelector("input[name='" + fieldName + "']")
+            .dispatchEvent(ev2);
+          for (let index = 1; index < sequencess.length; index++) {
+            let field_name = "sequenceId[" + index + "]";
+            let ev1 = new Event("input", { bubbles: true });
+            ev1.simulated = true;
+            document.querySelector("input[name='" + field_name + "']").value =
+              sequencess[index].id;
+            document
+              .querySelector("input[name='" + field_name + "']")
+              .dispatchEvent(ev1);
+          }
         }, 1000);
         delete correctForm["sequences"];
         this.props.initialize("createDrip", correctForm);
@@ -310,7 +346,8 @@ export class CreateDripComponent extends Component {
       name: formValues.name,
       listName: formValues.listName,
       startTime: formValues.startTime,
-      sequences: sequences
+      sequences: sequences,
+      deleted_sequence_ids: this.state.deletedSequences
     };
     let previewForm = {
       id: formValues.id,
@@ -332,6 +369,13 @@ export class CreateDripComponent extends Component {
     this.setState({ page: this.state.page - 1 });
   }
   removeSequence(index) {
+    const allsequences = this.props.dripsequences;
+    var alldeletedsequences = this.state.deletedSequences;
+    if (allsequences[index]) {
+      alldeletedsequences.push(allsequences[index].id);
+    }
+    this.setState({ deletedSequences: alldeletedsequences });
+
     let newInput = this.state.inputs.filter(item => item != index);
     let newTemplate = this.state.selectedTemplates.filter((item, itemIndex) => {
       if (itemIndex != index) {
@@ -439,6 +483,7 @@ export class CreateDripComponent extends Component {
                   sequencedayError={sequencedayError}
                   handleKeypress={this.handleKeypress}
                   dripSequences={dripsequences}
+                  deletedSequences={this.state.deletedSequences}
                 />
               )}
               {page === 2 && (

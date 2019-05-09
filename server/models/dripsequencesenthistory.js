@@ -4,7 +4,6 @@ module.exports = function(sequelize, DataTypes) {
     "dripsequencesenthistory",
     {
       email: DataTypes.STRING,
-      sequence_no: DataTypes.INTEGER,
       send_at: DataTypes.DATE,
       is_sent: {
         type: DataTypes.BOOLEAN,
@@ -15,6 +14,8 @@ module.exports = function(sequelize, DataTypes) {
     {
       classMethods: {
         associate: function(models) {
+          dripsequencesenthistory.belongsTo(models.user);
+          dripsequencesenthistory.belongsTo(models.dripsequence);
           dripsequencesenthistory.belongsTo(models.listsubscribersrelation);
           dripsequencesenthistory.belongsTo(models.drip);
           dripsequencesenthistory.belongsTo(models.template);

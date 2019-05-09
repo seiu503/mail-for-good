@@ -1,12 +1,11 @@
 const db = require("../../models");
 const slug = require("slug");
-
+const moment = require("moment");
 const sendSingleNotification = require("../websockets/send-single-notification");
 
 module.exports = (req, res, io) => {
   const userId = req.user.id;
   const body = req.body;
-
   // Will mutate the below object to extract info we need during validation checks
   const valueFromValidation = {};
 
@@ -165,7 +164,10 @@ module.exports = (req, res, io) => {
                       throw err;
                     });
                 }
-                createDripSequences(req.body.id, req.body.sequences);
+                body.deleted_sequence_ids.map(id => {
+                  deleteSequence(id);
+                });
+                createUpdateDripSequences(req.body.id, "update");
               } else {
                 res.status(400).send();
               }
@@ -242,7 +244,10 @@ module.exports = (req, res, io) => {
                 }
                 createDripSubscribers(); // Start creating CampaignSubscribers
               });
-              createDripSequences(dripId, req.body.sequences);
+              body.deleted_sequence_ids.map(id => {
+                deleteSequence(id);
+              });
+              createUpdateDripSequences(dripId, "create");
             },
             err => {
               throw err;
@@ -254,14 +259,163 @@ module.exports = (req, res, io) => {
       res.status(400).send(err);
     });
 
-  createDripSequences = (dripId, sequences) => {
+  deleteAllSequencesByDripId = dripId => {
+    db.dripsequence.destroy({
+      where: {
+        dripId: dripId
+      }
+    });
+  };
+
+  createUpdateDripSequences = (dripId, action) => {
+    sequences = req.body.sequences;
     sequences.map(sequence => {
-      db.dripsequence.create({
-        dripId: dripId,
-        templateId: sequence.templateId,
-        userId: userId,
-        send_after_days: sequence.sequenceday
+      if (action == "update") {
+        if (sequence.sequenceId == 0) {
+          deleteAllSequencesByDripId(dripId);
+        }
+      }
+    });
+    //console.log(sequences);
+    sequences.map((sequence, key) => {
+      db.dripsequence
+        .findAll({
+          where: {
+            userId,
+            dripId,
+            id: sequence.sequenceId
+          },
+          raw: true
+        })
+        .then(sequenceArr => {
+          if (sequenceArr.length) {
+            db.dripsequence.update(
+              {
+                templateId: sequence.templateId,
+                send_after_days: sequence.sequenceday
+              },
+              {
+                where: {
+                  id: sequence.sequenceId
+                }
+              }
+            );
+          } else {
+            db.dripsequence.create({
+              dripId: dripId,
+              templateId: sequence.templateId,
+              userId: userId,
+              send_after_days: sequence.sequenceday
+            });
+          }
+          if (sequences.length - 1 == key) {
+            setTimeout(() => {
+              createUpdateDripSequenceHistory(dripId, action);
+            }, 100);
+          }
+        });
+    });
+  };
+
+  deleteSequence = dripSequenceId => {
+    db.dripsequencesenthistory.destroy({
+      where: {
+        dripsequenceId: dripSequenceId
+      }
+    });
+    db.dripsequence.destroy({
+      where: {
+        id: dripSequenceId
+      }
+    });
+  };
+
+  createUpdateDripSequenceHistory = async (dripId, action) => {
+    const start_time = req.body.startTime;
+    let sequences;
+    await sequenceByDripId(dripId).then(instance => {
+      sequences = instance;
+    });
+    db.listsubscribersrelation
+      .findAll({
+        include: [
+          {
+            model: db.listsubscriber
+          }
+        ],
+        where: {
+          listId: valueFromValidation.listId
+        },
+        raw: true
+      })
+      .then(subscribers => {
+        subscribers.map(subscriber => {
+          var send_after = 0;
+          sequences.map(sequence => {
+            const listsubscribersrelationId = subscriber.id;
+            const email = subscriber["listsubscriber.email"];
+            const sequenceId = sequence.id;
+            const templateId = sequence.templateId;
+            send_after = send_after + parseInt(sequence.send_after_days);
+            const listId = valueFromValidation.listId;
+            const send_at = moment(start_time)
+              .add(send_after, "Days")
+              .format();
+            db.dripsequencesenthistory
+              .findOne({
+                where: {
+                  dripsequenceId: sequenceId,
+                  email: email,
+                  dripId: dripId,
+                  listId: listId
+                }
+              })
+              .then(sequenceexists => {
+                if (sequenceexists) {
+                  console.log("Created Here");
+                  db.dripsequencesenthistory
+                    .update(
+                      {
+                        templateId: templateId,
+                        send_at: send_at
+                      },
+                      {
+                        where: {
+                          dripsequenceId: sequenceId,
+                          email: email,
+                          dripId: dripId,
+                          listId: listId
+                        }
+                      }
+                    )
+                    .then();
+                } else {
+                  console.log("Updated Here");
+                  db.dripsequencesenthistory
+                    .create({
+                      userId: userId,
+                      email: email,
+                      dripsequenceId: sequenceId,
+                      send_at: send_at,
+                      listsubscribersrelationId: listsubscribersrelationId,
+                      dripId: dripId,
+                      templateId: templateId,
+                      listId: listId
+                    })
+                    .then();
+                }
+              });
+          });
+        });
       });
+  };
+
+  sequenceByDripId = dripId => {
+    return db.dripsequence.findAll({
+      where: {
+        dripId: dripId
+      },
+      raw: true
     });
   };
 };

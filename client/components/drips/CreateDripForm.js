@@ -34,12 +34,10 @@ const CreateDripForm = props => {
     inputs,
     nextPage,
     sequencedayError,
-    handleKeypress,
-    dripSequences
+    handleKeypress
   } = props;
   const lists = props.lists.map(x => x.name);
   const publishTemplates = props.templates.filter(x => x.status == "publish");
-  const actual_templates = props.templates;
   const templates = publishTemplates.map(x => x.name);
   const nameArray = [
     "id",
@@ -61,6 +59,7 @@ const CreateDripForm = props => {
       validationFailed("Form is invalid, please review fields with errors");
     }
   };
+
   const applyForm = (applyTemplateValue, index) => {
     applyTemplate(applyTemplateValue, index);
     /* const foundTemplate = props.templates.find(x => x.name === applyTemplateValue);
@@ -70,14 +69,6 @@ const CreateDripForm = props => {
   const resetForm = () => {
     reset();
   };
-
-  const getTemplateName = templateId => {
-    let _this_template = actual_templates.find(
-      template => template.id == templateId
-    );
-    return _this_template.name;
-  };
-
   return (
     <div>
       <form onSubmit={resetFormAndSubmit}>
@@ -107,91 +98,84 @@ const CreateDripForm = props => {
         <hr />
         <h3>Drip Steps</h3>
         <br />
+        <div className="sequence-section seq_0">
+          {/* <a href="javascript:;" onClick={addSequence.bind(this)} title="Add Sequence"><i className="glyphicon glyphicon-plus"></i></a> */}
+          <div hidden={true}>
+            <Field
+              name={"sequenceId[0]"}
+              type="number"
+              component={renderField}
+              label="sequenceId"
+            />
+          </div>
+          <Field
+            name={"sequenceday[0]"}
+            type="number"
+            component={renderField}
+            onChange={handleKeypress.bind(this)}
+            label="Wait how many days after previous step?*"
+          />
+          {sequencedayError[0] == 1 && (
+            <span className="text-red">
+              <i className="fa fa-exclamation" />Required<br />
+            </span>
+          )}
+          <label>Select template*</label>
+          <Combobox
+            id={"template[0]"}
+            name={"template[0]"}
+            value={selectedTemplates[0]}
+            data={templates}
+            suggest={true}
+            onChange={value => applyForm(value, 0)}
+            filter="contains"
+          />
+          <br />
+        </div>
         <div id="sequences_section">
-          {inputs.length ? (
-            inputs.map(indexNo => {
-              return (
-                <div
-                  className="sequence-section"
-                  key={indexNo}
-                  style={{
-                    borderBottom: "1px dotted #ececec",
-                    marginBottom: "10px",
-                    paddingBottom: "10px"
-                  }}
-                >
-                  <div hidden={true}>
-                    <Field
-                      name={"sequenceId[" + indexNo + "]"}
-                      type="number"
-                      component={renderField}
-                    />
-                  </div>
-                  <Field
-                    name={"sequenceday[" + indexNo + "]"}
-                    type="number"
-                    component={renderField}
-                    onChange={handleKeypress.bind(this)}
-                    label="Wait how many days after previous step?*"
-                  />
-                  {sequencedayError[0] == 1 && (
-                    <span className="text-red">
-                      <i className="fa fa-exclamation" />Required<br />
-                    </span>
-                  )}
-                  <label>Select template*</label>
-                  <Combobox
-                    id={"template[" + indexNo + "]"}
-                    name={"template[" + indexNo + "]"}
-                    value={getTemplateName(dripSequences[indexNo].templateId)}
-                    data={templates}
-                    suggest={true}
-                    onChange={value => applyForm(value, indexNo)}
-                    filter="contains"
-                  />
-                </div>
-              );
-            })
-          ) : (
-            <div
-              className="sequence-section"
-              key={0}
-              style={{
-                borderBottom: "1px dotted #ececec",
-                marginBottom: "10px",
-                paddingBottom: "10px"
-              }}
-            >
-              <div hidden={true}>
+          {inputs.map(indexNo => (
+            <div className={"sequence-section seq_" + indexNo} key={indexNo}>
+              <hr />
+              <a
+                href="javascript:;"
+                onClick={removeSequence.bind(this, indexNo)}
+                title="Remove Step"
+              >
+                <i className="glyphicon glyphicon-remove" />
+              </a>
+              <div style={{ display: "none" }}>
                 <Field
-                  name={"sequenceId[0]"}
+                  name={"sequenceId[" + indexNo + "]"}
                   type="number"
                   component={renderField}
+                  label="sequenceId"
                 />
               </div>
               <Field
-                name={"sequenceday[0]"}
+                name={"sequenceday[" + indexNo + "]"}
                 type="number"
-                component={renderField}
                 onChange={handleKeypress.bind(this)}
+                component={renderField}
                 label="Wait how many days after previous step?*"
               />
-              {sequencedayError[0] == 1 && (
+              {sequencedayError[indexNo] == 1 && (
                 <span className="text-red">
                   <i className="fa fa-exclamation" />Required<br />
                 </span>
               )}
               <label>Select template*</label>
               <Combobox
-                id={"template[0]"}
-                name={"template[0]"}
+                id={"template[" + indexNo + "]"}
+                name={"template[" + indexNo + "]"}
+                value={selectedTemplates[indexNo]}
                 data={templates}
                 suggest={true}
-                onChange={value => applyForm(value, key)}
+                onChange={value => applyForm(value, indexNo)}
                 filter="contains"
               />
+              <br />
             </div>
-          )}
+          ))}
         </div>
         <hr />
         <button
