@@ -1,125 +1,158 @@
-const drip = require("../../models").drip;
-const setting = require("../../models").setting;
-const listsubscribersrelation = require("../../models").listsubscribersrelation;
-const listsubscriber = require("../../models").listsubscriber;
-const dripsequencesenthistory = require("../../models").dripsequencesenthistory;
 const db = require("../../models");
 const moment = require("moment");
+const email = require("../campaign/email");
+const AWS = require("aws-sdk");
+const AmazonEmail = require("../campaign/email/amazon-ses/lib/amazon");
 
-module.exports = (req, res) => {
+module.exports = (req, res, io, redis) => {
+  res.sendStatus(200);
   // Get all the drips and sequences
-
-  drip
+  db.dripsequencesenthistory
     .findAll({
+      include: [
+        {
+          model: db.drip,
+          where: {
+            status: "running"
+          },
+          attributes: ["name", "status", "startdatetime"]
+        }
+      ],
       attributes: [
         "id",
-        "userId",
-        "name",
-        "startdatetime",
-        "sequences",
-        "status",
-        "sequenceCount",
-        "listId"
+        "email",
+        "send_at",
+        "is_sent",
+        "dripId",
+        "templateId",
+        "listId",
+        "dripsequenceId",
+        "userId"
       ],
-      raw: true
+      /*where: {
+        send_at: {
+          $gt: new Date()
+        }
+      },*/
+      raw: true,
+      //order: [["userId"], ["dripsequenceId"]]
+      order: [["userId"], ["templateId"]]
     })
-    .then(drips => {
-      if (drips) {
-        drips.map(drip => {
-          // Call a fucntion to check the Settings against the user who created drip
-          haveSESCredential(drip);
+    .then(async sequences => {
+      if (sequences.length) {
+        var sesCredentail = "";
+        await getSESDetails(sequences[0].userId).then(ses => {
+          sesCredentail = ses;
         });
+
+        var newArray = new Array();
+        var templateId = 0;
+        var count = 0;
+        sequences.map(sequence => {
+          if (templateId != sequence.templateId) {
+            newArray[sequence.templateId] = [];
+            count = 0;
+          }
+          newArray[sequence.templateId][count] = {
+            email: sequence.email,
+            id: sequence.id
+          };
+          count++;
+          templateId = sequence.templateId;
+        });
+        sendDripSequence(sesCredentail, newArray);
       }
     });
 
   // Function to check SES credential in the settings for the user who created drip
-  haveSESCredential = drip => {
-    setting
-      .findOne({
-        where: {
-          userId: drip.userId
-        },
-        attributes: [
-          "id",
-          "amazonSimpleEmailServiceAccessKey",
-          "amazonSimpleEmailServiceSecretKeyEncrypted",
-          "amazonSimpleQueueServiceUrl",
-          "region",
-          "whiteLabelUrl",
-          "email"
-        ],
-        order: [["id", "DESC"]],
-        raw: true
-      })
-      .then(setting => {
-        prepareDripSending(drip, setting);
-      });
+  getSESDetails = userId => {
+    return db.setting.findOne({
+      where: {
+        userId: userId
+      },
+      attributes: [
+        "id",
+        "amazonSimpleEmailServiceAccessKey",
+        "amazonSimpleEmailServiceSecretKey",
+        "amazonSimpleQueueServiceUrl",
+        "region",
+        "whiteLabelUrl",
+        "email"
+      ],
+      order: [["id", "DESC"]]
+    });
   };
 
-  prepareDripSending = (drip, setting) => {
-    sequenceSent = {};
-    const sequences = JSON.parse(drip.sequences);
-    listsubscribersrelation
-      .findAll({
-        include: [
-          {
-            model: listsubscriber
-          }
-        ],
-        where: {
-          listId: drip.listId
-        },
-        raw: true
-      })
-      .then(subscribers => {
-        subscribers.map(subscriber => {
-          var send_after = 0;
-          sequences.map(sequence => {
-            const listsubscribersrelationId = subscriber.id;
-            const email = subscriber["listsubscriber.email"];
-            const sequence_no = parseInt(sequence.sequenceId);
-            const templateId = sequence.templateId;
-            send_after = send_after + parseInt(sequence.sequenceday);
-            const dripId = drip.id;
-            const listId = drip.listId;
-            const send_at = moment(drip.startdatetime)
-              .add(send_after, "Days")
-              .format();
-
-            sequenceSent = {
-              email,
-              sequence_no,
-              send_at,
-              listsubscribersrelationId,
-              dripId,
-              templateId,
-              listId
-            };
-            db.dripsequencesenthistory
-              .findOrCreate({
-                where: {
-                  listsubscribersrelationId: listsubscribersrelationId,
-                  dripId: dripId,
-                  templateId: templateId,
-                  listId: listId
-                },
-                defaults: {
-                  email: email,
-                  sequence_no: sequence_no,
-                  send_at: send_at,
-                  listsubscribersrelationId: listsubscribersrelationId,
-                  dripId: dripId,
-                  templateId: templateId,
-                  listId: listId
-                }
-              })
-              .then()
-              .catch(err => {
-                throw err;
-              });
-            console.log(sequenceSent);
+  // Prepair Drip Sequences for Sending
+  sendDripSequence = (sesCredentail, sequenceUsers) => {
+    const {
+      amazonSimpleEmailServiceAccessKey: accessKey,
+      amazonSimpleEmailServiceSecretKey: secretKey,
+      email,
+      region,
+      whiteLabelUrl
+    } = sesCredentail;
+    sequenceUsers.map(
+      (user = (val, key) => {
+        getTemplate(key).then(templateData => {
+          const arrayAmazonEmails = [];
+          val.map(user => {
+            arrayAmazonEmails.push(AmazonEmail(user, templateData));
           });
+          console.log(arrayAmazonEmails);
         });
-      });
+      })
+    );
+  };
+
+  getTemplate = templateId => {
+    return db.template.findOne({
+      attributes: [
+        "fromName",
+        "fromEmail",
+        "emailSubject",
+        "emailBody",
+        "type"
+      ],
+      where: {
+        id: templateId
+      }
+    });
+  };
+
+  getEmailQuotas = async (accessKey, secretKey, region) => {
+    const ses = new AWS.SES({
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey,
+      region: region
+    });
+    await ses.getSendQuota((err, data) => {
+      if (err) {
+        // Either access keys are wrong here or the request is being placed too quickly
+        res.status(400).send({
+          message:
+            "Please confirm your Amazon SES settings and try again later."
+        });
+      } else {
+        console.log(data);
+        const { Max24HourSend, SentLast24Hours, MaxSendRate } = data;
+        // If the user's max send rate is 1, they are in sandbox mode.
+        // We should let them know and NOT send this campaign
+        if (MaxSendRate <= 1) {
+          res.status(400).send({
+            message:
+              "You are currently in Sandbox Mode. Please contact Amazon to get this lifted."
+          });
+          return;
+        }
+        const AvailableToday = Max24HourSend - SentLast24Hours;
+        return {
+          Max24HourSend: Max24HourSend,
+          SentLast24Hours: SentLast24Hours,
+          MaxSendRate: MaxSendRate,
+          AvailableToday: AvailableToday
+        };
+      }
+    });
   };
 };
