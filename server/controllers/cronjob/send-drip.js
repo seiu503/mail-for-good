@@ -3,6 +3,8 @@ const moment = require("moment");
 const email = require("../campaign/email");
 const AWS = require("aws-sdk");
 const AmazonEmail = require("../campaign/email/amazon-ses/lib/amazon");
+const configSes = require("../campaign/email/amazon-ses/config/configSes");
+const CreateQueue = require("../campaign/email/amazon-ses/queue");
 
 module.exports = (req, res, io, redis) => {
   res.sendStatus(200);
@@ -84,7 +86,7 @@ module.exports = (req, res, io, redis) => {
   };
 
   // Prepair Drip Sequences for Sending
-  sendDripSequence = (sesCredentail, sequenceUsers) => {
+  sendDripSequence = async (sesCredentail, sequenceUsers) => {
     const {
       amazonSimpleEmailServiceAccessKey: accessKey,
       amazonSimpleEmailServiceSecretKey: secretKey,
@@ -92,14 +94,23 @@ module.exports = (req, res, io, redis) => {
       region,
       whiteLabelUrl
     } = sesCredentail;
+    const rateLimit = 100;
+    var quota = await getEmailQuotas(accessKey, secretKey, region);
+    console.log(quota);
+    return false;
+    const ses = configSes(accessKey, secretKey, region);
+    const addToQueue = CreateQueue(rateLimit, ses);
+    const arrayAmazonEmails = [];
     sequenceUsers.map(
       (user = (val, key) => {
         getTemplate(key).then(templateData => {
-          const arrayAmazonEmails = [];
           val.map(user => {
-            arrayAmazonEmails.push(AmazonEmail(user, templateData));
+            console.log(user);
+            //addToQueue(AmazonEmail(user, templateData));
+            return false;
+            //arrayAmazonEmails.push(AmazonEmail(user, templateData));
           });
-          console.log(arrayAmazonEmails);
+          //console.log(arrayAmazonEmails);
         });
       })
     );
