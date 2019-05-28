@@ -44,8 +44,8 @@ module.exports = (req, res, io, redis) => {
         send_at: {
           $gte: from_date,
           $lte: to_date
-        }
-        //is_sent: false
+        },
+        is_sent: false
       },
       raw: true,
       order: [["userId"], ["templateId"]]
