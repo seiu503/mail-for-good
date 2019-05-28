@@ -8,7 +8,16 @@ const CreateQueue = require("../campaign/email/amazon-ses/queue");
 
 module.exports = (req, res, io, redis) => {
   res.sendStatus(200);
-  // Get all the drips and sequences
+
+  // Set from date and time back to 5 minutes of the current date and time
+  var from_date = moment(new Date())
+    .add(-3, "minutes")
+    .format();
+
+  // Set to date and time as current date and time
+  var to_date = moment(new Date()).format();
+
+  // Get all the drips and sequences which exists in between current and 5 mins before time and never sent
   db.dripsequencesenthistory
     .findAll({
       include: [
@@ -31,38 +40,41 @@ module.exports = (req, res, io, redis) => {
         "dripsequenceId",
         "userId"
       ],
-      /*where: {
+      where: {
         send_at: {
-          $gt: new Date()
+          $gte: from_date,
+          $lte: to_date
         }
-      },*/
+        //is_sent: false
+      },
       raw: true,
-      //order: [["userId"], ["dripsequenceId"]]
       order: [["userId"], ["templateId"]]
     })
     .then(async sequences => {
       if (sequences.length) {
         var sesCredentail = "";
+        // Get user SES credentials for sending the drip sequences as email
         await getSESDetails(sequences[0].userId).then(ses => {
           sesCredentail = ses;
         });
 
-        var newArray = new Array();
+        var emailsByTemplate = new Array();
         var templateId = 0;
         var count = 0;
         sequences.map(sequence => {
           if (templateId != sequence.templateId) {
-            newArray[sequence.templateId] = [];
+            emailsByTemplate[sequence.templateId] = [];
             count = 0;
           }
-          newArray[sequence.templateId][count] = {
+          emailsByTemplate[sequence.templateId][count] = {
             email: sequence.email,
             id: sequence.id
           };
           count++;
           templateId = sequence.templateId;
         });
-        sendDripSequence(sesCredentail, newArray);
+        // Ready to send drip sequences with SES credentials and users emails by templates
+        sendDripSequence(sesCredentail, emailsByTemplate);
       }
     });
 
@@ -94,28 +106,37 @@ module.exports = (req, res, io, redis) => {
       region,
       whiteLabelUrl
     } = sesCredentail;
-    const rateLimit = 100;
+    const rateLimit = 10000; // Need to calculate from quota
     var quota = await getEmailQuotas(accessKey, secretKey, region);
-    console.log(quota);
-    return false;
     const ses = configSes(accessKey, secretKey, region);
     const addToQueue = CreateQueue(rateLimit, ses);
-    const arrayAmazonEmails = [];
     sequenceUsers.map(
       (user = (val, key) => {
+        // Get email template by template id
         getTemplate(key).then(templateData => {
           val.map(user => {
+            // Add drip sequences into queue
+            addToQueue(AmazonEmail(user, templateData));
             console.log(user);
-            //addToQueue(AmazonEmail(user, templateData));
-            return false;
-            //arrayAmazonEmails.push(AmazonEmail(user, templateData));
+            // Update is_sent as TRUE for the subscribers who received sequence
+            db.dripsequencesenthistory.update(
+              {
+                is_sent: true
+              },
+              {
+                where: {
+                  id: user.id
+                }
+              }
+            );
           });
-          //console.log(arrayAmazonEmails);
         });
       })
     );
+    return;
   };
 
+  // Return email template
   getTemplate = templateId => {
     return db.template.findOne({
       attributes: [
@@ -131,6 +152,7 @@ module.exports = (req, res, io, redis) => {
     });
   };
 
+  // Get the user email quota
   getEmailQuotas = async (accessKey, secretKey, region) => {
     const ses = new AWS.SES({
       accessKeyId: accessKey,

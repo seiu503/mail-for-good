@@ -244,9 +244,11 @@ module.exports = (req, res, io) => {
                 }
                 createDripSubscribers(); // Start creating CampaignSubscribers
               });
-              body.deleted_sequence_ids.map(id => {
-                deleteSequence(id);
-              });
+              if (typeof body.deleted_sequence_ids !== "undefined") {
+                body.deleted_sequence_ids.map(id => {
+                  deleteSequence(id);
+                });
+              }
               createUpdateDripSequences(dripId, "create");
             },
             err => {
@@ -358,8 +360,11 @@ module.exports = (req, res, io) => {
             const templateId = sequence.templateId;
             send_after = send_after + parseInt(sequence.send_after_days);
             const listId = valueFromValidation.listId;
-            const send_at = moment(start_time)
+            /*const send_at = moment(start_time)
               .add(send_after, "Days")
+              .format();*/
+            const send_at = moment(start_time)
+              .add(send_after, "minutes")
               .format();
             db.dripsequencesenthistory
               .findOne({

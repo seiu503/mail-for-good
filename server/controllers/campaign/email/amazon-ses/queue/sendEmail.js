@@ -1,7 +1,7 @@
-const Promise = require('bluebird');
+const Promise = require("bluebird");
 
-const CampaignSubscriber = require('../../../../../models').campaignsubscriber;
-const CampaignAnalytics = require('../../../../../models').campaignanalytics;
+const CampaignSubscriber = require("../../../../../models").campaignsubscriber;
+const CampaignAnalytics = require("../../../../../models").campaignanalytics;
 
 /**
  * @description Add an email to the queue.
@@ -25,21 +25,21 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
    */
 
   function _updateAnalytics(data, task, campaignInfo) {
-    const sequenceId = (task.sequenceId) ? task.sequenceId: null;
-    let where ='';
-    if (typeof campaignInfo.campaignId !== 'undefined'){
+    const sequenceId = task.sequenceId ? task.sequenceId : null;
+    let where = "";
+    if (typeof campaignInfo.campaignId !== "undefined") {
       where = {
-          id: task['campaignsubscribers.id'],
-          listsubscriberId: task.id,
-          campaignId: campaignInfo.campaignId
-        }
-    }else{
+        id: task["campaignsubscribers.id"],
+        listsubscriberId: task.id,
+        campaignId: campaignInfo.campaignId
+      };
+    } else {
       where = {
-        id: task['campaignsubscribers.id'],
+        id: task["campaignsubscribers.id"],
         listsubscriberId: task.id,
         dripId: campaignInfo.dripId
-      }
-    }    
+      };
+    }
     const p1 = CampaignSubscriber.update(
       {
         messageId: data.MessageId,
@@ -53,10 +53,11 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
       }
     );
 
-    const p2 = CampaignAnalytics.findById(campaignInfo.campaignAnalyticsId)
-      .then(foundCampaignAnalytics => {
-        return foundCampaignAnalytics.increment('totalSentCount');
-      });
+    const p2 = CampaignAnalytics.findById(
+      campaignInfo.campaignAnalyticsId
+    ).then(foundCampaignAnalytics => {
+      return foundCampaignAnalytics.increment("totalSentCount");
+    });
 
     return Promise.all([p1, p2]);
   }
@@ -69,7 +70,11 @@ module.exports = function(amazonEmail, campaignInfo, ses) {
 
   return promisifiedSes(email)
     .then(data => {
-      return _updateAnalytics(data, task, campaignInfo);
+      if (typeof campaignInfo !== "undefined") {
+        return _updateAnalytics(data, task, campaignInfo);
+      } else {
+        return;
+      }
     })
     .catch(err => {
       console.log(err);
