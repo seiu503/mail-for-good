@@ -1,6 +1,7 @@
 import React, { PropTypes } from "react";
 import { Field, reduxForm, propTypes as reduxFormPropTypes } from "redux-form";
 import { Combobox } from "react-widgets";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import _ from "lodash";
 
 import {
@@ -34,7 +35,8 @@ const CreateDripForm = props => {
     inputs,
     nextPage,
     sequencedayError,
-    handleKeypress
+    handleKeypress,
+    changeInputes
   } = props;
   const lists = props.lists.map(x => x.name);
   const publishTemplates = props.templates.filter(x => x.status == "publish");
@@ -65,6 +67,28 @@ const CreateDripForm = props => {
     /* const foundTemplate = props.templates.find(x => x.name === applyTemplateValue);
         applyTemplate(foundTemplate); */
   };
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  // Function to Set Order After Drag and Drop Task
+  const DragDrop = (result) => {
+      const data = inputs;
+      // dropped outside the list
+      if (!result.destination) {
+          return;
+      }
+      const res = reorder(
+          data,
+          result.source.index,
+          result.destination.index
+      );
+      changeInputes(res);
+  }
 
   const resetForm = () => {
     reset();
@@ -132,51 +156,66 @@ const CreateDripForm = props => {
           />
           <br />
         </div>
-        <div id="sequences_section">
-          {inputs.map(indexNo => (
-            <div className={"sequence-section seq_" + indexNo} key={indexNo}>
-              <hr />
-              <a
-                href="javascript:;"
-                onClick={removeSequence.bind(this, indexNo)}
-                title="Remove Step"
-              >
-                <i className="glyphicon glyphicon-remove" />
-              </a>
-              <div style={{ display: "none" }}>
-                <Field
-                  name={"sequenceId[" + indexNo + "]"}
-                  type="number"
-                  component={renderField}
-                  label="sequenceId"
-                />
-              </div>
-              <Field
-                name={"sequenceday[" + indexNo + "]"}
-                type="number"
-                onChange={handleKeypress.bind(this)}
-                component={renderField}
-                label="Wait how many days after previous step?*"
-              />
-              {sequencedayError[indexNo] == 1 && (
-                <span className="text-red">
-                  <i className="fa fa-exclamation" />Required<br />
-                </span>
-              )}
-              <label>Select template*</label>
-              <Combobox
-                id={"template[" + indexNo + "]"}
-                name={"template[" + indexNo + "]"}
-                value={selectedTemplates[indexNo]}
-                data={templates}
-                suggest={true}
-                onChange={value => applyForm(value, indexNo)}
-                filter="contains"
-              />
-              <br />
-            </div>
-          ))}
-        </div>
+         <DragDropContext onDragEnd={DragDrop.bind(this)}>
+              <Droppable droppableId="droppable">
+                  {(provided, snapshot) => (
+                    <div id="sequences_section" data-scrollable="true" ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                    {inputs.map((indexNo,ind) => (
+                      <Draggable key={indexNo} draggableId={indexNo} index={ind}>
+                        {(provided, snapshot) => (
+                          <div className={"sequence-section seq_" + indexNo} ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}>
+                            <hr />
+                            <a
+                              href="javascript:;"
+                              onClick={removeSequence.bind(this, indexNo)}
+                              title="Remove Step"
+                            >
+                              <i className="glyphicon glyphicon-remove" />
+                            </a>
+                            <div style={{ display: "none" }}>
+                              <Field
+                                name={"sequenceId[" + indexNo + "]"}
+                                type="number"
+                                component={renderField}
+                                label="sequenceId"
+                              />
+                            </div>
+                            <Field
+                              name={"sequenceday[" + indexNo + "]"}
+                              type="number"
+                              onChange={handleKeypress.bind(this)}
+                              component={renderField}
+                              label="Wait how many days after previous step?*"
+                            />
+                            {sequencedayError[indexNo] == 1 && (
+                              <span className="text-red">
+                                <i className="fa fa-exclamation" />Required<br />
+                              </span>
+                            )}
+                            <label>Select template*</label>
+                            <Combobox
+                              id={"template[" + indexNo + "]"}
+                              name={"template[" + indexNo + "]"}
+                              value={selectedTemplates[indexNo]}
+                              data={templates}
+                              suggest={true}
+                              onChange={value => applyForm(value, indexNo)}
+                              filter="contains"
+                            />
+                            <br />
+                          </div>
+                         )}
+                        </Draggable>
+                    ))}
+                     {provided.placeholder}
+                  </div>
+                  )}
+               </Droppable>
+          </DragDropContext>
         <hr />
         <button
           style={{ width: "183px" }}

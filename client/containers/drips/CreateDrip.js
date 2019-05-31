@@ -81,6 +81,7 @@ export class CreateDripComponent extends Component {
     this.removeSequence = this.removeSequence.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleKeypress = this.handleKeypress.bind(this);
+    this.changeInputes = this.changeInputes.bind(this);
   }
 
   state = {
@@ -419,6 +420,10 @@ export class CreateDripComponent extends Component {
     this.setState({ reset });
   }
 
+  changeInputes(inputs){
+    this.setState({inputs})
+  }
+
   applyTemplate(template, index) {
     let selectedTemplates = this.state.selectedTemplates;
     selectedTemplates[index] = template;
@@ -484,6 +489,7 @@ export class CreateDripComponent extends Component {
                   handleKeypress={this.handleKeypress}
                   dripSequences={dripsequences}
                   deletedSequences={this.state.deletedSequences}
+                  changeInputes = {this.changeInputes}
                 />
               )}
               {page === 2 && (
