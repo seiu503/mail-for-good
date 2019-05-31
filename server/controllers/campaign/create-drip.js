@@ -290,12 +290,17 @@ module.exports = (req, res, io) => {
           raw: true
         })
         .then(sequenceArr => {
+          var update_data = (sequence.display_order) ?  {
+                templateId: sequence.templateId,
+                send_after_days: sequence.sequenceday,
+                display_order: sequence.display_order
+              } : {
+                templateId: sequence.templateId,
+                send_after_days: sequence.sequenceday,
+              }
           if (sequenceArr.length) {
             db.dripsequence.update(
-              {
-                templateId: sequence.templateId,
-                send_after_days: sequence.sequenceday
-              },
+              update_data,
               {
                 where: {
                   id: sequence.sequenceId
@@ -303,12 +308,19 @@ module.exports = (req, res, io) => {
               }
             );
           } else {
-            db.dripsequence.create({
-              dripId: dripId,
-              templateId: sequence.templateId,
-              userId: userId,
-              send_after_days: sequence.sequenceday
-            });
+            var create_data = (sequence.display_order) ?  {
+                dripId: dripId,
+                templateId: sequence.templateId,
+                userId: userId,
+                send_after_days: sequence.sequenceday,
+                display_order: sequence.display_order
+              } : {
+                  dripId: dripId,
+                  templateId: sequence.templateId,
+                  userId: userId,
+                  send_after_days: sequence.sequenceday,
+                }
+            db.dripsequence.create(create_data);
           }
           if (sequences.length - 1 == key) {
             setTimeout(() => {

@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from "react";
 import { connect } from "react-redux";
-import { initialize } from "redux-form";
+import { initialize, change } from "redux-form";
 import CreateDripForm from "../../components/drips/CreateDripForm";
 import PreviewDripForm from "../../components/drips/PreviewDripForm";
 import { getTemplates } from "../../actions/campaignActions";
@@ -39,7 +39,8 @@ const mapDispatchToProps = {
   postCreateDrip,
   changeDripStatus,
   getDrips,
-  getDripSequences
+  getDripSequences,
+  change
 };
 
 export class CreateDripComponent extends Component {
@@ -331,11 +332,20 @@ export class CreateDripComponent extends Component {
       let templateIdName = this.props.templates.find(
         template => template.name === selectedTemplates[key]
       );
-      sequences[sequences.length] = {
-        sequenceId: lastSequenceId,
-        sequenceday: sequencesday[key],
-        templateId: templateIdName.id
-      };
+      if(formValues.sequenceOrder){
+        sequences[sequences.length] = {
+          sequenceId: lastSequenceId,
+          sequenceday: sequencesday[key],
+          templateId: templateIdName.id,
+          display_order: ((formValues.sequenceOrder[key] || formValues.sequenceOrder[key]==0) ? formValues.sequenceOrder[key] : 999),
+        };
+      }else{
+        sequences[sequences.length] = {
+          sequenceId: lastSequenceId,
+          sequenceday: sequencesday[key],
+          templateId: templateIdName.id,
+        };
+      }
       previewSequences[previewSequences.length] = {
         sequenceday: sequencesday[key],
         templateName: selectedTemplates[key]
@@ -357,8 +367,8 @@ export class CreateDripComponent extends Component {
       startTime: formValues.startTime,
       previewSequences: previewSequences
     };
-
-    /* console.log(form);
+    /* console.log(formValues.sequenceOrder);
+    console.log(form);
         return; */
     this.props.postCreateDrip(JSON.stringify(form));
     this.setState({ previewForm: previewForm }, () => {
@@ -421,6 +431,10 @@ export class CreateDripComponent extends Component {
   }
 
   changeInputes(inputs){
+    this.props.change("createDrip","sequenceOrder[0]",0);
+    inputs.map((data,index)=>{
+      this.props.change("createDrip", "sequenceOrder[" + data + "]", index + 1);
+    })
     this.setState({inputs})
   }
 
