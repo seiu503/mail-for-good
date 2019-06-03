@@ -332,25 +332,36 @@ export class CreateDripComponent extends Component {
       let templateIdName = this.props.templates.find(
         template => template.name === selectedTemplates[key]
       );
-      if(formValues.sequenceOrder){
+      if (formValues.sequenceOrder) {
         sequences[sequences.length] = {
           sequenceId: lastSequenceId,
           sequenceday: sequencesday[key],
           templateId: templateIdName.id,
-          display_order: ((formValues.sequenceOrder[key] || formValues.sequenceOrder[key]==0) ? formValues.sequenceOrder[key] : 999),
+          display_order:
+            formValues.sequenceOrder[key] || formValues.sequenceOrder[key] == 0
+              ? formValues.sequenceOrder[key]
+              : 999
         };
-      }else{
+      } else {
         sequences[sequences.length] = {
           sequenceId: lastSequenceId,
           sequenceday: sequencesday[key],
-          templateId: templateIdName.id,
+          templateId: templateIdName.id
         };
       }
       previewSequences[previewSequences.length] = {
         sequenceday: sequencesday[key],
-        templateName: selectedTemplates[key]
+        templateName: selectedTemplates[key],
+        display_order:
+          typeof sequences[key].display_order !== "undefined"
+            ? sequences[key].display_order
+            : 999
       };
     });
+    previewSequences.sort(function(a, b) {
+      return a.display_order - b.display_order;
+    });
+
     let form = {
       id: formValues.id,
       listId: this.state.listId,
@@ -367,9 +378,7 @@ export class CreateDripComponent extends Component {
       startTime: formValues.startTime,
       previewSequences: previewSequences
     };
-    /* console.log(formValues.sequenceOrder);
-    console.log(form);
-        return; */
+
     this.props.postCreateDrip(JSON.stringify(form));
     this.setState({ previewForm: previewForm }, () => {
       this.setState({ page: this.state.page + 1 });
@@ -430,12 +439,12 @@ export class CreateDripComponent extends Component {
     this.setState({ reset });
   }
 
-  changeInputes(inputs){
-    this.props.change("createDrip","sequenceOrder[0]",0);
-    inputs.map((data,index)=>{
+  changeInputes(inputs) {
+    this.props.change("createDrip", "sequenceOrder[0]", 0);
+    inputs.map((data, index) => {
       this.props.change("createDrip", "sequenceOrder[" + data + "]", index + 1);
-    })
-    this.setState({inputs})
+    });
+    this.setState({ inputs });
   }
 
   applyTemplate(template, index) {
@@ -464,6 +473,7 @@ export class CreateDripComponent extends Component {
             e.preventDefault()
         } */
   }
+
   render() {
     const { lists, templates, isGetting, form, dripsequences } = this.props;
     const {
@@ -503,7 +513,7 @@ export class CreateDripComponent extends Component {
                   handleKeypress={this.handleKeypress}
                   dripSequences={dripsequences}
                   deletedSequences={this.state.deletedSequences}
-                  changeInputes = {this.changeInputes}
+                  changeInputes={this.changeInputes}
                 />
               )}
               {page === 2 && (

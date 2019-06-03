@@ -1,7 +1,8 @@
 {
   "name": "nonprofit-email-service",
   "version": "1.0.0",
-  "description": "A cost effective, open source solution to sending mass emails",
+  "description":
+    "A cost effective, open source solution to sending mass emails",
   "main": "index.js",
   "engines": {
     "npm": ">=5",
@@ -10,23 +11,29 @@
   "scripts": {
     "build-n-start": "npm run build && npm run start",
     "preinstall": "rm -fr public/assets",
-    "postinstall": "cp -r node_modules/@salesforce-ux/design-system/assets public",
+    "postinstall":
+      "cp -r node_modules/@salesforce-ux/design-system/assets public",
     "check-env-file": "python ./tools/setup/initial_setup.py",
     "client:lint": "esw webpack.config.* client tools --color",
     "client:clean-dist": "npm run client:remove-dist && mkdir dist",
     "start": "NODE_ENV=development npm-run-all --parallel start:*",
     "start:main": "nodemon server/index.js",
     "start:consumer": "node server/feedback-consumer/consumer.js",
-    "production": "DEV_SEND_RATE=200 TEST_PRODUCTION=true NODE_ENV=production nodemon server/index.js",
+    "production":
+      "DEV_SEND_RATE=200 TEST_PRODUCTION=true NODE_ENV=production nodemon server/index.js",
     "dev": "DEV_SEND_RATE=200 NODE_ENV=development node server/index.js",
-    "debug": "DEV_SEND_RATE=200 NODE_ENV=development node --inspect --debug-brk server/index.js",
+    "debug":
+      "DEV_SEND_RATE=200 NODE_ENV=development node --inspect --debug-brk server/index.js",
     "build": "babel-node tools/build.js",
     "simulator": "node ./node_modules/node-amazon-ses-simulator/index.js -e 0",
-    "feedback-consumer": "NODE_ENV=production node server/feedback-consumer/index.js",
+    "feedback-consumer":
+      "NODE_ENV=production node server/feedback-consumer/index.js",
     "test:server": "npm run test:server:unit && npm run test:server:functional",
     "test:server:unit": "mocha tools/testSetup.js \"server/**/*.spec.js\"",
-    "test:server:functional": "babel-tape-runner -r dotenv/config server/tests/**/*.func.js | node_modules/.bin/tap-spec",
-    "test:client": "mocha --require tools/testClientSetup.js tools/testSetup.js \"client/**/*.spec.js\"",
+    "test:server:functional":
+      "babel-tape-runner -r dotenv/config server/tests/**/*.func.js | node_modules/.bin/tap-spec",
+    "test:client":
+      "mocha --require tools/testClientSetup.js tools/testSetup.js \"client/**/*.spec.js\"",
     "test": "npm run test:client && npm run test:server"
   },
   "repository": {
