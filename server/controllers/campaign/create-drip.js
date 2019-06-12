@@ -53,120 +53,131 @@ module.exports = (req, res, io) => {
           .then(
             instance => {
               if (instance == 1) {
-                if (req.body.listId == valueFromValidation.listId) {
-                  if (req.body.status == "draft") {
-                    res.send({
-                      dripId: req.body.id,
-                      status: req.body.status,
-                      message: "Drip updated."
-                    });
-                  } else {
-                    if (!req.body.scheduledatetime) {
+                // Get List Subscribers
+                getListSubscribres(
+                  valueFromValidation.listId
+                ).then(subscribers => {
+                  if (req.body.listId == valueFromValidation.listId) {
+                    if (req.body.status == "draft") {
                       res.send({
                         dripId: req.body.id,
-                        status: req.body.status
-                      });
-                    } else {
-                      res.send({
-                        dripId: req.body.id,
+                        listSubscribers: subscribers.length,
                         status: req.body.status,
                         message: "Drip updated."
                       });
-                    }
-                  }
-                } else {
-                  db.campaignsubscriber
-                    .destroy({
-                      where: {
-                        dripId: req.body.id
-                      }
-                    })
-                    .then(numDeleted => {
-                      if (req.body.status == "draft") {
+                    } else {
+                      if (!req.body.scheduledatetime) {
                         res.send({
                           dripId: req.body.id,
+                          listSubscribers: subscribers.length,
+                          status: req.body.status
+                        });
+                      } else {
+                        res.send({
+                          dripId: req.body.id,
+                          listSubscribers: subscribers.length,
                           status: req.body.status,
                           message: "Drip updated."
                         });
-                      } else {
-                        if (!req.body.scheduledatetime) {
+                      }
+                    }
+                  } else {
+                    db.campaignsubscriber
+                      .destroy({
+                        where: {
+                          dripId: req.body.id
+                        }
+                      })
+                      .then(numDeleted => {
+                        if (req.body.status == "draft") {
                           res.send({
                             dripId: req.body.id,
-                            status: req.body.status
-                          });
-                        } else {
-                          res.send({
-                            dripId: req.body.id,
+                            listSubscribers: subscribers.length,
                             status: req.body.status,
                             message: "Drip updated."
                           });
+                        } else {
+                          if (!req.body.scheduledatetime) {
+                            res.send({
+                              dripId: req.body.id,
+                              listSubscribers: subscribers.length,
+                              status: req.body.status
+                            });
+                          } else {
+                            res.send({
+                              dripId: req.body.id,
+                              listSubscribers: subscribers.length,
+                              status: req.body.status,
+                              message: "Drip updated."
+                            });
+                          }
                         }
-                      }
 
-                      function createDripSubscribers(
-                        offset = 0,
-                        limit = 10000
-                      ) {
-                        db.listsubscribersrelation
-                          .findAll({
-                            where: {
-                              listId: valueFromValidation.listId
-                            },
-                            limit,
-                            offset,
-                            order: [["id", "ASC"]],
-                            raw: true
-                          })
-                          .then(listSubscriberIds => {
-                            const subscriberIds = listSubscriberIds.map(
-                              list => {
-                                return list.listsubscriberId;
-                              }
-                            );
-                            db.listsubscriber
-                              .findAll({
-                                where: {
-                                  id: subscriberIds
-                                },
-                                attributes: [
-                                  ["id", "listsubscriberId"],
-                                  "email"
-                                ], // Nested array used to rename id to listsubscriberId
-                                order: [["id", "ASC"]],
-                                raw: true
-                              })
-                              .then(listSubscribers => {
-                                if (listSubscribers.length) {
-                                  // If length is 0 then there are no more ListSubscribers, so we can cleanup
-                                  //totalCampaignSubscribersProcessed += listSubscribers.length;
-                                  listSubscribers = listSubscribers.map(
-                                    listSubscriber => {
-                                      listSubscriber.campaignId = null;
-                                      listSubscriber.dripId = req.body.id;
-                                      return listSubscriber;
-                                    }
-                                  );
-                                  db.campaignsubscriber
-                                    .bulkCreate(listSubscribers)
-                                    .then(() => {
-                                      createDripSubscribers(offset + limit);
-                                    });
-                                } else {
-                                  return;
+                        function createDripSubscribers(
+                          offset = 0,
+                          limit = 10000
+                        ) {
+                          db.listsubscribersrelation
+                            .findAll({
+                              where: {
+                                listId: valueFromValidation.listId
+                              },
+                              limit,
+                              offset,
+                              order: [["id", "ASC"]],
+                              raw: true
+                            })
+                            .then(listSubscriberIds => {
+                              const subscriberIds = listSubscriberIds.map(
+                                list => {
+                                  return list.listsubscriberId;
                                 }
-                              });
-                          });
-                      }
-                      createDripSubscribers(); // Start creating CampaignSubscribers
-                    })
-                    .catch(err => {
-                      throw err;
-                    });
-                }
-                body.deleted_sequence_ids.map(id => {
-                  deleteSequence(id);
+                              );
+                              db.listsubscriber
+                                .findAll({
+                                  where: {
+                                    id: subscriberIds
+                                  },
+                                  attributes: [
+                                    ["id", "listsubscriberId"],
+                                    "email"
+                                  ], // Nested array used to rename id to listsubscriberId
+                                  order: [["id", "ASC"]],
+                                  raw: true
+                                })
+                                .then(listSubscribers => {
+                                  if (listSubscribers.length) {
+                                    // If length is 0 then there are no more ListSubscribers, so we can cleanup
+                                    //totalCampaignSubscribersProcessed += listSubscribers.length;
+                                    listSubscribers = listSubscribers.map(
+                                      listSubscriber => {
+                                        listSubscriber.campaignId = null;
+                                        listSubscriber.dripId = req.body.id;
+                                        return listSubscriber;
+                                      }
+                                    );
+                                    db.campaignsubscriber
+                                      .bulkCreate(listSubscribers)
+                                      .then(() => {
+                                        createDripSubscribers(offset + limit);
+                                      });
+                                  } else {
+                                    return;
+                                  }
+                                });
+                            });
+                        }
+                        createDripSubscribers(); // Start creating CampaignSubscribers
+                      })
+                      .catch(err => {
+                        throw err;
+                      });
+                  }
+                  body.deleted_sequence_ids.map(id => {
+                    deleteSequence(id);
+                  });
+                  createUpdateDripSequences(req.body.id, "update");
                 });
-                createUpdateDripSequences(req.body.id, "update");
               } else {
                 res.status(400).send();
               }
@@ -189,10 +200,15 @@ module.exports = (req, res, io) => {
           .then(
             instance => {
               const dripId = instance.dataValues.id;
-              res.send({
-                dripId: dripId,
-                message:
-                  "Drips is being created - it will be ready to send soon."
+              getListSubscribres(
+                valueFromValidation.listId
+              ).then(subscribers => {
+                res.send({
+                  dripId: dripId,
+                  listSubscribers: subscribers.length,
+                  message:
+                    "Drips is being created - it will be ready to send soon."
+                });
               });
               db.campaignanalytics.create({ dripId }).then(() => {
                 function createDripSubscribers(offset = 0, limit = 10000) {
@@ -432,6 +448,14 @@ module.exports = (req, res, io) => {
         dripId: dripId
       },
       raw: true
+    });
+  };
+
+  getListSubscribres = listId => {
+    return db.listsubscribersrelation.findAll({
+      where: {
+        listId: listId
+      }
     });
   };
 };

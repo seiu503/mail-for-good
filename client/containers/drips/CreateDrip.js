@@ -27,7 +27,8 @@ function mapStateToProps(state) {
     dripId: state.createDrip.dripId,
     isDripSubmited: state.submitDrip.isDripSubmited,
     drips: state.manageDrip.drips,
-    dripsequences: state.manageDrip.dripsequences
+    dripsequences: state.manageDrip.dripsequences,
+    listSubscribers: state.createDrip.listSubscribers
   };
 }
 
@@ -83,6 +84,7 @@ export class CreateDripComponent extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleKeypress = this.handleKeypress.bind(this);
     this.changeInputes = this.changeInputes.bind(this);
+    this.dripStartConfirmation = this.dripStartConfirmation.bind(this);
   }
 
   state = {
@@ -102,7 +104,8 @@ export class CreateDripComponent extends Component {
     sequencedayError: [],
     listId: 0,
     lastAddedSequenceId: 0,
-    deletedSequences: []
+    deletedSequences: [],
+    showStartDripModal: false
   };
   componentDidMount() {
     this.props.getDripSequences(0);
@@ -474,6 +477,10 @@ export class CreateDripComponent extends Component {
         } */
   }
 
+  dripStartConfirmation(is_show) {
+    this.setState({ showStartDripModal: is_show == 1 ? true : false });
+  }
+
   render() {
     const { lists, templates, isGetting, form, dripsequences } = this.props;
     const {
@@ -522,6 +529,9 @@ export class CreateDripComponent extends Component {
                   previewForm={previewForm}
                   lastPage={this.lastPage}
                   handleSubmit={this.handleSubmit}
+                  showStartDripModal={this.state.showStartDripModal}
+                  dripStartConfirmation={this.dripStartConfirmation}
+                  listSubscribers={this.props.listSubscribers}
                 />
               )}
             </div>

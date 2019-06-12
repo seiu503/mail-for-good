@@ -23,7 +23,8 @@ export function createDrip(state = initialState.createDrip, action) {
         ...state,
         isPosting: false,
         sendDripStatus: action.sendDripStatus,
-        dripId: action.dripId
+        dripId: action.dripId,
+        listSubscribers: action.listSubscribers
       };
     }
     default:

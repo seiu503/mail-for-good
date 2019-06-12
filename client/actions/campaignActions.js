@@ -173,11 +173,12 @@ export function completeStopSending() {
 export function requestPostDrip() {
   return { type: REQUEST_POST_CREATEDRIP };
 }
-export function completePostDrip(sendDripStatus, dripId) {
+export function completePostDrip(sendDripStatus, response) {
   return {
     type: COMPLETE_POST_CREATEDRIP,
     sendDripStatus: sendDripStatus,
-    dripId: dripId
+    dripId: response.dripId,
+    listSubscribers: response.listSubscribers
   };
 }
 export function requestSubmitDrip() {
@@ -318,7 +319,7 @@ export function postCreateDrip(form) {
     xhr.open("POST", API_POST_DRIP_ENDPOINT);
     xhr.onload = () => {
       let response = JSON.parse(xhr.responseText);
-      dispatch(completePostDrip(xhr.status, response.dripId));
+      dispatch(completePostDrip(xhr.status, response));
       //dispatch(prepareDripSequence(response));
     };
     xhr.setRequestHeader("Content-Type", "application/json");
