@@ -16,7 +16,7 @@
     "check-env-file": "python ./tools/setup/initial_setup.py",
     "client:lint": "esw webpack.config.* client tools --color",
     "client:clean-dist": "npm run client:remove-dist && mkdir dist",
-    "start": "NODE_ENV=development npm-run-all --parallel start:*",
+    "start": "NODE_ENV=production npm-run-all --parallel start:*",
     "start:main": "nodemon server/index.js",
     "start:consumer": "node server/feedback-consumer/consumer.js",
     "production":

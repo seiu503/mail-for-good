@@ -42,7 +42,7 @@ module.exports = (req, res, io, redis) => {
       ],
       where: {
         send_at: {
-          $gte: from_date,
+          //$gte: from_date,
           $lte: to_date
         },
         is_sent: false
