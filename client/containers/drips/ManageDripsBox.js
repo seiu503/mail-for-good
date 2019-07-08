@@ -109,7 +109,7 @@ export class ManageDripsBoxComponent extends Component {
                 //send request to copy Drips
                 this.props.postCreateDripCopy(JSON.stringify(drips));
                 this.props.notify({
-                    message: 'Your drip(s) copied successfully',
+                    message: 'Your drip(s) copied successfully and saved as drafts',
                     colour: 'green'
                 });
                 this.setState({ selected: [] });

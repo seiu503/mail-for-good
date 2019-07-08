@@ -48,7 +48,7 @@ export class NotificationsComponent extends Component {
       return prev.concat({
         ...notification,
         key: `stack${i}`,
-        action: 'Dismiss',
+        action: 'X',
         onClick: () => {
           this.props.consume.bind(this)();
         },

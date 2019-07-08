@@ -43,6 +43,7 @@ module.exports = (req, res, io) => {
           //update campaign start here
           db.campaign.update({
             name: req.body.campaignName, // Repeating these fields to make it clear that this property marks the new row's fields
+            showScheduleDate:req.body. ScheduleCampaign,
             fromName: req.body.fromName,
             fromEmail: req.body.fromEmail,
             emailSubject: req.body.emailSubject,
@@ -180,6 +181,7 @@ module.exports = (req, res, io) => {
             },
             defaults: {
               name: req.body.campaignName, // Repeating these fields to make it clear that this property marks the new row's fields
+              showScheduleDate: req.body. ScheduleCampaign,
               fromName: req.body.fromName,
               fromEmail: req.body.fromEmail,
               emailSubject: req.body.emailSubject,

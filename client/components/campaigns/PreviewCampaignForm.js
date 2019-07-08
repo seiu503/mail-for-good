@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
 import DOMPurify from 'dompurify';
+import moment from 'moment';
+
 import { Modal, Button } from 'react-bootstrap';
 const PreviewCampaignForm = props => {
   const { handleSubmit, lastPage, testEmail, handleChange, showTestSendModal, openTestSendModal, closeTestSendModal, sendTestEmail, showScheduleDate } = props;
@@ -27,7 +29,9 @@ const PreviewCampaignForm = props => {
         name: '',
         fromName: '',
         emailSubject: '',
-        emailBody: ''
+        emailBody: '',
+        showScheduleDate: '',
+        scheduledatetime:''
       };
       type = '';
       text = '';
@@ -43,13 +47,16 @@ const PreviewCampaignForm = props => {
     <div>
       {form.listName && <h3><i className="fa fa-list text-green" aria-hidden="true" /> - {form.listName}</h3>}
       <h3><i className="fa fa-flag text-green" aria-hidden="true" /> - {form.campaignName || form.name}</h3>
+     
 
       <hr />
 
       <h4><strong>From: {`${form.fromName} <${form.fromEmail}>`}</strong></h4>
+      <h4><strong>ScheduleDate: {`${form.scheduledatetime.format('l, h:mm:ss')}`}</strong></h4>
       <h4><strong>Subject: {`${form.emailSubject}`}</strong></h4>
       {type === 'HTML' || type === 'HTMLEditor'
       ?
+      
 
       <blockquote>
         <div dangerouslySetInnerHTML={{ __html: text }} />
@@ -104,7 +111,8 @@ PreviewCampaignForm.propTypes = {
   closeTestSendModal: PropTypes.func,
   sendTestEmail: PropTypes.func,
   handleChange: PropTypes.func,
-  showScheduleDate: PropTypes.bool
+  showScheduleDate: PropTypes.bool,
+  
 };
 
 export default PreviewCampaignForm;

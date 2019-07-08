@@ -50,7 +50,8 @@ const CreateCampaignForm = props => {
     "trackingPixelEnabled",
     "trackLinksEnabled",
     "unsubscribeLinkEnabled",
-    "scheduleDateEnabled"
+    "scheduleDateEnabled",
+   
   ]; // A list of all fields that need to show errors/warnings
 
   const resetFormAndSubmit = e => {
@@ -77,6 +78,7 @@ const CreateCampaignForm = props => {
 
   return (
     <div>
+
       <h3>Apply template</h3>
       <Combobox
         id="templates"
@@ -85,9 +87,12 @@ const CreateCampaignForm = props => {
         onSelect={value => applyForm(value)}
         filter="contains"
       />
+    
       <br />
 
+
       <form onSubmit={resetFormAndSubmit}>
+   
         <div style={{ display: "none" }}>
           <Field name="id" component={renderField} label="id" type="text" />
         </div>
@@ -100,18 +105,21 @@ const CreateCampaignForm = props => {
 
         <h3>Campaign details</h3>
         {/* TODO: This needs to be validated via regex. Doesn't need to be a slug but must resolve to a unique slug so there's no possibility of conflict. */}
+
         <Field
           name="campaignName"
           component={renderField}
           label="Campaign Name*"
           type="text"
         />
+      
         <Field
           name="fromName"
           component={renderField}
           label="From Name*"
           type="text"
         />
+      
         <Field
           name="fromEmail"
           component={renderField}
@@ -149,6 +157,7 @@ const CreateCampaignForm = props => {
         {/* <div><label><Field name="unsubscribeLinkEnabled" component="input" type="checkbox" /> Add unsubscribe link</label></div> */}
         <div>
           <label>
+            
             <Field
               name="scheduleDateEnabled"
               component="input"
@@ -161,6 +170,7 @@ const CreateCampaignForm = props => {
         <hr />
         {showScheduleDate && (
           <div>
+           
             <Field
               hidden={showScheduleDate}
               name="scheduledatetime"
@@ -170,7 +180,8 @@ const CreateCampaignForm = props => {
               type="text"
             />
             <hr />
-          </div>
+            </div>
+          
         )}
 
         <h3>Create email</h3>
@@ -179,12 +190,15 @@ const CreateCampaignForm = props => {
           component={renderEditorTypeRadio}
           label="Type of email"
         />
+        
         <Field
           name="emailSubject"
           component={renderField}
           label="Subject*"
           type="text"
         />
+
+          
         <div hidden={true}>
           <Field
             name="emailBodyDesign"
@@ -194,6 +208,7 @@ const CreateCampaignForm = props => {
           />
         </div>
         {/* We only want to render the textEditor that we are using, and we maintain state for each */}
+       
         <Field
           name={`emailBody${textEditorType}`}
           emailBody={`emailBody${textEditorType}`}
@@ -201,6 +216,7 @@ const CreateCampaignForm = props => {
           label="Write Email*"
           textEditorType={textEditorType}
         />
+        
         <br />
         <div hidden={true} id="inputtext" />
         <div className="box-footer">

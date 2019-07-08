@@ -120,7 +120,7 @@ export class ManageCampaignsBoxComponent extends Component {
           //send request to copy campaigns          
           this.props.postCreateCampaignCopy(JSON.stringify(campaigns));
           this.props.notify({
-            message: 'Your campaign(s) copied successfully',
+            message: 'Your campaign(s) copied successfully and saved as drafts',
             colour: 'green'
           });
           this.setState({ selected: [] });

@@ -16,7 +16,7 @@ describe('(Reducer/Action Creator) notification', () => {
     const mockNotification = { message: 'something1', colour: 'something2'};
     const mockStackElement = {
       message: mockNotification.message,
-      dismissAfter: 20000,
+      dismissAfter: 3000,
       isActive: true,
       activeBarStyle: {
         background: 'crimson',

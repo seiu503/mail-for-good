@@ -379,6 +379,7 @@ export class CreateCampaignComponent extends Component {
         <section className="content">
           <div className="box box-primary">
             <div className="box-body">
+            
               {page === 1 &&
                 <CreateCampaignForm
                   passResetToState={this.passResetToState}

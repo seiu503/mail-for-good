@@ -79,7 +79,7 @@ export class ManageTemplatesComponent extends Component {
           //send request to copy templates
           this.props.postCreateTemplateCopy(JSON.stringify(templates));
           this.props.notify({
-            message: 'Your template(s) copied successfully',
+            message: 'Your template(s) copied successfully and saved as drafts',
             colour: 'green'
           });
           this.setState({ selected: [] });
